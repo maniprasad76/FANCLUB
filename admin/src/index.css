@@ -1,0 +1,327 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Outfit:wght@400;500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap');
+
+/* ============================================
+   TFI ADMIN — BAUHAUS CONSTRUCTIVIST DESIGN
+   Matching the frontend design system exactly.
+   Multi-font typography for visual hierarchy.
+   ============================================ */
+
+:root {
+  /* Core palette — Bauhaus Canvas */
+  --bg-primary: #F0F0F0;
+  --bg-secondary: #E8E8E8;
+  --bg-tertiary: #D8D8D8;
+  --bg-card: #FFFFFF;
+  --bg-glass: rgba(0, 0, 0, 0.03);
+  --bg-glass-hover: rgba(0, 0, 0, 0.06);
+
+  /* Bauhaus Primaries */
+  --bauhaus-red: #D02020;
+  --bauhaus-blue: #1040C0;
+  --bauhaus-yellow: #F0C020;
+  --bauhaus-black: #121212;
+  --bauhaus-white: #FFFFFF;
+
+  /* Legacy accent mappings (for components) */
+  --accent-violet: #1040C0;
+  --accent-cyan: #1040C0;
+  --accent-amber: #F0C020;
+  --accent-rose: #D02020;
+  --accent-emerald: #2E7D32;
+  --accent-blue: #1040C0;
+
+  /* Text — Ink on Canvas */
+  --text-primary: #121212;
+  --text-secondary: #444444;
+  --text-muted: #777777;
+  --text-accent: var(--bauhaus-red);
+
+  /* Borders — Thick, Black, Deliberate */
+  --border-subtle: #121212;
+  --border-glass: #121212;
+  --border-accent: #121212;
+
+  /* Shadows — Hard Offset, No Blur */
+  --shadow-sm: 3px 3px 0px 0px #121212;
+  --shadow-md: 5px 5px 0px 0px #121212;
+  --shadow-lg: 8px 8px 0px 0px #121212;
+
+  /* ── TYPOGRAPHY SYSTEM ── */
+  --font-display: 'Space Grotesk', 'Outfit', sans-serif;
+  --font-body: 'Inter', 'Outfit', sans-serif;
+  --font-accent: 'Outfit', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --font-editorial: 'Playfair Display', 'Georgia', serif;
+
+  /* Layout */
+  --sidebar-width: 260px;
+  --header-height: 64px;
+
+  /* Transitions — Mechanical, Snappy */
+  --transition-fast: 0.15s ease-out;
+  --transition-base: 0.2s ease-out;
+
+  /* Radius — Binary: Square or Circle */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-full: 9999px;
+}
+
+/* ============================================
+   RESET & BASE
+   ============================================ */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: 500;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Dot grid texture — Bauhaus paper feel */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.08;
+  background-image: radial-gradient(#121212 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+  color: inherit;
+}
+
+input, select, textarea {
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  outline: none;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bauhaus-black);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bauhaus-red);
+}
+
+/* ============================================
+   GLASS — Now a Bauhaus Card
+   ============================================ */
+.glass {
+  background: var(--bauhaus-white);
+  border: 2px solid var(--bauhaus-black);
+  border-radius: 0;
+  box-shadow: var(--shadow-md);
+}
+
+/* ============================================
+   BUTTONS — Constructivist Press
+   ============================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 0;
+  font-family: var(--font-accent);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+  border: 2px solid var(--bauhaus-black);
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--bauhaus-red);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover {
+  opacity: 0.9;
+}
+.btn-primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background: var(--bauhaus-white);
+  color: var(--bauhaus-black);
+  border: 2px solid var(--bauhaus-black);
+  box-shadow: var(--shadow-sm);
+}
+.btn-secondary:hover {
+  background: var(--bauhaus-yellow);
+}
+.btn-secondary:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.btn-danger {
+  background: var(--bauhaus-red);
+  color: white;
+  border: 2px solid var(--bauhaus-black);
+  box-shadow: var(--shadow-sm);
+}
+.btn-danger:hover {
+  opacity: 0.85;
+}
+.btn-danger:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   INPUTS — Thick borders, Bauhaus
+   ============================================ */
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bauhaus-white);
+  border: 2px solid var(--bauhaus-black);
+  border-radius: 0;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+.input:focus {
+  box-shadow: var(--shadow-sm);
+}
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+/* ============================================
+   BADGES — Hard borders
+   ============================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 2px solid var(--bauhaus-black);
+}
+
+.badge-success {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.badge-warning {
+  background: var(--bauhaus-yellow);
+  color: var(--bauhaus-black);
+}
+
+.badge-danger {
+  background: #FFEBEE;
+  color: var(--bauhaus-red);
+}
+
+.badge-info {
+  background: #E3F2FD;
+  color: var(--bauhaus-blue);
+}
+
+/* ============================================
+   TEXT GRADIENT — Bauhaus Solid Red
+   ============================================ */
+.text-gradient {
+  color: var(--bauhaus-red);
+  font-style: normal;
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-out forwards;
+}

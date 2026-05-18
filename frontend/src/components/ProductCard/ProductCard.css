@@ -1,0 +1,270 @@
+/* ============================================
+   MODERN PRODUCT CARD (Nike Style)
+   ============================================ */
+
+.modern-product-card {
+  background: white;
+  border-radius: 24px;
+  padding: 12px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+}
+
+.modern-product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+.mpc-link-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+}
+
+.mpc-image-container {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  width: 100%;
+  background: #f8f8f8;
+}
+
+.mpc-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.modern-product-card:hover .mpc-image {
+  transform: scale(1.03);
+}
+
+.mpc-badges-top {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.mpc-badge-glass {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 6px 14px;
+  border-radius: 20px;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  letter-spacing: 0.2px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mpc-brand-box {
+  padding: 3px 6px;
+  background: white;
+  border: 2px solid #1040C0;
+  box-shadow: 3px 3px 0px 0px #F0C020;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mpc-brand-box span {
+  font-weight: 900;
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  color: #D02020;
+  font-family: var(--font-display, sans-serif);
+  line-height: 1;
+}
+
+.mpc-dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 2;
+}
+
+.mpc-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transition: background 0.3s;
+}
+
+.mpc-dot.active {
+  background: white;
+}
+
+.mpc-info {
+  padding: 0 4px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-grow: 1;
+}
+
+.mpc-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  color: #111;
+  line-height: 1.2;
+}
+
+.mpc-subtitle {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #888;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.mpc-desc {
+  font-size: 0.88rem;
+  color: #aaa;
+  margin: 4px 0 16px;
+  line-height: 1.4;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mpc-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.mpc-price-pill {
+  background: #f2f2f2;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #111;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+.mpc-buy-btn {
+  background: #111;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 6px 6px 18px;
+  border-radius: 24px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.mpc-buy-btn:hover {
+  background: #333;
+}
+
+.mpc-buy-btn:active {
+  transform: scale(0.96);
+}
+
+.mpc-buy-icon {
+  width: 26px;
+  height: 26px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .modern-product-card {
+    padding: 10px;
+    border-radius: 20px;
+  }
+  .mpc-link-wrapper {
+    gap: 12px;
+  }
+  .mpc-title { font-size: 1rem; }
+  .mpc-subtitle { font-size: 0.85rem; }
+  .mpc-desc { font-size: 0.8rem; margin-bottom: 12px; }
+  .mpc-price-pill { padding: 6px 12px; font-size: 0.85rem; }
+  .mpc-buy-btn { padding: 4px 4px 4px 12px; font-size: 0.85rem; gap: 6px; }
+  .mpc-buy-icon { width: 22px; height: 22px; }
+  .mpc-buy-icon svg { width: 10px; height: 10px; }
+  .mpc-badge-glass { padding: 4px 10px; font-size: 0.7rem; }
+}
+
+@media (max-width: 480px) {
+  .modern-product-card {
+    padding: 6px;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  }
+  .mpc-image-container {
+    border-radius: 12px;
+  }
+  .mpc-link-wrapper {
+    gap: 8px;
+  }
+  .mpc-info {
+    padding: 0 2px 2px;
+    gap: 2px;
+  }
+  .mpc-title { font-size: 0.88rem; }
+  .mpc-subtitle { font-size: 0.75rem; display: none; }
+  .mpc-desc { display: none; }
+  .mpc-bottom-row {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+  .mpc-price-pill {
+    text-align: center;
+    padding: 6px 10px;
+    font-size: 0.82rem;
+  }
+  .mpc-buy-btn {
+    justify-content: center;
+    padding: 6px 12px;
+    font-size: 0.78rem;
+    border-radius: 20px;
+  }
+  .mpc-brand-box {
+    padding: 2px 4px;
+  }
+  .mpc-brand-box span {
+    font-size: 0.5rem;
+  }
+  .mpc-badge-glass {
+    padding: 3px 8px;
+    font-size: 0.65rem;
+  }
+}

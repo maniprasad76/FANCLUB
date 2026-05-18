@@ -1,0 +1,23 @@
+.auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: var(--nav-height) var(--container-padding) 40px; }
+.auth-card { padding: 40px; width: 100%; max-width: 440px; background: var(--bg-card); border: 2px solid var(--bauhaus-black); box-shadow: var(--shadow-lg); }
+.auth-header { text-align: center; margin-bottom: 28px; }
+.auth-logo { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; border: 2px solid var(--bauhaus-black); }
+.auth-title { margin-bottom: 8px; }
+.auth-form { display: flex; flex-direction: column; gap: 18px; }
+.auth-error { padding: 12px 16px; border-radius: 0; background: rgba(208, 32, 32, 0.08); border: 2px solid var(--bauhaus-red); color: var(--bauhaus-red); font-size: 0.85rem; margin-bottom: 8px; }
+.auth-switch { text-align: center; margin-top: 20px; color: var(--text-muted); font-size: 0.9rem; }
+.auth-switch a { color: var(--bauhaus-blue); font-weight: 600; }
+.social-login-container { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+.btn-social { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; border: 2px solid var(--bauhaus-black); background: var(--bg-primary); padding: 12px; border-radius: 0; color: var(--text-primary); font-weight: 600; transition: all 0.2s ease; cursor: pointer; }
+.btn-social:hover { background: var(--bauhaus-yellow); }
+.auth-divider { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; margin: 16px 0; letter-spacing: 1px;}
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-subtle); }
+.auth-divider:not(:empty)::before { margin-right: .75em; }
+.auth-divider:not(:empty)::after { margin-left: .75em; }
+
+@media (max-width: 480px) {
+  .auth-card { padding: 24px 20px; box-shadow: var(--shadow-md); }
+  .auth-page { padding: var(--nav-height) 12px calc(var(--safe-bottom) + 20px); }
+  .auth-logo { width: 48px; height: 48px; }
+}
+

@@ -1,0 +1,319 @@
+/* ============================================
+   ADMIN LAYOUT — BAUHAUS CONSTRUCTIVIST
+   ============================================ */
+
+/* Layout Grid */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ============================================
+   SIDEBAR
+   ============================================ */
+.admin-sidebar {
+  width: var(--sidebar-width);
+  background: var(--bauhaus-white);
+  border-right: 3px solid var(--bauhaus-black);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  border-bottom: 3px solid var(--bauhaus-black);
+}
+
+.sidebar-brand-text {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all var(--transition-fast);
+  border: 2px solid transparent;
+}
+
+.sidebar-link:hover {
+  background: var(--bg-glass);
+  color: var(--text-primary);
+  border-color: var(--bauhaus-black);
+}
+
+.sidebar-link.active {
+  background: var(--bauhaus-yellow);
+  color: var(--bauhaus-black);
+  border-color: var(--bauhaus-black);
+  box-shadow: 3px 3px 0px 0px var(--bauhaus-black);
+}
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 3px solid var(--bauhaus-black);
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  margin-bottom: 8px;
+}
+
+.sidebar-user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 0;
+  background: var(--bauhaus-red);
+  border: 2px solid var(--bauhaus-black);
+  box-shadow: 2px 2px 0px 0px var(--bauhaus-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.9rem;
+  color: white;
+  text-transform: uppercase;
+}
+
+/* ============================================
+   MAIN CONTENT AREA
+   ============================================ */
+.admin-main {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  padding: 28px 32px;
+}
+
+/* ============================================
+   PAGE HEADER
+   ============================================ */
+.page-header {
+  margin-bottom: 28px;
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.page-subtitle {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 4px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ============================================
+   STATS GRID — Hard Bauhaus Cards
+   ============================================ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  padding: 20px;
+  border-radius: 0;
+  background: var(--bauhaus-white);
+  border: 2px solid var(--bauhaus-black);
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast);
+}
+
+.stat-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0px 0px var(--bauhaus-black);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 900;
+}
+
+/* ============================================
+   DATA TABLE — Constructivist Grid
+   ============================================ */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.data-table th {
+  text-align: left;
+  padding: 14px 16px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--bauhaus-white);
+  background: var(--bauhaus-black);
+  font-weight: 700;
+  border-bottom: none;
+}
+
+.data-table th:first-child {
+  border-left: none;
+}
+
+.data-table td {
+  padding: 14px 16px;
+  border-bottom: 2px solid var(--bauhaus-black);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover td {
+  background: var(--bauhaus-yellow);
+  transition: background var(--transition-fast);
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================
+   MOBILE HEADER & BACKDROP
+   ============================================ */
+.mobile-admin-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--bauhaus-white);
+  border-bottom: 3px solid var(--bauhaus-black);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+}
+
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--bauhaus-red);
+  background: transparent;
+  border: 3px solid var(--bauhaus-blue);
+  box-shadow: 3px 3px 0px 0px var(--bauhaus-yellow);
+  padding: 0px 8px;
+  height: 32px;
+}
+
+.hamburger-btn {
+  background: var(--bauhaus-black);
+  color: var(--bauhaus-white);
+  border: 2px solid var(--bauhaus-black);
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 18, 18, 0.6);
+  z-index: 95;
+  backdrop-filter: blur(2px);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+  .mobile-admin-header {
+    display: flex;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+  }
+
+  .admin-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+  }
+
+  .admin-sidebar.open {
+    transform: translateX(0);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .admin-main {
+    margin-left: 0;
+    padding: 80px 16px 20px; /* Account for fixed mobile header */
+  }
+
+  .hide-on-mobile {
+    display: none;
+  }
+
+  .sidebar-user {
+    justify-content: flex-start;
+  }
+
+  .sidebar-user-info {
+    display: block;
+  }
+}

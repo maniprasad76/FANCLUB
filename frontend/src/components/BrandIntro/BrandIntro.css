@@ -1,0 +1,123 @@
+.brand-intro-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--bauhaus-white, #f4f4f0);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.bauhaus-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 1400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* NEW Shapes */
+.bauhaus-triangle-blue {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 50vw solid transparent;
+  border-right: 50vw solid transparent;
+  border-bottom: 70vh solid var(--bauhaus-blue, #0055ff);
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.bauhaus-semi-circle-red {
+  position: absolute;
+  width: 40vmin;
+  height: 20vmin;
+  background-color: var(--bauhaus-red, #e62222);
+  border-top-left-radius: 40vmin;
+  border-top-right-radius: 40vmin;
+  bottom: 10%;
+  right: 15%;
+  z-index: 2;
+  transform-origin: bottom center;
+}
+
+.bauhaus-quarter-circle-yellow {
+  position: absolute;
+  width: 35vmin;
+  height: 35vmin;
+  background-color: var(--bauhaus-yellow, #ffcc00);
+  border-bottom-right-radius: 100%;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+
+/* Architectural Grid Lines */
+.bauhaus-grid-line {
+  position: absolute;
+  background-color: var(--bauhaus-black, #111111);
+  z-index: 3;
+}
+
+.gl-1 {
+  width: 8px;
+  height: 100%;
+  left: 20%;
+  top: 0;
+  transform-origin: top;
+}
+
+.gl-2 {
+  width: 100%;
+  height: 8px;
+  top: 75%;
+  left: 0;
+  transform-origin: left;
+}
+
+/* Typography */
+.bauhaus-text-group {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background-color: var(--bauhaus-white, #f4f4f0);
+  padding: 2rem 3rem;
+  border: 6px solid var(--bauhaus-black, #111111);
+  box-shadow: -16px 16px 0px var(--bauhaus-yellow, #ffcc00);
+  mix-blend-mode: normal;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.bauhaus-title {
+  font-family: var(--font-display, 'Arial Black', sans-serif);
+  font-size: clamp(4rem, 10vw, 8rem);
+  font-weight: 900;
+  line-height: 0.9;
+  color: var(--bauhaus-black, #111111);
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.bauhaus-subtitle {
+  font-family: var(--font-accent, 'Inter', sans-serif);
+  font-size: clamp(0.9rem, 2.5vw, 1.4rem);
+  font-weight: 800;
+  color: var(--bauhaus-red, #e62222);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 6px;
+}

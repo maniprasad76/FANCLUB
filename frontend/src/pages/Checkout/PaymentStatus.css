@@ -1,0 +1,149 @@
+/* ============================================
+   PAYMENT STATUS PAGE — Bauhaus Constructivist
+   ============================================ */
+
+.payment-status-page {
+  padding-top: calc(var(--nav-height) + 48px);
+  padding-bottom: 80px;
+  min-height: calc(100vh - var(--nav-height));
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.payment-status-card {
+  max-width: 560px;
+  width: 100%;
+  padding: 48px 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.status-icon-wrapper {
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--bauhaus-black);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 8px;
+}
+
+.status-title {
+  font-size: clamp(1.4rem, 5vw, 2rem) !important;
+  margin-bottom: 0;
+}
+
+.status-description {
+  font-family: var(--font-body);
+  color: var(--text-secondary);
+  max-width: 420px;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.status-order-details {
+  width: 100%;
+  border: 2px solid var(--bauhaus-black);
+  padding: 0;
+  margin-top: 8px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  font-size: 0.9rem;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row span:first-child {
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.8rem;
+}
+
+.gateway-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 2px solid var(--bauhaus-black);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.gateway-badge.razorpay {
+  background: #E3F2FD;
+  color: #1040C0;
+}
+
+.gateway-badge.stripe {
+  background: #F3E5F5;
+  color: #6A1B9A;
+}
+
+.status-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+  margin-top: 12px;
+}
+
+.status-actions .btn {
+  width: 100%;
+}
+
+.payment-status-secure {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 8px;
+}
+
+/* Spin animation for loader */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .payment-status-card {
+    padding: 32px 20px;
+  }
+
+  .status-icon-wrapper {
+    width: 72px;
+    height: 72px;
+  }
+
+  .status-icon-wrapper svg {
+    width: 36px;
+    height: 36px;
+  }
+}

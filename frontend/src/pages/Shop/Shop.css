@@ -1,0 +1,80 @@
+.shop-page {
+  padding-top: calc(var(--nav-height) + 32px);
+  min-height: 100vh;
+}
+
+.shop-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 22px;
+  background: rgba(16, 64, 192, 0.04);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.shop-header-copy {
+  min-width: 220px;
+}
+
+.shop-controls { display: flex; align-items: center; gap: 8px; }
+.shop-sort { width: 200px; padding: 10px 14px; font-size: 0.85rem; }
+.shop-controls .btn-icon.active {
+  border-color: var(--bauhaus-blue);
+  box-shadow: 0 0 0 2px rgba(16, 64, 192, 0.22);
+}
+
+.filter-toggle { display: none; }
+.shop-layout { display: grid; grid-template-columns: 260px 1fr; gap: 32px; }
+.shop-sidebar {
+  padding: 24px;
+  position: sticky;
+  top: calc(var(--nav-height) + 16px);
+  height: fit-content;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--border-subtle);
+}
+
+.sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.sidebar-close { display: none; }
+.filter-group { margin-bottom: 24px; }
+.filter-title { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-secondary); margin-bottom: 12px; }
+.filter-chip { display: block; width: 100%; text-align: left; padding: 10px 14px; margin-bottom: 4px; border-radius: var(--radius-sm); font-size: 0.9rem; color: var(--text-secondary); transition: all var(--transition-fast); background: none; border: none; cursor: pointer; }
+.filter-chip:hover { background: var(--bg-glass); color: var(--text-primary); }
+.filter-chip.active { background: rgba(16, 64, 192, 0.08); color: var(--bauhaus-blue); border-left: 3px solid var(--bauhaus-blue); }
+.shop-empty { text-align: center; padding: 80px 20px; background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--border-glass); border-radius: var(--radius-lg); }
+
+.shop-product-item {
+  transform-style: preserve-3d;
+}
+
+.pagination { display: flex; gap: 8px; justify-content: center; margin-top: 48px; }
+.product-list { display: flex; flex-direction: column; gap: 16px; }
+
+@media (max-width: 768px) {
+  .shop-layout { grid-template-columns: 1fr; }
+  .shop-sidebar { 
+    display: none; 
+    position: fixed; 
+    top: 0; left: 0; right: 0; bottom: 0; 
+    z-index: 1001; 
+    border-radius: 0;
+    background: var(--bg-primary);
+    overflow-y: auto;
+    padding-top: calc(var(--nav-height) + 16px);
+  }
+  .shop-sidebar.open { display: block; }
+  .sidebar-close { display: flex; }
+  .filter-toggle { display: flex; }
+  .shop-sort { width: 100%; max-width: 200px; }
+  .shop-header { padding: 16px; }
+  .shop-controls { flex-wrap: wrap; }
+}
+
+@media (max-width: 480px) {
+  .shop-sort { max-width: 100%; width: 100%; }
+  .shop-header-copy { min-width: auto; width: 100%; }
+}

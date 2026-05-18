@@ -1,0 +1,696 @@
+/* Google Fonts loaded via <link> in index.html for optimal performance */
+
+/* ============================================
+   TFI — BAUHAUS CONSTRUCTIVIST DESIGN SYSTEM
+   Form follows function. Geometric purity.
+   Multi-font typography for visual hierarchy.
+   ============================================ */
+
+:root {
+  /* Core palette — Bauhaus Canvas */
+  --bg-primary: #F0F0F0;
+  --bg-secondary: #E0E0E0;
+  --bg-tertiary: #D0D0D0;
+  --bg-card: #FFFFFF;
+  --bg-glass: rgba(0, 0, 0, 0.03);
+  --bg-glass-hover: rgba(0, 0, 0, 0.06);
+
+  /* Bauhaus Primaries */
+  --bauhaus-red: #D02020;
+  --bauhaus-blue: #1040C0;
+  --bauhaus-yellow: #F0C020;
+  --bauhaus-black: #121212;
+  --bauhaus-white: #FFFFFF;
+
+  /* Legacy accent mappings */
+  --accent-teal: #1040C0;
+  --accent-amber: #F0C020;
+  --accent-gold: #D02020;
+  --accent-rose: #D02020;
+  --accent-emerald: #1040C0;
+
+  /* Gradients — NONE. Bauhaus is flat. Use solid fills. */
+  --gradient-primary: none;
+  --gradient-warm: none;
+  --gradient-hero: none;
+  --gradient-card: none;
+
+  /* Text — Ink on Canvas */
+  --text-primary: #121212;
+  --text-secondary: #444444;
+  --text-muted: #777777;
+  --text-accent: var(--bauhaus-red);
+
+  /* Borders — Thick, Black, Deliberate */
+  --border-subtle: #121212;
+  --border-glass: #121212;
+  --border-accent: #121212;
+
+  /* Shadows — Hard Offset, No Blur */
+  --shadow-sm: 3px 3px 0px 0px #121212;
+  --shadow-md: 6px 6px 0px 0px #121212;
+  --shadow-lg: 8px 8px 0px 0px #121212;
+  --shadow-glow: 4px 4px 0px 0px #121212;
+  --shadow-glow-amber: 4px 4px 0px 0px #121212;
+
+  /* ── TYPOGRAPHY SYSTEM ──────────────────────
+     5 fonts, each with a distinct purpose:
+     • display  → Bold hero headlines & page titles (Space Grotesk)
+     • body     → Readable paragraphs & descriptions (Inter)
+     • accent   → UI labels, nav, buttons, badges (Outfit)
+     • mono     → Prices, order numbers, data (JetBrains Mono)
+     • editorial→ Quotes, testimonials, about text (Playfair Display)
+     ──────────────────────────────────────────── */
+  --font-display: 'Space Grotesk', 'Outfit', sans-serif;
+  --font-body: 'Inter', 'Outfit', sans-serif;
+  --font-accent: 'Outfit', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --font-editorial: 'Playfair Display', 'Georgia', serif;
+
+  /* Spacing */
+  --nav-height: 72px;
+  --mobile-nav-height: 64px;
+  --safe-bottom: 0px; /* Updated on mobile to clear bottom nav */
+  --container-max: 1280px;
+  --container-padding: 24px;
+
+  /* Transitions — Mechanical, Snappy */
+  --transition-fast: 0.15s ease-out;
+  --transition-base: 0.2s ease-out;
+  --transition-slow: 0.3s ease-out;
+  --transition-spring: 0.3s ease-out;
+  --transition-cinematic: 0.3s ease-out;
+
+  /* Motion depth */
+  --depth-soft: 14px;
+  --depth-mid: 28px;
+  --depth-strong: 48px;
+
+  /* Radius — Binary: Square or Circle. No in-between. */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-full: 9999px;
+}
+
+/* ============================================
+   RESET & BASE
+   ============================================ */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  position: relative;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: 500;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+#root {
+  position: relative;
+}
+
+/* Dot grid texture overlay — Bauhaus paper feel */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.15;
+  background-image: radial-gradient(#121212 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: none;
+  color: inherit;
+}
+
+input, textarea, select {
+  font-family: var(--font-body);
+  outline: none;
+  border: none;
+  background: none;
+  color: var(--text-primary);
+}
+
+ul, ol {
+  list-style: none;
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bauhaus-black);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bauhaus-red);
+}
+
+/* ============================================
+   PAGE PADDING
+   ============================================ */
+.standard-page-padding {
+  padding-top: calc(var(--nav-height) + 16px);
+  min-height: calc(100vh - var(--nav-height));
+}
+
+/* ============================================
+   CONTAINER
+   ============================================ */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+/* ============================================
+   TYPOGRAPHY — Constructivist
+   ============================================ */
+.heading-xl {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 10vw, 7rem);
+  line-height: 0.9;
+  letter-spacing: -2px;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
+.heading-lg {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 8vw, 4rem);
+  line-height: 1;
+  letter-spacing: -1px;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
+.heading-md {
+  font-family: var(--font-accent);
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.heading-sm {
+  font-family: var(--font-accent);
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+/* Text-gradient becomes solid bold italic in Bauhaus — no gradients allowed */
+.text-gradient {
+  color: var(--bauhaus-red);
+  font-style: normal;
+}
+
+.text-muted {
+  color: var(--text-secondary);
+}
+
+/* ── Font Family Utilities ── */
+.font-display { font-family: var(--font-display); }
+.font-body { font-family: var(--font-body); }
+.font-accent { font-family: var(--font-accent); }
+
+.font-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
+}
+
+.font-editorial {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  letter-spacing: 0.3px;
+}
+
+/* Editorial blockquote — for testimonials, pull quotes */
+.editorial-quote {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-size: 1.35rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  border-left: 4px solid var(--bauhaus-red);
+  padding-left: 20px;
+  margin: 24px 0;
+}
+
+/* Price display — monospace for numerical precision */
+.price-display {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
+}
+
+/* Data labels — monospace for order numbers, tracking IDs */
+.data-label {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+/* Typographic Logo Styles */
+.logo-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--bauhaus-red);
+  background: transparent;
+  border: 3px solid var(--bauhaus-blue);
+  box-shadow: 4px 4px 0px 0px var(--bauhaus-yellow);
+  padding: 0px 8px;
+  height: 34px;
+  margin-right: 6px;
+}
+
+.logo-text-out {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--text-primary);
+  text-transform: uppercase;
+}
+
+/* ============================================
+   BUTTONS — Constructivist Press
+   ============================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 32px;
+  border-radius: 0;
+  font-family: var(--font-accent);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+  border: 2px solid var(--bauhaus-black);
+}
+
+.btn-primary {
+  background: var(--bauhaus-red);
+  color: white;
+  box-shadow: var(--shadow-glow);
+}
+.btn-primary:hover {
+  opacity: 0.9;
+}
+.btn-primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background: var(--bauhaus-blue);
+  color: white;
+  border: 2px solid var(--bauhaus-black);
+  box-shadow: var(--shadow-glow);
+}
+.btn-secondary:hover {
+  opacity: 0.9;
+}
+.btn-secondary:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.btn-outline {
+  background: var(--bauhaus-white);
+  color: var(--bauhaus-black);
+  border: 2px solid var(--bauhaus-black);
+  box-shadow: var(--shadow-glow);
+}
+.btn-outline:hover {
+  background: var(--bauhaus-yellow);
+}
+.btn-outline:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.btn-ghost {
+  color: var(--text-secondary);
+  border: none;
+}
+.btn-ghost:hover {
+  color: var(--text-primary);
+  background: var(--bg-glass);
+}
+
+.btn-lg {
+  padding: 16px 40px;
+  font-size: 0.95rem;
+}
+
+.btn-sm {
+  padding: 10px 24px;
+  font-size: 0.8rem;
+}
+
+.btn-icon {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+
+/* ============================================
+   CARDS — Thick Borders, Hard Shadows
+   ============================================ */
+.glass-card {
+  background: var(--bauhaus-white);
+  border: 2px solid var(--bauhaus-black);
+  border-radius: 0;
+  box-shadow: var(--shadow-lg);
+  transition: transform var(--transition-base);
+}
+.glass-card:hover {
+  transform: translateY(-4px);
+}
+
+/* ============================================
+   INPUTS
+   ============================================ */
+.input-field {
+  width: 100%;
+  padding: 14px 18px;
+  background: var(--bauhaus-white);
+  border: 2px solid var(--bauhaus-black);
+  border-radius: 0;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  transition: all var(--transition-fast);
+}
+.input-field:focus {
+  box-shadow: var(--shadow-sm);
+}
+.input-field::placeholder {
+  color: var(--text-muted);
+}
+
+.input-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ============================================
+   BADGES
+   ============================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 2px solid var(--bauhaus-black);
+}
+
+.badge-primary {
+  background: var(--bauhaus-red);
+  color: white;
+}
+
+.badge-success {
+  background: var(--bauhaus-blue);
+  color: white;
+}
+
+.badge-warning {
+  background: var(--bauhaus-yellow);
+  color: var(--bauhaus-black);
+}
+
+.badge-danger {
+  background: var(--bauhaus-red);
+  color: white;
+}
+
+/* ============================================
+   SECTION — Strong Horizontal Rhythm
+   ============================================ */
+.section {
+  padding: 80px 0;
+  position: relative;
+  border-bottom: 4px solid var(--bauhaus-black);
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.section-header .section-subtitle {
+  font-family: var(--font-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--bauhaus-red);
+  text-transform: uppercase;
+  letter-spacing: 6px;
+  margin-bottom: 12px;
+}
+
+.section-header .section-title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 900;
+  letter-spacing: -1px;
+  text-transform: uppercase;
+}
+
+.section-divider {
+  width: 80px;
+  height: 4px;
+  background: var(--bauhaus-black);
+  margin: 16px auto 0;
+  border-radius: 0;
+}
+
+/* ============================================
+   PRODUCT GRID
+   ============================================ */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  width: 100%;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 60px;
+}
+
+.cinematic-layer {
+  will-change: transform, opacity;
+}
+
+.cinematic-reveal {
+  opacity: 0;
+  transform: translate3d(0, var(--depth-mid), 0);
+  animation: cinematicReveal var(--transition-cinematic) forwards;
+}
+
+.cinematic-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.cinematic-panel::after {
+  display: none; /* No gradient border glow in Bauhaus */
+}
+
+/* ============================================
+   ANIMATIONS — Mechanical, Snappy
+   ============================================ */
+@keyframes cinematicReveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--depth-mid), 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.animate-cinematic {
+  animation: cinematicReveal var(--transition-cinematic) forwards;
+}
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-glass) 25%, var(--bg-glass-hover) 50%, var(--bg-glass) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 0;
+  border: 2px solid var(--bauhaus-black);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+  :root {
+    --container-padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --container-padding: 16px;
+    --nav-height: 64px;
+    --safe-bottom: var(--mobile-nav-height);
+  }
+
+  .section {
+    padding: 48px 0;
+    border-bottom-width: 2px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .btn-lg {
+    padding: 14px 28px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .section {
+    padding: 36px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

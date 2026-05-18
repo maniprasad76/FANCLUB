@@ -1,0 +1,29 @@
+.profile-page { padding-top: calc(var(--nav-height) + 32px); min-height: 100vh; }
+.profile-layout { display: grid; grid-template-columns: 300px 1fr; gap: 32px; margin-top: 32px; }
+.profile-card { padding: 32px; text-align: center; position: sticky; top: calc(var(--nav-height) + 16px); height: fit-content; }
+.profile-avatar { width: 80px; height: 80px; border-radius: var(--radius-full); background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; color: white; }
+.profile-form { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+.profile-form-actions { display: flex; gap: 8px; justify-content: center; }
+.profile-main { display: flex; flex-direction: column; gap: 24px; }
+.profile-section { padding: 24px; }
+.profile-section h3 { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.orders-list { display: flex; flex-direction: column; gap: 8px; }
+.order-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); transition: all var(--transition-fast); }
+.order-item:hover { border-color: var(--bauhaus-blue); background: rgba(16, 64, 192, 0.03); }
+.order-number { font-weight: 600; margin-right: 12px; }
+.order-date { font-size: 0.8rem; color: var(--text-muted); }
+.order-meta { display: flex; align-items: center; gap: 12px; }
+.address-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.address-card { padding: 16px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; }
+@media (max-width: 768px) { 
+  .profile-layout { grid-template-columns: 1fr; } 
+  .address-grid { grid-template-columns: 1fr; }
+  .profile-card { position: static; }
+}
+
+@media (max-width: 480px) {
+  .profile-section { padding: 16px; }
+  .profile-card { padding: 24px; }
+  .order-item { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .order-meta { width: 100%; justify-content: space-between; }
+}

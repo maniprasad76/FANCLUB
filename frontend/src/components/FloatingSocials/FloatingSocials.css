@@ -1,0 +1,144 @@
+.floating-socials-container {
+  position: fixed;
+  bottom: 80px; /* Above the mobile nav */
+  right: 24px;
+  z-index: 998;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.socials-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 12px;
+}
+
+.social-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.social-label {
+  background: var(--bauhaus-white);
+  color: var(--bauhaus-black);
+  padding: 6px 12px;
+  border: 2px solid var(--bauhaus-black);
+  font-family: var(--font-accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 2px 2px 0px 0px var(--bauhaus-black);
+  opacity: 0;
+  transform: translateX(10px);
+  transition: all 0.2s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.social-item:hover .social-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.social-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--bauhaus-white);
+  border: 2px solid var(--bauhaus-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 3px 3px 0px 0px var(--bauhaus-black);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.social-item:hover .social-icon {
+  background: var(--hover-color);
+  color: var(--bauhaus-white) !important;
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px 0px var(--bauhaus-black);
+}
+
+.social-item:hover .social-icon svg {
+  stroke: var(--bauhaus-white);
+}
+
+.fab-main {
+  width: 60px;
+  height: 60px;
+  background: var(--bauhaus-red);
+  color: var(--bauhaus-white);
+  border: 2px solid var(--bauhaus-black);
+  border-radius: 0; /* Bauhaus standard */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 4px 4px 0px 0px var(--bauhaus-black);
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.fab-main:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px var(--bauhaus-black);
+  background: var(--bauhaus-blue);
+}
+
+.fab-main.open {
+  background: var(--bauhaus-black);
+  color: var(--bauhaus-white);
+}
+
+@media (max-width: 768px) {
+  .floating-socials-container {
+    bottom: calc(var(--safe-bottom) + 24px);
+    right: 16px;
+  }
+  
+  .social-label {
+    display: none; /* Hide labels on mobile to save space */
+  }
+  
+  .fab-main {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .social-icon {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .floating-socials-container {
+    bottom: calc(var(--safe-bottom) + 16px);
+    right: 12px;
+  }
+  
+  .fab-main {
+    width: 42px;
+    height: 42px;
+    box-shadow: 3px 3px 0px 0px var(--bauhaus-black);
+  }
+  
+  .fab-main svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .social-icon {
+    width: 34px;
+    height: 34px;
+  }
+}

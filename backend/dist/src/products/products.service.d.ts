@@ -1,0 +1,333 @@
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateProductDto, UpdateProductDto, ProductQueryDto } from './dto/products.dto';
+export declare class ProductsService {
+    private prisma;
+    constructor(prisma: PrismaService);
+    findAll(query: ProductQueryDto): Promise<{
+        products: ({
+            category: {
+                name: string;
+                id: string;
+                slug: string;
+            };
+        } & {
+            name: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            slug: string;
+            description: string;
+            isActive: boolean;
+            categoryId: string;
+            price: number;
+            comparePrice: number | null;
+            images: string[];
+            sizes: string[];
+            colors: string[];
+            stock: number;
+            featured: boolean;
+            bestseller: boolean;
+            newArrival: boolean;
+            rating: number;
+            reviewCount: number;
+            tags: string[];
+            gender: import("@prisma/client").$Enums.Gender;
+        })[];
+        total: number;
+        page: number;
+        pages: number;
+    }>;
+    findBySlug(slug: string): Promise<{
+        category: {
+            name: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            slug: string;
+            description: string | null;
+            image: string | null;
+        };
+        reviews: ({
+            user: {
+                name: string | null;
+                id: string;
+                avatar: string | null;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: string;
+            rating: number;
+            productId: string;
+            comment: string | null;
+        })[];
+    } & {
+        name: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        slug: string;
+        description: string;
+        isActive: boolean;
+        categoryId: string;
+        price: number;
+        comparePrice: number | null;
+        images: string[];
+        sizes: string[];
+        colors: string[];
+        stock: number;
+        featured: boolean;
+        bestseller: boolean;
+        newArrival: boolean;
+        rating: number;
+        reviewCount: number;
+        tags: string[];
+        gender: import("@prisma/client").$Enums.Gender;
+    }>;
+    findById(id: string): Promise<{
+        category: {
+            name: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            slug: string;
+            description: string | null;
+            image: string | null;
+        };
+    } & {
+        name: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        slug: string;
+        description: string;
+        isActive: boolean;
+        categoryId: string;
+        price: number;
+        comparePrice: number | null;
+        images: string[];
+        sizes: string[];
+        colors: string[];
+        stock: number;
+        featured: boolean;
+        bestseller: boolean;
+        newArrival: boolean;
+        rating: number;
+        reviewCount: number;
+        tags: string[];
+        gender: import("@prisma/client").$Enums.Gender;
+    }>;
+    getFeatured(): Promise<({
+        category: {
+            name: string;
+            id: string;
+            slug: string;
+        };
+    } & {
+        name: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        slug: string;
+        description: string;
+        isActive: boolean;
+        categoryId: string;
+        price: number;
+        comparePrice: number | null;
+        images: string[];
+        sizes: string[];
+        colors: string[];
+        stock: number;
+        featured: boolean;
+        bestseller: boolean;
+        newArrival: boolean;
+        rating: number;
+        reviewCount: number;
+        tags: string[];
+        gender: import("@prisma/client").$Enums.Gender;
+    })[]>;
+    getBestsellers(): Promise<({
+        category: {
+            name: string;
+            id: string;
+            slug: string;
+        };
+    } & {
+        name: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        slug: string;
+        description: string;
+        isActive: boolean;
+        categoryId: string;
+        price: number;
+        comparePrice: number | null;
+        images: string[];
+        sizes: string[];
+        colors: string[];
+        stock: number;
+        featured: boolean;
+        bestseller: boolean;
+        newArrival: boolean;
+        rating: number;
+        reviewCount: number;
+        tags: string[];
+        gender: import("@prisma/client").$Enums.Gender;
+    })[]>;
+    getNewArrivals(): Promise<({
+        category: {
+            name: string;
+            id: string;
+            slug: string;
+        };
+    } & {
+        name: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        slug: string;
+        description: string;
+        isActive: boolean;
+        categoryId: string;
+        price: number;
+        comparePrice: number | null;
+        images: string[];
+        sizes: string[];
+        colors: string[];
+        stock: number;
+        featured: boolean;
+        bestseller: boolean;
+        newArrival: boolean;
+        rating: number;
+        reviewCount: number;
+        tags: string[];
+        gender: import("@prisma/client").$Enums.Gender;
+    })[]>;
+    getRelated(slug: string): Promise<{
+        name: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        slug: string;
+        description: string;
+        isActive: boolean;
+        categoryId: string;
+        price: number;
+        comparePrice: number | null;
+        images: string[];
+        sizes: string[];
+        colors: string[];
+        stock: number;
+        featured: boolean;
+        bestseller: boolean;
+        newArrival: boolean;
+        rating: number;
+        reviewCount: number;
+        tags: string[];
+        gender: import("@prisma/client").$Enums.Gender;
+    }[]>;
+    create(dto: CreateProductDto): Promise<{
+        name: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        slug: string;
+        description: string;
+        isActive: boolean;
+        categoryId: string;
+        price: number;
+        comparePrice: number | null;
+        images: string[];
+        sizes: string[];
+        colors: string[];
+        stock: number;
+        featured: boolean;
+        bestseller: boolean;
+        newArrival: boolean;
+        rating: number;
+        reviewCount: number;
+        tags: string[];
+        gender: import("@prisma/client").$Enums.Gender;
+    }>;
+    update(id: string, dto: UpdateProductDto): Promise<{
+        name: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        slug: string;
+        description: string;
+        isActive: boolean;
+        categoryId: string;
+        price: number;
+        comparePrice: number | null;
+        images: string[];
+        sizes: string[];
+        colors: string[];
+        stock: number;
+        featured: boolean;
+        bestseller: boolean;
+        newArrival: boolean;
+        rating: number;
+        reviewCount: number;
+        tags: string[];
+        gender: import("@prisma/client").$Enums.Gender;
+    }>;
+    delete(id: string): Promise<{
+        name: string;
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        slug: string;
+        description: string;
+        isActive: boolean;
+        categoryId: string;
+        price: number;
+        comparePrice: number | null;
+        images: string[];
+        sizes: string[];
+        colors: string[];
+        stock: number;
+        featured: boolean;
+        bestseller: boolean;
+        newArrival: boolean;
+        rating: number;
+        reviewCount: number;
+        tags: string[];
+        gender: import("@prisma/client").$Enums.Gender;
+    }>;
+    adminFindAll(page?: number, limit?: number, search?: string): Promise<{
+        products: ({
+            category: {
+                name: string;
+                id: string;
+            };
+        } & {
+            name: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            slug: string;
+            description: string;
+            isActive: boolean;
+            categoryId: string;
+            price: number;
+            comparePrice: number | null;
+            images: string[];
+            sizes: string[];
+            colors: string[];
+            stock: number;
+            featured: boolean;
+            bestseller: boolean;
+            newArrival: boolean;
+            rating: number;
+            reviewCount: number;
+            tags: string[];
+            gender: import("@prisma/client").$Enums.Gender;
+        })[];
+        total: number;
+        page: number;
+        pages: number;
+    }>;
+}

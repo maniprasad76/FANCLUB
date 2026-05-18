@@ -1,0 +1,382 @@
+import { OrdersService } from './orders.service';
+import { CreateOrderDto, UpdateOrderStatusDto } from './dto/orders.dto';
+export declare class OrdersController {
+    private ordersService;
+    constructor(ordersService: OrdersService);
+    create(authId: string, dto: CreateOrderDto): Promise<({
+        address: {
+            name: string;
+            phone: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: string;
+            street: string;
+            city: string;
+            state: string;
+            pincode: string;
+            country: string;
+            isDefault: boolean;
+        } | null;
+        items: ({
+            product: {
+                name: string;
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                slug: string;
+                description: string;
+                isActive: boolean;
+                categoryId: string;
+                price: number;
+                comparePrice: number | null;
+                images: string[];
+                sizes: string[];
+                colors: string[];
+                stock: number;
+                featured: boolean;
+                bestseller: boolean;
+                newArrival: boolean;
+                rating: number;
+                reviewCount: number;
+                tags: string[];
+                gender: import("@prisma/client").$Enums.Gender;
+            };
+        } & {
+            name: string;
+            id: string;
+            image: string | null;
+            price: number;
+            size: string | null;
+            color: string | null;
+            productId: string;
+            quantity: number;
+            orderId: string;
+        })[];
+    } & {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: string;
+        orderNumber: string;
+        totalAmount: number;
+        shippingAmount: number;
+        discountAmount: number;
+        addressId: string | null;
+        paymentMethod: string | null;
+        paymentId: string | null;
+        razorpayOrderId: string | null;
+        stripeSessionId: string | null;
+        status: import("@prisma/client").$Enums.OrderStatus;
+        trackingId: string | null;
+        notes: string | null;
+    }) | {
+        payment: any;
+        razorpayOrderId: any;
+        razorpayKey: any;
+        stripeSessionId: any;
+        checkoutUrl: any;
+        gateway: any;
+        totalAmount: number;
+        address: {
+            name: string;
+            phone: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: string;
+            street: string;
+            city: string;
+            state: string;
+            pincode: string;
+            country: string;
+            isDefault: boolean;
+        } | null;
+        items: ({
+            product: {
+                name: string;
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                slug: string;
+                description: string;
+                isActive: boolean;
+                categoryId: string;
+                price: number;
+                comparePrice: number | null;
+                images: string[];
+                sizes: string[];
+                colors: string[];
+                stock: number;
+                featured: boolean;
+                bestseller: boolean;
+                newArrival: boolean;
+                rating: number;
+                reviewCount: number;
+                tags: string[];
+                gender: import("@prisma/client").$Enums.Gender;
+            };
+        } & {
+            name: string;
+            id: string;
+            image: string | null;
+            price: number;
+            size: string | null;
+            color: string | null;
+            productId: string;
+            quantity: number;
+            orderId: string;
+        })[];
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: string;
+        orderNumber: string;
+        shippingAmount: number;
+        discountAmount: number;
+        addressId: string | null;
+        paymentMethod: string | null;
+        paymentId: string | null;
+        status: import("@prisma/client").$Enums.OrderStatus;
+        trackingId: string | null;
+        notes: string | null;
+    }>;
+    findMyOrders(authId: string, page?: number, limit?: number): Promise<{
+        orders: ({
+            items: {
+                name: string;
+                id: string;
+                image: string | null;
+                price: number;
+                size: string | null;
+                color: string | null;
+                productId: string;
+                quantity: number;
+                orderId: string;
+            }[];
+            payments: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                status: import("@prisma/client").$Enums.PaymentStatus;
+                gatewayOrderId: string | null;
+                amount: number;
+                currency: string;
+                metadata: import("@prisma/client/runtime/client").JsonValue | null;
+                gatewayPaymentId: string | null;
+                method: string | null;
+                orderId: string;
+                gateway: import("@prisma/client").$Enums.PaymentGateway;
+                idempotencyKey: string;
+                paidAt: Date | null;
+            }[];
+        } & {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: string;
+            orderNumber: string;
+            totalAmount: number;
+            shippingAmount: number;
+            discountAmount: number;
+            addressId: string | null;
+            paymentMethod: string | null;
+            paymentId: string | null;
+            razorpayOrderId: string | null;
+            stripeSessionId: string | null;
+            status: import("@prisma/client").$Enums.OrderStatus;
+            trackingId: string | null;
+            notes: string | null;
+        })[];
+        total: number;
+        page: number;
+        pages: number;
+    }>;
+    findById(id: string): Promise<{
+        user: {
+            email: string;
+            name: string | null;
+            id: string;
+        };
+        address: {
+            name: string;
+            phone: string;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: string;
+            street: string;
+            city: string;
+            state: string;
+            pincode: string;
+            country: string;
+            isDefault: boolean;
+        } | null;
+        items: ({
+            product: {
+                name: string;
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                slug: string;
+                description: string;
+                isActive: boolean;
+                categoryId: string;
+                price: number;
+                comparePrice: number | null;
+                images: string[];
+                sizes: string[];
+                colors: string[];
+                stock: number;
+                featured: boolean;
+                bestseller: boolean;
+                newArrival: boolean;
+                rating: number;
+                reviewCount: number;
+                tags: string[];
+                gender: import("@prisma/client").$Enums.Gender;
+            };
+        } & {
+            name: string;
+            id: string;
+            image: string | null;
+            price: number;
+            size: string | null;
+            color: string | null;
+            productId: string;
+            quantity: number;
+            orderId: string;
+        })[];
+        payments: ({
+            refunds: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                paymentId: string;
+                status: import("@prisma/client").$Enums.RefundStatus;
+                amount: number;
+                gatewayRefundId: string | null;
+                reason: string | null;
+                processedAt: Date | null;
+            }[];
+        } & {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            status: import("@prisma/client").$Enums.PaymentStatus;
+            gatewayOrderId: string | null;
+            amount: number;
+            currency: string;
+            metadata: import("@prisma/client/runtime/client").JsonValue | null;
+            gatewayPaymentId: string | null;
+            method: string | null;
+            orderId: string;
+            gateway: import("@prisma/client").$Enums.PaymentGateway;
+            idempotencyKey: string;
+            paidAt: Date | null;
+        })[];
+    } & {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: string;
+        orderNumber: string;
+        totalAmount: number;
+        shippingAmount: number;
+        discountAmount: number;
+        addressId: string | null;
+        paymentMethod: string | null;
+        paymentId: string | null;
+        razorpayOrderId: string | null;
+        stripeSessionId: string | null;
+        status: import("@prisma/client").$Enums.OrderStatus;
+        trackingId: string | null;
+        notes: string | null;
+    }>;
+    adminFindAll(page?: number, limit?: number, status?: string): Promise<{
+        orders: ({
+            user: {
+                email: string;
+                name: string | null;
+                id: string;
+            };
+            items: {
+                name: string;
+                id: string;
+                image: string | null;
+                price: number;
+                size: string | null;
+                color: string | null;
+                productId: string;
+                quantity: number;
+                orderId: string;
+            }[];
+            payments: {
+                id: string;
+                createdAt: Date;
+                updatedAt: Date;
+                status: import("@prisma/client").$Enums.PaymentStatus;
+                gatewayOrderId: string | null;
+                amount: number;
+                currency: string;
+                metadata: import("@prisma/client/runtime/client").JsonValue | null;
+                gatewayPaymentId: string | null;
+                method: string | null;
+                orderId: string;
+                gateway: import("@prisma/client").$Enums.PaymentGateway;
+                idempotencyKey: string;
+                paidAt: Date | null;
+            }[];
+        } & {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            userId: string;
+            orderNumber: string;
+            totalAmount: number;
+            shippingAmount: number;
+            discountAmount: number;
+            addressId: string | null;
+            paymentMethod: string | null;
+            paymentId: string | null;
+            razorpayOrderId: string | null;
+            stripeSessionId: string | null;
+            status: import("@prisma/client").$Enums.OrderStatus;
+            trackingId: string | null;
+            notes: string | null;
+        })[];
+        total: number;
+        page: number;
+        pages: number;
+    }>;
+    updateStatus(id: string, dto: UpdateOrderStatusDto): Promise<{
+        items: {
+            name: string;
+            id: string;
+            image: string | null;
+            price: number;
+            size: string | null;
+            color: string | null;
+            productId: string;
+            quantity: number;
+            orderId: string;
+        }[];
+    } & {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        userId: string;
+        orderNumber: string;
+        totalAmount: number;
+        shippingAmount: number;
+        discountAmount: number;
+        addressId: string | null;
+        paymentMethod: string | null;
+        paymentId: string | null;
+        razorpayOrderId: string | null;
+        stripeSessionId: string | null;
+        status: import("@prisma/client").$Enums.OrderStatus;
+        trackingId: string | null;
+        notes: string | null;
+    }>;
+}
