@@ -1,0 +1,14 @@
+name: Keep Render Backend Awake
+
+on:
+  schedule:
+    # Runs every 14 minutes to prevent Render's 15-minute inactivity spin-down
+    - cron: '*/14 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Backend
+        run: curl -s https://tfi-backend-3n2s.onrender.com/api/products > /dev/null
