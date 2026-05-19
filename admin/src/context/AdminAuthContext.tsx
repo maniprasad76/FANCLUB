@@ -26,6 +26,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const forceLogout = useCallback(() => {
     localStorage.removeItem('admin_user');
     localStorage.removeItem('admin_refresh_token');
+    localStorage.removeItem('admin_access_token');
     setAdmin(null);
   }, []);
 
@@ -69,6 +70,9 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
           const res = await api.post('/auth/admin/oauth/sync', { access_token: session.access_token });
           setAdmin(res.data.user);
           localStorage.setItem('admin_user', JSON.stringify(res.data.user));
+          if (res.data.session?.access_token) {
+            localStorage.setItem('admin_access_token', res.data.session.access_token);
+          }
           if (session.refresh_token) {
             localStorage.setItem('admin_refresh_token', session.refresh_token);
           }
@@ -87,6 +91,9 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     const { data } = await api.post('/auth/admin/signin', { email, password });
     localStorage.setItem('admin_user', JSON.stringify(data.user));
+    if (data.session?.access_token) {
+      localStorage.setItem('admin_access_token', data.session.access_token);
+    }
     if (data.session?.refresh_token) {
       localStorage.setItem('admin_refresh_token', data.session.refresh_token);
     }

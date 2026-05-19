@@ -11,6 +11,15 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Request interceptor: inject access_token as Authorization header (cross-domain fallback)
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('admin_access_token');
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 /**
  * Token refresh for admin panel.
  * Same mechanism as the frontend — retry failed 401 requests after refreshing the token.
@@ -57,6 +66,9 @@ api.interceptors.response.use(
           { withCredentials: true }
         );
 
+        if (data.session?.access_token) {
+          localStorage.setItem('admin_access_token', data.session.access_token);
+        }
         if (data.session?.refresh_token) {
           localStorage.setItem('admin_refresh_token', data.session.refresh_token);
         }
@@ -70,6 +82,7 @@ api.interceptors.response.use(
         processQueue(refreshError);
         localStorage.removeItem('admin_user');
         localStorage.removeItem('admin_refresh_token');
+        localStorage.removeItem('admin_access_token');
         window.dispatchEvent(new CustomEvent('auth:session-expired'));
         return Promise.reject(error);
       } finally {
@@ -80,6 +93,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('admin_user');
       localStorage.removeItem('admin_refresh_token');
+      localStorage.removeItem('admin_access_token');
     }
 
     return Promise.reject(error);

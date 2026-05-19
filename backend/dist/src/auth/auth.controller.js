@@ -21,8 +21,8 @@ const jwt_auth_guard_1 = require("./guards/jwt-auth.guard");
 const current_user_decorator_1 = require("./decorators/current-user.decorator");
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    secure: true,
+    sameSite: 'none',
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: '/',
 };
@@ -98,7 +98,7 @@ let AuthController = class AuthController {
         return { user: result.user, session: result.session };
     }
     async logout(res) {
-        res.clearCookie('access_token', { path: '/' });
+        res.clearCookie('access_token', { path: '/', sameSite: 'none', secure: true });
         return { message: 'Logged out successfully' };
     }
     getProfile(authId) {

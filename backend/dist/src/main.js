@@ -51,9 +51,12 @@ async function bootstrap() {
     const allowedOrigins = [
         process.env.FRONTEND_URL,
         process.env.ADMIN_URL,
+        'https://tfi-frontend-kappa.vercel.app',
+        'https://tfi-admin-six.vercel.app',
     ].filter(Boolean);
+    const uniqueOrigins = [...new Set(allowedOrigins)];
     app.enableCors({
-        origin: allowedOrigins.length > 0 ? allowedOrigins : true,
+        origin: uniqueOrigins.length > 0 ? uniqueOrigins : true,
         credentials: true,
     });
     app.useGlobalPipes(new common_1.ValidationPipe({

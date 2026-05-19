@@ -11,6 +11,15 @@ const api = axios.create({
   withCredentials: true, // Send httpOnly cookies with every request
 });
 
+// Request interceptor: inject access_token as Authorization header (cross-domain fallback)
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('access_token');
+  if (token && config.headers) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 /**
  * Token refresh mechanism:
  * When a 401 occurs, we try to refresh the token using the stored refresh_token.
@@ -67,7 +76,10 @@ api.interceptors.response.use(
           { withCredentials: true }
         );
 
-        // Store the new refresh_token and updated user data
+        // Store the new tokens and updated user data
+        if (data.session?.access_token) {
+          localStorage.setItem('access_token', data.session.access_token);
+        }
         if (data.session?.refresh_token) {
           localStorage.setItem('refresh_token', data.session.refresh_token);
         }
@@ -85,6 +97,7 @@ api.interceptors.response.use(
         // Refresh failed — clear everything and force re-login
         localStorage.removeItem('user');
         localStorage.removeItem('refresh_token');
+        localStorage.removeItem('access_token');
 
         // Dispatch a custom event so AuthContext can react
         window.dispatchEvent(new CustomEvent('auth:session-expired'));
@@ -99,6 +112,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('user');
       localStorage.removeItem('refresh_token');
+      localStorage.removeItem('access_token');
     }
 
     return Promise.reject(error);

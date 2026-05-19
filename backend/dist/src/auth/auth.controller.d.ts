@@ -5,13 +5,13 @@ export declare class AuthController {
     constructor(authService: AuthService);
     signUp(dto: SignUpDto, res: any): Promise<{
         user: {
+            id: string;
             email: string;
             name: string | null;
             phone: string | null;
-            id: string;
-            authId: string;
             avatar: string | null;
             role: import("@prisma/client").$Enums.Role;
+            authId: string;
             createdAt: Date;
             updatedAt: Date;
         };
@@ -22,13 +22,13 @@ export declare class AuthController {
     }>;
     signIn(dto: SignInDto, res: any): Promise<{
         user: {
+            id: string;
             email: string;
             name: string | null;
             phone: string | null;
-            id: string;
-            authId: string;
             avatar: string | null;
             role: import("@prisma/client").$Enums.Role;
+            authId: string;
             createdAt: Date;
             updatedAt: Date;
         };
@@ -39,13 +39,13 @@ export declare class AuthController {
     }>;
     adminSignIn(dto: SignInDto, res: any): Promise<{
         user: {
+            id: string;
             email: string;
             name: string | null;
             phone: string | null;
-            id: string;
-            authId: string;
             avatar: string | null;
             role: import("@prisma/client").$Enums.Role;
+            authId: string;
             createdAt: Date;
             updatedAt: Date;
         };
@@ -56,13 +56,13 @@ export declare class AuthController {
     }>;
     refreshSession(refreshToken: string, res: any): Promise<{
         user: {
+            id: string;
             email: string;
             name: string | null;
             phone: string | null;
-            id: string;
-            authId: string;
             avatar: string | null;
             role: import("@prisma/client").$Enums.Role;
+            authId: string;
             createdAt: Date;
             updatedAt: Date;
         };
@@ -73,13 +73,13 @@ export declare class AuthController {
     }>;
     syncUserOAuth(accessToken: string, res: any): Promise<{
         user: {
+            id: string;
             email: string;
             name: string | null;
             phone: string | null;
-            id: string;
-            authId: string;
             avatar: string | null;
             role: import("@prisma/client").$Enums.Role;
+            authId: string;
             createdAt: Date;
             updatedAt: Date;
         };
@@ -89,13 +89,13 @@ export declare class AuthController {
     }>;
     syncAdminOAuth(accessToken: string, res: any): Promise<{
         user: {
+            id: string;
             email: string;
             name: string | null;
             phone: string | null;
-            id: string;
-            authId: string;
             avatar: string | null;
             role: import("@prisma/client").$Enums.Role;
+            authId: string;
             createdAt: Date;
             updatedAt: Date;
         };
@@ -108,27 +108,27 @@ export declare class AuthController {
     }>;
     getProfile(authId: string): Promise<({
         addresses: {
+            id: string;
             name: string;
             phone: string;
-            id: string;
             createdAt: Date;
             updatedAt: Date;
+            userId: string;
             street: string;
             city: string;
             state: string;
             pincode: string;
             country: string;
             isDefault: boolean;
-            userId: string;
         }[];
     } & {
+        id: string;
         email: string;
         name: string | null;
         phone: string | null;
-        id: string;
-        authId: string;
         avatar: string | null;
         role: import("@prisma/client").$Enums.Role;
+        authId: string;
         createdAt: Date;
         updatedAt: Date;
     }) | null>;

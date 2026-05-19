@@ -34,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const forceLogout = useCallback(() => {
     localStorage.removeItem('user');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('access_token');
     setUser(null);
   }, []);
 
@@ -85,6 +86,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const res = await api.post('/auth/user/oauth/sync', { access_token: session.access_token });
           setUser(res.data.user);
           localStorage.setItem('user', JSON.stringify(res.data.user));
+          if (res.data.session?.access_token) {
+            localStorage.setItem('access_token', res.data.session.access_token);
+          }
           if (session.refresh_token) {
             localStorage.setItem('refresh_token', session.refresh_token);
           }
@@ -127,7 +131,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data } = await api.post('/auth/signin', { email, password });
     // Store user data
     localStorage.setItem('user', JSON.stringify(data.user));
-    // Store refresh_token for automatic token refresh
+    // Store tokens for automatic token refresh
+    if (data.session?.access_token) {
+      localStorage.setItem('access_token', data.session.access_token);
+    }
     if (data.session?.refresh_token) {
       localStorage.setItem('refresh_token', data.session.refresh_token);
     }
@@ -138,6 +145,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data } = await api.post('/auth/signup', { email, password, name });
     if (data.user) {
       localStorage.setItem('user', JSON.stringify(data.user));
+      if (data.session?.access_token) {
+        localStorage.setItem('access_token', data.session.access_token);
+      }
       if (data.session?.refresh_token) {
         localStorage.setItem('refresh_token', data.session.refresh_token);
       }
@@ -153,6 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     localStorage.removeItem('user');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('access_token');
     setUser(null);
   };
 
