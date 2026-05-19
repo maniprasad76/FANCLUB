@@ -5,8 +5,9 @@ import { extname } from 'path';
 import * as fs from 'fs';
 import { UploadService } from './upload.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AdminGuard } from '../auth/guards/admin.guard';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, AdminGuard)
 @Controller('upload')
 export class UploadController {
   constructor(private uploadService: UploadService) {}

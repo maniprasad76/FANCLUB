@@ -2,4 +2,7 @@ node_modules
 # Keep environment variables out of version control
 .env
 
+# Build output — Render rebuilds on every deploy
+/dist
+
 /generated/prisma

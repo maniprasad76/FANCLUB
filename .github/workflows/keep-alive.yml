@@ -11,4 +11,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping Backend
-        run: curl -s https://tfi-backend-3n2s.onrender.com/api/products > /dev/null
+        run: curl -fsS https://tfi-backend-3n2s.onrender.com/api/health || true

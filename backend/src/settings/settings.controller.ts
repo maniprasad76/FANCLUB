@@ -5,6 +5,7 @@ import { extname } from 'path';
 import * as fs from 'fs';
 import { SettingsService } from './settings.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AdminGuard } from '../auth/guards/admin.guard';
 
 @Controller('settings')
 export class SettingsController {
@@ -15,7 +16,7 @@ export class SettingsController {
     return { url: this.settingsService.getSetting('footer_video_url') };
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Post('video/upload')
   @UseInterceptors(FileInterceptor('video', {
     storage: diskStorage({
@@ -46,7 +47,7 @@ export class SettingsController {
     return { url: this.settingsService.getSetting('about_image_url') };
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Post('about-image/upload')
   @UseInterceptors(FileInterceptor('image', {
     storage: diskStorage({
@@ -72,7 +73,7 @@ export class SettingsController {
     return { success: true, url: imageUrl };
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Delete('video')
   deleteFooterVideo() {
     const currentUrl = this.settingsService.getSetting('footer_video_url');
@@ -88,7 +89,7 @@ export class SettingsController {
     return { success: true };
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Delete('about-image')
   deleteAboutImage() {
     const currentUrl = this.settingsService.getSetting('about_image_url');

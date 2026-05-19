@@ -3,6 +3,7 @@ import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/review.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AdminGuard } from '../auth/guards/admin.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('reviews')
@@ -27,14 +28,14 @@ export class ReviewsController {
   }
 
   @SkipThrottle()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Get()
   adminFindAll(@Query('page') page = 1, @Query('limit') limit = 20) {
     return this.reviewsService.adminFindAll(+page, +limit);
   }
 
   @SkipThrottle()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.reviewsService.delete(id);

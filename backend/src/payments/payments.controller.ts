@@ -13,6 +13,7 @@ import {
 import { SkipThrottle } from '@nestjs/throttler';
 import { PaymentsService } from './payments.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AdminGuard } from '../auth/guards/admin.guard';
 import { CreatePaymentDto, VerifyRazorpayDto, RefundDto, RetryPaymentDto } from './dto/payment.dto';
 
 /**
@@ -149,7 +150,7 @@ export class PaymentsController {
   /**
    * Initiate a refund for a payment (admin only).
    */
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Post('refund/:paymentId')
   processRefund(@Param('paymentId') paymentId: string, @Body() dto: RefundDto) {
     return this.paymentsService.processRefund(paymentId, dto.amount, dto.reason);
@@ -158,7 +159,7 @@ export class PaymentsController {
   /**
    * Payment analytics — totals, success rate, gateway breakdown.
    */
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Get('admin/stats')
   getPaymentStats() {
     return this.paymentsService.getPaymentStats();
@@ -167,7 +168,7 @@ export class PaymentsController {
   /**
    * Paginated list of all payments with filters.
    */
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Get('admin/list')
   getAdminPayments(
     @Query('page') page = 1,

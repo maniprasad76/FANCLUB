@@ -3,6 +3,7 @@ import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { ContactService } from './contact.service';
 import { CreateContactDto } from './dto/contact.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AdminGuard } from '../auth/guards/admin.guard';
 
 @Controller('contact')
 export class ContactController {
@@ -16,21 +17,21 @@ export class ContactController {
   }
 
   @SkipThrottle()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Get()
   findAll(@Query('page') page = 1, @Query('limit') limit = 20) {
     return this.contactService.findAll(+page, +limit);
   }
 
   @SkipThrottle()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Put(':id/read')
   markRead(@Param('id') id: string) {
     return this.contactService.markRead(id);
   }
 
   @SkipThrottle()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.contactService.delete(id);

@@ -1,0 +1,26 @@
+# ──────────────────────────────────────
+# TFI Project — Root .gitignore
+# ──────────────────────────────────────
+
+# Dependencies
+node_modules/
+
+# Environment files (NEVER commit secrets)
+.env
+.env.*
+!.env.example
+
+# Build outputs
+backend/dist/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Logs
+*.log
+npm-debug.log*

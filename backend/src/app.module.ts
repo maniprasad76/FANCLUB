@@ -17,6 +17,7 @@ import { NewsletterModule } from './newsletter/newsletter.module';
 import { ContactModule } from './contact/contact.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { SettingsModule } from './settings/settings.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { SettingsModule } from './settings/settings.module';
     ContactModule,
     DashboardModule,
     SettingsModule,
+    HealthModule,
   ],
   providers: [
     {
