@@ -101,7 +101,7 @@
 
 @media (max-width: 768px) {
   .floating-socials-container {
-    bottom: calc(var(--safe-bottom) + 24px);
+    bottom: calc(var(--safe-bottom) + 80px);
     right: 16px;
   }
   

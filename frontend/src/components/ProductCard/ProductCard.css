@@ -10,9 +10,11 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  min-width: 0;
   box-sizing: border-box;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   position: relative;
+  overflow: hidden;
 }
 
 .modern-product-card:hover {
@@ -224,15 +226,15 @@
 
 @media (max-width: 480px) {
   .modern-product-card {
-    padding: 6px;
-    border-radius: 16px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    padding: 5px;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   }
   .mpc-image-container {
-    border-radius: 12px;
+    border-radius: 10px;
   }
   .mpc-link-wrapper {
-    gap: 8px;
+    gap: 6px;
   }
   .mpc-info {
     padding: 0 2px 2px;

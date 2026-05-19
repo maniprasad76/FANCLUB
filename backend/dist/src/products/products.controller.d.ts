@@ -28,10 +28,10 @@ export declare class ProductsController {
             featured: boolean;
             bestseller: boolean;
             newArrival: boolean;
-            rating: number;
-            reviewCount: number;
             tags: string[];
             gender: import("@prisma/client").$Enums.Gender;
+            rating: number;
+            reviewCount: number;
         })[];
         total: number;
         page: number;
@@ -61,10 +61,10 @@ export declare class ProductsController {
         featured: boolean;
         bestseller: boolean;
         newArrival: boolean;
-        rating: number;
-        reviewCount: number;
         tags: string[];
         gender: import("@prisma/client").$Enums.Gender;
+        rating: number;
+        reviewCount: number;
     })[]>;
     getBestsellers(): Promise<({
         category: {
@@ -90,10 +90,10 @@ export declare class ProductsController {
         featured: boolean;
         bestseller: boolean;
         newArrival: boolean;
-        rating: number;
-        reviewCount: number;
         tags: string[];
         gender: import("@prisma/client").$Enums.Gender;
+        rating: number;
+        reviewCount: number;
     })[]>;
     getNewArrivals(): Promise<({
         category: {
@@ -119,10 +119,10 @@ export declare class ProductsController {
         featured: boolean;
         bestseller: boolean;
         newArrival: boolean;
-        rating: number;
-        reviewCount: number;
         tags: string[];
         gender: import("@prisma/client").$Enums.Gender;
+        rating: number;
+        reviewCount: number;
     })[]>;
     findBySlug(slug: string): Promise<{
         category: {
@@ -167,10 +167,10 @@ export declare class ProductsController {
         featured: boolean;
         bestseller: boolean;
         newArrival: boolean;
-        rating: number;
-        reviewCount: number;
         tags: string[];
         gender: import("@prisma/client").$Enums.Gender;
+        rating: number;
+        reviewCount: number;
     }>;
     getRelated(slug: string): Promise<{
         name: string;
@@ -190,10 +190,10 @@ export declare class ProductsController {
         featured: boolean;
         bestseller: boolean;
         newArrival: boolean;
-        rating: number;
-        reviewCount: number;
         tags: string[];
         gender: import("@prisma/client").$Enums.Gender;
+        rating: number;
+        reviewCount: number;
     }[]>;
     adminFindAll(page?: number, limit?: number, search?: string): Promise<{
         products: ({
@@ -219,10 +219,10 @@ export declare class ProductsController {
             featured: boolean;
             bestseller: boolean;
             newArrival: boolean;
-            rating: number;
-            reviewCount: number;
             tags: string[];
             gender: import("@prisma/client").$Enums.Gender;
+            rating: number;
+            reviewCount: number;
         })[];
         total: number;
         page: number;
@@ -256,10 +256,10 @@ export declare class ProductsController {
         featured: boolean;
         bestseller: boolean;
         newArrival: boolean;
-        rating: number;
-        reviewCount: number;
         tags: string[];
         gender: import("@prisma/client").$Enums.Gender;
+        rating: number;
+        reviewCount: number;
     }>;
     create(dto: CreateProductDto): Promise<{
         name: string;
@@ -279,10 +279,10 @@ export declare class ProductsController {
         featured: boolean;
         bestseller: boolean;
         newArrival: boolean;
-        rating: number;
-        reviewCount: number;
         tags: string[];
         gender: import("@prisma/client").$Enums.Gender;
+        rating: number;
+        reviewCount: number;
     }>;
     update(id: string, dto: UpdateProductDto): Promise<{
         name: string;
@@ -302,10 +302,10 @@ export declare class ProductsController {
         featured: boolean;
         bestseller: boolean;
         newArrival: boolean;
-        rating: number;
-        reviewCount: number;
         tags: string[];
         gender: import("@prisma/client").$Enums.Gender;
+        rating: number;
+        reviewCount: number;
     }>;
     delete(id: string): Promise<{
         name: string;
@@ -325,9 +325,9 @@ export declare class ProductsController {
         featured: boolean;
         bestseller: boolean;
         newArrival: boolean;
-        rating: number;
-        reviewCount: number;
         tags: string[];
         gender: import("@prisma/client").$Enums.Gender;
+        rating: number;
+        reviewCount: number;
     }>;
 }

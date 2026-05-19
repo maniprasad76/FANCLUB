@@ -28,18 +28,18 @@ export declare class DashboardController {
             createdAt: Date;
             updatedAt: Date;
             userId: string;
+            addressId: string | null;
+            status: import("@prisma/client").$Enums.OrderStatus;
+            notes: string | null;
+            razorpayOrderId: string | null;
             orderNumber: string;
             totalAmount: number;
             shippingAmount: number;
             discountAmount: number;
-            addressId: string | null;
             paymentMethod: string | null;
             paymentId: string | null;
-            razorpayOrderId: string | null;
             stripeSessionId: string | null;
-            status: import("@prisma/client").$Enums.OrderStatus;
             trackingId: string | null;
-            notes: string | null;
         })[];
         ordersByStatus: (import("@prisma/client").Prisma.PickEnumerable<import("@prisma/client").Prisma.OrderGroupByOutputType, "status"[]> & {
             _count: {

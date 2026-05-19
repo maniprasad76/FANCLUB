@@ -61,17 +61,17 @@ export declare class PaymentsController {
     }>;
     getPaymentStatus(paymentId: string): Promise<{
         order: {
-            orderNumber: string;
             status: import("@prisma/client").$Enums.OrderStatus;
+            orderNumber: string;
         };
         transactions: {
             id: string;
             createdAt: Date;
-            paymentId: string;
-            status: string;
             amount: number;
             currency: string;
+            status: string;
             metadata: import("@prisma/client/runtime/client").JsonValue | null;
+            paymentId: string;
             type: string;
             gatewayRef: string | null;
         }[];
@@ -79,10 +79,10 @@ export declare class PaymentsController {
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            paymentId: string;
-            status: import("@prisma/client").$Enums.RefundStatus;
             amount: number;
+            status: import("@prisma/client").$Enums.RefundStatus;
             gatewayRefundId: string | null;
+            paymentId: string;
             reason: string | null;
             processedAt: Date | null;
         }[];
@@ -90,10 +90,10 @@ export declare class PaymentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.PaymentStatus;
         gatewayOrderId: string | null;
         amount: number;
         currency: string;
+        status: import("@prisma/client").$Enums.PaymentStatus;
         metadata: import("@prisma/client/runtime/client").JsonValue | null;
         gatewayPaymentId: string | null;
         method: string | null;
@@ -106,11 +106,11 @@ export declare class PaymentsController {
         transactions: {
             id: string;
             createdAt: Date;
-            paymentId: string;
-            status: string;
             amount: number;
             currency: string;
+            status: string;
             metadata: import("@prisma/client/runtime/client").JsonValue | null;
+            paymentId: string;
             type: string;
             gatewayRef: string | null;
         }[];
@@ -118,10 +118,10 @@ export declare class PaymentsController {
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            paymentId: string;
-            status: import("@prisma/client").$Enums.RefundStatus;
             amount: number;
+            status: import("@prisma/client").$Enums.RefundStatus;
             gatewayRefundId: string | null;
+            paymentId: string;
             reason: string | null;
             processedAt: Date | null;
         }[];
@@ -129,10 +129,10 @@ export declare class PaymentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        status: import("@prisma/client").$Enums.PaymentStatus;
         gatewayOrderId: string | null;
         amount: number;
         currency: string;
+        status: import("@prisma/client").$Enums.PaymentStatus;
         metadata: import("@prisma/client/runtime/client").JsonValue | null;
         gatewayPaymentId: string | null;
         method: string | null;
@@ -151,10 +151,10 @@ export declare class PaymentsController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        paymentId: string;
-        status: import("@prisma/client").$Enums.RefundStatus;
         amount: number;
+        status: import("@prisma/client").$Enums.RefundStatus;
         gatewayRefundId: string | null;
+        paymentId: string;
         reason: string | null;
         processedAt: Date | null;
     }>;
@@ -184,11 +184,11 @@ export declare class PaymentsController {
         } & {
             id: string;
             createdAt: Date;
-            paymentId: string;
-            status: string;
             amount: number;
             currency: string;
+            status: string;
             metadata: import("@prisma/client/runtime/client").JsonValue | null;
+            paymentId: string;
             type: string;
             gatewayRef: string | null;
         })[];
@@ -216,10 +216,10 @@ export declare class PaymentsController {
                 id: string;
                 createdAt: Date;
                 updatedAt: Date;
-                paymentId: string;
-                status: import("@prisma/client").$Enums.RefundStatus;
                 amount: number;
+                status: import("@prisma/client").$Enums.RefundStatus;
                 gatewayRefundId: string | null;
+                paymentId: string;
                 reason: string | null;
                 processedAt: Date | null;
             }[];
@@ -227,10 +227,10 @@ export declare class PaymentsController {
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            status: import("@prisma/client").$Enums.PaymentStatus;
             gatewayOrderId: string | null;
             amount: number;
             currency: string;
+            status: import("@prisma/client").$Enums.PaymentStatus;
             metadata: import("@prisma/client/runtime/client").JsonValue | null;
             gatewayPaymentId: string | null;
             method: string | null;

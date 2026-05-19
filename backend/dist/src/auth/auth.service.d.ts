@@ -70,13 +70,13 @@ export declare class AuthService {
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            userId: string;
             street: string;
             city: string;
             state: string;
             pincode: string;
             country: string;
             isDefault: boolean;
+            userId: string;
         }[];
     } & {
         email: string;

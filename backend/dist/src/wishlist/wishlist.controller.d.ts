@@ -27,10 +27,10 @@ export declare class WishlistController {
             featured: boolean;
             bestseller: boolean;
             newArrival: boolean;
-            rating: number;
-            reviewCount: number;
             tags: string[];
             gender: import("@prisma/client").$Enums.Gender;
+            rating: number;
+            reviewCount: number;
         };
     } & {
         id: string;

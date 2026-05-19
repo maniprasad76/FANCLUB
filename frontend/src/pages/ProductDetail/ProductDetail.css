@@ -253,6 +253,43 @@
 
 /* Premium Color Buttons */
 .pdp-colors { display: flex; gap: 16px; }
+
+/* Quantity Selector */
+.qty-selector-neo {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+}
+.qty-btn-neo {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: background 0.2s;
+}
+.qty-btn-neo:hover {
+  background: rgba(0,0,0,0.04);
+}
+.qty-btn-neo:active {
+  background: rgba(0,0,0,0.08);
+}
+.qty-value-neo {
+  min-width: 48px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  border-left: 1px solid var(--border-subtle);
+  border-right: 1px solid var(--border-subtle);
+  padding: 10px 0;
+}
 .color-btn-neo { 
   width: 36px; 
   height: 36px; 

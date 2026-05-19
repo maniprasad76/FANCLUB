@@ -77,7 +77,7 @@
 
 @media (max-width: 768px) {
   .social-proof-toast {
-    bottom: calc(var(--safe-bottom) + 20px);
+    bottom: calc(var(--safe-bottom) + 80px);
     left: 12px;
     max-width: 280px;
   }
@@ -87,7 +87,7 @@
   .social-proof-toast {
     left: 10px;
     right: 10px;
-    bottom: calc(var(--safe-bottom) + 16px);
+    bottom: calc(var(--safe-bottom) + 76px);
     max-width: none;
     padding: 10px 12px;
     gap: 8px;

@@ -26,13 +26,13 @@ export declare class UsersController {
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            userId: string;
             street: string;
             city: string;
             state: string;
             pincode: string;
             country: string;
             isDefault: boolean;
+            userId: string;
         }[];
     } & {
         email: string;
@@ -62,13 +62,13 @@ export declare class UsersController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
         street: string;
         city: string;
         state: string;
         pincode: string;
         country: string;
         isDefault: boolean;
+        userId: string;
     }>;
     updateAddress(authId: string, addressId: string, dto: UpdateAddressDto): Promise<{
         name: string;
@@ -76,13 +76,13 @@ export declare class UsersController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
         street: string;
         city: string;
         state: string;
         pincode: string;
         country: string;
         isDefault: boolean;
+        userId: string;
     }>;
     deleteAddress(addressId: string): Promise<{
         name: string;
@@ -90,13 +90,13 @@ export declare class UsersController {
         id: string;
         createdAt: Date;
         updatedAt: Date;
-        userId: string;
         street: string;
         city: string;
         state: string;
         pincode: string;
         country: string;
         isDefault: boolean;
+        userId: string;
     }>;
     findById(id: string): Promise<{
         addresses: {
@@ -105,31 +105,31 @@ export declare class UsersController {
             id: string;
             createdAt: Date;
             updatedAt: Date;
-            userId: string;
             street: string;
             city: string;
             state: string;
             pincode: string;
             country: string;
             isDefault: boolean;
+            userId: string;
         }[];
         orders: {
             id: string;
             createdAt: Date;
             updatedAt: Date;
             userId: string;
+            addressId: string | null;
+            status: import("@prisma/client").$Enums.OrderStatus;
+            notes: string | null;
+            razorpayOrderId: string | null;
             orderNumber: string;
             totalAmount: number;
             shippingAmount: number;
             discountAmount: number;
-            addressId: string | null;
             paymentMethod: string | null;
             paymentId: string | null;
-            razorpayOrderId: string | null;
             stripeSessionId: string | null;
-            status: import("@prisma/client").$Enums.OrderStatus;
             trackingId: string | null;
-            notes: string | null;
         }[];
     } & {
         email: string;

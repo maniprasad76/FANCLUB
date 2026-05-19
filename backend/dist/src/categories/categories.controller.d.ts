@@ -35,10 +35,10 @@ export declare class CategoriesController {
             featured: boolean;
             bestseller: boolean;
             newArrival: boolean;
-            rating: number;
-            reviewCount: number;
             tags: string[];
             gender: import("@prisma/client").$Enums.Gender;
+            rating: number;
+            reviewCount: number;
         }[];
     } & {
         name: string;
