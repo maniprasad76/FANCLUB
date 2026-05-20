@@ -13,6 +13,19 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
+  // Root endpoint — responds outside /api prefix for health checks & direct visits
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.get('/', (_req: any, res: any) => {
+    res.json({
+      name: 'TFI Backend API',
+      status: 'running',
+      version: '1.0.0',
+      docs: '/api',
+      health: '/api/health',
+      timestamp: new Date().toISOString(),
+    });
+  });
+
   // Security headers via Helmet
   app.use(
     helmet({
