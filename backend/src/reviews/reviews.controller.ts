@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/review.dto';
@@ -20,11 +29,13 @@ export class ReviewsController {
   @Throttle({ default: { ttl: 60000, limit: 5 } })
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(
-    @CurrentUser('authId') authId: string,
-    @Body() dto: CreateReviewDto,
-  ) {
-    return this.reviewsService.create(authId, dto.productId, dto.rating, dto.comment);
+  create(@CurrentUser('authId') authId: string, @Body() dto: CreateReviewDto) {
+    return this.reviewsService.create(
+      authId,
+      dto.productId,
+      dto.rating,
+      dto.comment,
+    );
   }
 
   @SkipThrottle()

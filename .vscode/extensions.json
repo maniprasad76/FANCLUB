@@ -1,0 +1,20 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "stylelint.vscode-stylelint",
+    "sonarsource.sonarlint-vscode",
+    "redhat.vscode-yaml",
+    "formulahendry.auto-rename-tag",
+    "bradlc.vscode-tailwindcss",
+    "naumovs.color-highlight",
+    "yoavbls.pretty-ts-errors",
+    "mintlify.document",
+    "visualstudioexptteam.vscodeintellicode",
+    "aaron-bond.better-comments",
+    "gruntfuggly.todo-tree",
+    "alefragnani.project-manager",
+    "wix.vscode-import-cost",
+    "oderwat.indent-rainbow"
+  ]
+}

@@ -17,7 +17,11 @@ export class NewsletterService {
   async findAll(page = 1, limit = 50) {
     const skip = (page - 1) * limit;
     const [subscribers, total] = await Promise.all([
-      this.prisma.newsletter.findMany({ orderBy: { createdAt: 'desc' }, skip, take: limit }),
+      this.prisma.newsletter.findMany({
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
       this.prisma.newsletter.count(),
     ]);
     return { subscribers, total, page, pages: Math.ceil(total / limit) };

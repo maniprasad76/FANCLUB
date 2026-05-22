@@ -36,9 +36,13 @@ async function bootstrap() {
             "'self'",
             "'unsafe-inline'",
             'https://checkout.razorpay.com',
-            'https://js.stripe.com',          // Stripe.js
+            'https://js.stripe.com', // Stripe.js
           ],
-          styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+          styleSrc: [
+            "'self'",
+            "'unsafe-inline'",
+            'https://fonts.googleapis.com',
+          ],
           fontSrc: ["'self'", 'https://fonts.gstatic.com'],
           imgSrc: ["'self'", 'data:', 'blob:', 'https:', 'http:'],
           mediaSrc: ["'self'", 'data:', 'blob:', 'https:', 'http:'],
@@ -47,14 +51,14 @@ async function bootstrap() {
             'https://*.supabase.co',
             'https://api.razorpay.com',
             'https://lux-cdn.razorpay.com',
-            'https://api.stripe.com',         // Stripe API
+            'https://api.stripe.com', // Stripe API
           ],
           frameSrc: [
             "'self'",
             'https://checkout.razorpay.com',
             'https://*.supabase.co',
-            'https://js.stripe.com',          // Stripe iframe
-            'https://hooks.stripe.com',       // Stripe 3D Secure
+            'https://js.stripe.com', // Stripe iframe
+            'https://hooks.stripe.com', // Stripe 3D Secure
           ],
         },
       },
@@ -84,7 +88,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
-      forbidNonWhitelisted: false,
+      forbidNonWhitelisted: true,
       transform: true,
     }),
   );
@@ -95,6 +99,8 @@ async function bootstrap() {
 
   const port = process.env.PORT || 5000;
   await app.listen(port, '0.0.0.0');
-  console.log(`🎬 TFI Backend running on http://0.0.0.0:${port} (Network Exposed)`);
+  console.log(
+    `🎬 TFI Backend running on http://0.0.0.0:${port} (Network Exposed)`,
+  );
 }
 bootstrap();

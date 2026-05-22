@@ -1,6 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { UpdateUserDto, CreateAddressDto, UpdateAddressDto } from './dto/users.dto';
+import {
+  UpdateUserDto,
+  CreateAddressDto,
+  UpdateAddressDto,
+} from './dto/users.dto';
 
 @Injectable()
 export class UsersService {
@@ -9,7 +13,11 @@ export class UsersService {
   async findAll(page = 1, limit = 20) {
     const skip = (page - 1) * limit;
     const [users, total] = await Promise.all([
-      this.prisma.user.findMany({ skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      this.prisma.user.findMany({
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
       this.prisma.user.count(),
     ]);
     return { users, total, page, pages: Math.ceil(total / limit) };
@@ -27,7 +35,10 @@ export class UsersService {
   async findById(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      include: { addresses: true, orders: { orderBy: { createdAt: 'desc' }, take: 5 } },
+      include: {
+        addresses: true,
+        orders: { orderBy: { createdAt: 'desc' }, take: 5 },
+      },
     });
     if (!user) throw new NotFoundException('User not found');
     return user;
@@ -42,17 +53,27 @@ export class UsersService {
     if (!user) throw new NotFoundException('User not found');
 
     if (dto.isDefault) {
-      await this.prisma.address.updateMany({ where: { userId: user.id }, data: { isDefault: false } });
+      await this.prisma.address.updateMany({
+        where: { userId: user.id },
+        data: { isDefault: false },
+      });
     }
     return this.prisma.address.create({ data: { ...dto, userId: user.id } });
   }
 
-  async updateAddress(authId: string, addressId: string, dto: UpdateAddressDto) {
+  async updateAddress(
+    authId: string,
+    addressId: string,
+    dto: UpdateAddressDto,
+  ) {
     const user = await this.prisma.user.findUnique({ where: { authId } });
     if (!user) throw new NotFoundException('User not found');
 
     if (dto.isDefault) {
-      await this.prisma.address.updateMany({ where: { userId: user.id }, data: { isDefault: false } });
+      await this.prisma.address.updateMany({
+        where: { userId: user.id },
+        data: { isDefault: false },
+      });
     }
     return this.prisma.address.update({ where: { id: addressId }, data: dto });
   }

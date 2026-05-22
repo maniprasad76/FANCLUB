@@ -12,11 +12,26 @@ export class CartService {
 
     const items = await this.prisma.cartItem.findMany({
       where: { userId: user.id },
-      include: { product: { select: { id: true, name: true, slug: true, price: true, comparePrice: true, images: true, stock: true } } },
+      include: {
+        product: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            price: true,
+            comparePrice: true,
+            images: true,
+            stock: true,
+          },
+        },
+      },
       orderBy: { createdAt: 'desc' },
     });
 
-    const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+    const total = items.reduce(
+      (sum, item) => sum + item.product.price * item.quantity,
+      0,
+    );
     return { items, total, count: items.length };
   }
 
@@ -25,7 +40,12 @@ export class CartService {
     if (!user) throw new NotFoundException('User not found');
 
     const existing = await this.prisma.cartItem.findFirst({
-      where: { userId: user.id, productId: dto.productId, size: dto.size || null, color: dto.color || null },
+      where: {
+        userId: user.id,
+        productId: dto.productId,
+        size: dto.size || null,
+        color: dto.color || null,
+      },
     });
 
     if (existing) {

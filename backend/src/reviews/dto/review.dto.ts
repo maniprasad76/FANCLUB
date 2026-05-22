@@ -1,4 +1,12 @@
-import { IsString, IsInt, IsOptional, Min, Max, MaxLength, IsUUID } from 'class-validator';
+import {
+  IsString,
+  IsInt,
+  IsOptional,
+  Min,
+  Max,
+  MaxLength,
+  IsUUID,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateReviewDto {
@@ -14,6 +22,8 @@ export class CreateReviewDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(2000, { message: 'Review comment must be 2000 characters or less' })
+  @MaxLength(2000, {
+    message: 'Review comment must be 2000 characters or less',
+  })
   comment?: string;
 }

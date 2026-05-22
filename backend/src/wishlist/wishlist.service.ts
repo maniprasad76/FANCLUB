@@ -11,7 +11,13 @@ export class WishlistService {
 
     return this.prisma.wishlist.findMany({
       where: { userId: user.id },
-      include: { product: { include: { category: { select: { id: true, name: true, slug: true } } } } },
+      include: {
+        product: {
+          include: {
+            category: { select: { id: true, name: true, slug: true } },
+          },
+        },
+      },
       orderBy: { createdAt: 'desc' },
     });
   }

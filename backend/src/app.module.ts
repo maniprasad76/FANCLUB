@@ -1,34 +1,40 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { PrismaModule } from './prisma/prisma.module';
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { CategoriesModule } from './categories/categories.module';
-import { ProductsModule } from './products/products.module';
-import { CartModule } from './cart/cart.module';
-import { OrdersModule } from './orders/orders.module';
-import { PaymentsModule } from './payments/payments.module';
-import { ReviewsModule } from './reviews/reviews.module';
-import { WishlistModule } from './wishlist/wishlist.module';
-import { UploadModule } from './upload/upload.module';
-import { NewsletterModule } from './newsletter/newsletter.module';
-import { ContactModule } from './contact/contact.module';
-import { DashboardModule } from './dashboard/dashboard.module';
-import { SettingsModule } from './settings/settings.module';
-import { HealthModule } from './health/health.module';
+import { PrismaModule } from './prisma/prisma.module.js';
+import { SupabaseModule } from './supabase/supabase.module.js';
+import { AuthModule } from './auth/auth.module.js';
+import { UsersModule } from './users/users.module.js';
+import { CategoriesModule } from './categories/categories.module.js';
+import { ProductsModule } from './products/products.module.js';
+import { CartModule } from './cart/cart.module.js';
+import { OrdersModule } from './orders/orders.module.js';
+import { PaymentsModule } from './payments/payments.module.js';
+import { ReviewsModule } from './reviews/reviews.module.js';
+import { WishlistModule } from './wishlist/wishlist.module.js';
+import { UploadModule } from './upload/upload.module.js';
+import { NewsletterModule } from './newsletter/newsletter.module.js';
+import { ContactModule } from './contact/contact.module.js';
+import { DashboardModule } from './dashboard/dashboard.module.js';
+import { SettingsModule } from './settings/settings.module.js';
+import { HealthModule } from './health/health.module.js';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor.js';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
 
-    // Global rate limiting — 60 requests per minute per IP
-    ThrottlerModule.forRoot([{
-      ttl: 60000,   // 60 seconds window
-      limit: 60,    // max 60 requests per window
-    }]),
+    // Global rate limiting — 100 requests per minute per IP
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 60 seconds window
+        limit: 100, // max 100 requests per window
+      },
+    ]),
 
+    SupabaseModule,
     PrismaModule,
     AuthModule,
     UsersModule,
@@ -51,6 +57,14 @@ import { HealthModule } from './health/health.module';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
   ],
 })
-export class AppModule { }
+export class AppModule {}

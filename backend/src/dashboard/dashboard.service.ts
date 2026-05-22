@@ -6,11 +6,21 @@ export class DashboardService {
   constructor(private prisma: PrismaService) {}
 
   async getStats() {
-    const [totalUsers, totalProducts, totalOrders, totalRevenue, recentOrders, ordersByStatus] = await Promise.all([
+    const [
+      totalUsers,
+      totalProducts,
+      totalOrders,
+      totalRevenue,
+      recentOrders,
+      ordersByStatus,
+    ] = await Promise.all([
       this.prisma.user.count(),
       this.prisma.product.count({ where: { isActive: true } }),
       this.prisma.order.count(),
-      this.prisma.order.aggregate({ _sum: { totalAmount: true }, where: { status: { not: 'CANCELLED' } } }),
+      this.prisma.order.aggregate({
+        _sum: { totalAmount: true },
+        where: { status: { not: 'CANCELLED' } },
+      }),
       this.prisma.order.findMany({
         take: 10,
         orderBy: { createdAt: 'desc' },

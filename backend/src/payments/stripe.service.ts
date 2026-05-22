@@ -28,12 +28,13 @@ export class StripeService implements PaymentGatewayProvider {
 
   constructor(private configService: ConfigService) {
     const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY') || '';
-    this.publishableKey = this.configService.get<string>('STRIPE_PUBLISHABLE_KEY') || '';
-    this.webhookSecret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET') || '';
+    this.publishableKey =
+      this.configService.get<string>('STRIPE_PUBLISHABLE_KEY') || '';
+    this.webhookSecret =
+      this.configService.get<string>('STRIPE_WEBHOOK_SECRET') || '';
 
     if (secretKey && !secretKey.startsWith('sk_test_your_')) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const Stripe = require('stripe');
         this.stripe = new Stripe(secretKey);
         this.logger.log('✅ Stripe SDK initialized');
@@ -41,7 +42,9 @@ export class StripeService implements PaymentGatewayProvider {
         this.logger.warn(`⚠️ Stripe initialization failed: ${err.message}`);
       }
     } else {
-      this.logger.warn('⚠️ Stripe keys not configured. International payments will be stubbed.');
+      this.logger.warn(
+        '⚠️ Stripe keys not configured. International payments will be stubbed.',
+      );
     }
   }
 
@@ -59,7 +62,11 @@ export class StripeService implements PaymentGatewayProvider {
    * Create a Stripe Checkout Session.
    * metadata should contain orderId, orderNumber, orderDescription, customerEmail.
    */
-  async createOrder(amount: number, currency: string, metadata: Record<string, any>): Promise<GatewayOrder> {
+  async createOrder(
+    amount: number,
+    currency: string,
+    metadata: Record<string, any>,
+  ): Promise<GatewayOrder> {
     if (!this.stripe) {
       // Stub mode for development
       return {
@@ -68,13 +75,15 @@ export class StripeService implements PaymentGatewayProvider {
         currency,
         status: 'open',
         metadata: {
-          checkoutUrl: metadata.successUrl || 'http://localhost:5173/order-success',
+          checkoutUrl:
+            metadata.successUrl || 'http://localhost:5173/order-success',
           publishableKey: this.publishableKey,
         },
       };
     }
 
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
 
     const sessionParams: any = {
       payment_method_types: ['card'],
@@ -86,7 +95,9 @@ export class StripeService implements PaymentGatewayProvider {
             currency: currency.toLowerCase(),
             product_data: {
               name: metadata.orderDescription || 'TFI Order',
-              description: metadata.orderNumber ? `Order #${metadata.orderNumber}` : undefined,
+              description: metadata.orderNumber
+                ? `Order #${metadata.orderNumber}`
+                : undefined,
             },
             unit_amount: Math.round(amount * 100), // Stripe expects smallest currency unit
           },
@@ -139,7 +150,7 @@ export class StripeService implements PaymentGatewayProvider {
       expand: ['payment_intent'],
     });
 
-    const paymentIntent = session.payment_intent as any;
+    const paymentIntent = session.payment_intent;
 
     return {
       verified: session.payment_status === 'paid',
@@ -157,7 +168,10 @@ export class StripeService implements PaymentGatewayProvider {
   /**
    * Process a refund via Stripe Refunds API.
    */
-  async processRefund(gatewayPaymentId: string, amount: number): Promise<RefundResult> {
+  async processRefund(
+    gatewayPaymentId: string,
+    amount: number,
+  ): Promise<RefundResult> {
     if (!this.stripe) {
       return {
         gatewayRefundId: `re_stub_${Date.now()}`,
@@ -191,7 +205,8 @@ export class StripeService implements PaymentGatewayProvider {
       };
     }
 
-    const paymentIntent = await this.stripe.paymentIntents.retrieve(gatewayPaymentId);
+    const paymentIntent =
+      await this.stripe.paymentIntents.retrieve(gatewayPaymentId);
 
     return {
       gatewayPaymentId: paymentIntent.id,
@@ -207,18 +222,31 @@ export class StripeService implements PaymentGatewayProvider {
    * Verify a Stripe webhook signature and parse the event.
    * Returns the parsed event object, or null if verification fails.
    */
-  verifyWebhookSignature(rawBody: Buffer | string, signature: string): any | null {
-    if (!this.stripe || !this.webhookSecret || this.webhookSecret.startsWith('whsec_your_')) {
+  verifyWebhookSignature(
+    rawBody: Buffer | string,
+    signature: string,
+  ): any | null {
+    if (
+      !this.stripe ||
+      !this.webhookSecret ||
+      this.webhookSecret.startsWith('whsec_your_')
+    ) {
       // Stub mode — parse as JSON without verification
       try {
-        return JSON.parse(typeof rawBody === 'string' ? rawBody : rawBody.toString());
+        return JSON.parse(
+          typeof rawBody === 'string' ? rawBody : rawBody.toString(),
+        );
       } catch {
         return null;
       }
     }
 
     try {
-      return this.stripe.webhooks.constructEvent(rawBody, signature, this.webhookSecret);
+      return this.stripe.webhooks.constructEvent(
+        rawBody,
+        signature,
+        this.webhookSecret,
+      );
     } catch (err: any) {
       this.logger.error(`Stripe webhook verification failed: ${err.message}`);
       return null;

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentsService } from '../payments/payments.service';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto/orders.dto';
@@ -14,7 +18,7 @@ export class OrdersService {
   constructor(
     private prisma: PrismaService,
     private paymentsService: PaymentsService,
-  ) { }
+  ) {}
 
   /**
    * Creates an order with ZERO-TRUST pricing.
@@ -44,10 +48,14 @@ export class OrdersService {
     for (const item of dto.items) {
       const product = productMap.get(item.productId);
       if (!product) {
-        throw new BadRequestException(`Product ${item.productId} not found or inactive`);
+        throw new BadRequestException(
+          `Product ${item.productId} not found or inactive`,
+        );
       }
       if (product.stock < item.quantity) {
-        throw new BadRequestException(`Insufficient stock for "${product.name}". Available: ${product.stock}, requested: ${item.quantity}`);
+        throw new BadRequestException(
+          `Insufficient stock for "${product.name}". Available: ${product.stock}, requested: ${item.quantity}`,
+        );
       }
     }
 
@@ -57,7 +65,8 @@ export class OrdersService {
       return sum + product.price * item.quantity;
     }, 0);
 
-    const shippingAmount = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
+    const shippingAmount =
+      subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
     const totalAmount = subtotal + shippingAmount;
 
     const orderNumber = `TFI-${Date.now().toString(36).toUpperCase()}-${uuidv4().slice(0, 4).toUpperCase()}`;
@@ -65,12 +74,28 @@ export class OrdersService {
     // ── Resolve the customer's country from their address ──
     let customerCountry = dto.country || 'India';
     if (dto.addressId) {
-      const address = await this.prisma.address.findUnique({ where: { id: dto.addressId } });
+      const address = await this.prisma.address.findUnique({
+        where: { id: dto.addressId },
+      });
       if (address) customerCountry = address.country || 'India';
     }
 
-    // ── Atomic transaction: create order + clear cart + decrement stock ──
+    // ── Atomic transaction: create order + validate stock + clear cart + decrement stock ──
     const order = await this.prisma.$transaction(async (tx) => {
+      // Validate stock INSIDE the transaction to prevent race conditions
+      for (const item of dto.items) {
+        const product = productMap.get(item.productId)!;
+        const current = await tx.product.findUnique({
+          where: { id: item.productId },
+          select: { stock: true },
+        });
+        if (!current || current.stock < item.quantity) {
+          throw new BadRequestException(
+            `Insufficient stock for "${product.name}". Available: ${current?.stock ?? 0}, requested: ${item.quantity}`,
+          );
+        }
+      }
+
       const created = await tx.order.create({
         data: {
           orderNumber,
@@ -89,9 +114,9 @@ export class OrdersService {
                 quantity: item.quantity,
                 size: item.size,
                 color: item.color,
-                price: product.price,        // from DB, not client
-                name: product.name,           // from DB, not client
-                image: product.images?.[0],   // from DB, not client
+                price: product.price, // from DB, not client
+                name: product.name, // from DB, not client
+                image: product.images?.[0], // from DB, not client
               };
             }),
           },
@@ -102,7 +127,7 @@ export class OrdersService {
       // Clear user's cart
       await tx.cartItem.deleteMany({ where: { userId: user.id } });
 
-      // Decrement stock for each item
+      // Decrement stock for each item (inside transaction for atomicity)
       for (const item of dto.items) {
         await tx.product.update({
           where: { id: item.productId },
@@ -146,7 +171,10 @@ export class OrdersService {
     const [orders, total] = await Promise.all([
       this.prisma.order.findMany({
         where: { userId: user.id },
-        include: { items: true, payments: { orderBy: { createdAt: 'desc' }, take: 1 } },
+        include: {
+          items: true,
+          payments: { orderBy: { createdAt: 'desc' }, take: 1 },
+        },
         orderBy: { createdAt: 'desc' },
         skip,
         take: limit,

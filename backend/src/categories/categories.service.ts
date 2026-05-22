@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/categories.dto';
 
@@ -31,9 +35,13 @@ export class CategoriesService {
   }
 
   async delete(id: string) {
-    const productCount = await this.prisma.product.count({ where: { categoryId: id } });
+    const productCount = await this.prisma.product.count({
+      where: { categoryId: id },
+    });
     if (productCount > 0) {
-      throw new BadRequestException(`Cannot delete category with ${productCount} linked product(s). Remove or reassign them first.`);
+      throw new BadRequestException(
+        `Cannot delete category with ${productCount} linked product(s). Remove or reassign them first.`,
+      );
     }
     return this.prisma.category.delete({ where: { id } });
   }

@@ -44,7 +44,10 @@ export class PaymentsService {
    * Determine the payment gateway based on country.
    * India → RAZORPAY, everything else → STRIPE.
    */
-  private resolveGateway(country?: string, explicitGateway?: string): 'RAZORPAY' | 'STRIPE' {
+  private resolveGateway(
+    country?: string,
+    explicitGateway?: string,
+  ): 'RAZORPAY' | 'STRIPE' {
     if (explicitGateway) {
       const g = explicitGateway.toUpperCase();
       if (g === 'RAZORPAY' || g === 'STRIPE') return g;
@@ -80,7 +83,7 @@ export class PaymentsService {
     const resolvedGateway = this.resolveGateway(country, gateway);
 
     // Idempotency: check if a PENDING payment already exists for this order + gateway
-    const idempotencyKey = `${orderId}_${resolvedGateway}_${Date.now()}`;
+    const idempotencyKey = `${orderId}_${resolvedGateway}`;
     const existingPayment = await this.prisma.payment.findFirst({
       where: {
         orderId,
@@ -91,7 +94,9 @@ export class PaymentsService {
 
     if (existingPayment) {
       // Return existing pending payment instead of creating a duplicate
-      this.logger.log(`Returning existing pending payment ${existingPayment.id} for order ${orderId}`);
+      this.logger.log(
+        `Returning existing pending payment ${existingPayment.id} for order ${orderId}`,
+      );
       return this.formatPaymentResponse(existingPayment, resolvedGateway);
     }
 
@@ -126,28 +131,42 @@ export class PaymentsService {
     let gatewayResult;
 
     if (resolvedGateway === 'RAZORPAY') {
-      gatewayResult = await this.razorpayService.createOrder(order.totalAmount, currency, {
-        receipt: `tfi_${order.orderNumber}`,
-        notes: { orderId, paymentId: payment.id },
-      });
+      gatewayResult = await this.razorpayService.createOrder(
+        order.totalAmount,
+        currency,
+        {
+          receipt: `tfi_${order.orderNumber}`,
+          notes: { orderId, paymentId: payment.id },
+        },
+      );
 
       // Update order with Razorpay order ID
       await this.prisma.order.update({
         where: { id: orderId },
-        data: { razorpayOrderId: gatewayResult.gatewayOrderId, paymentMethod: 'ONLINE' },
+        data: {
+          razorpayOrderId: gatewayResult.gatewayOrderId,
+          paymentMethod: 'ONLINE',
+        },
       });
     } else {
-      gatewayResult = await this.stripeService.createOrder(order.totalAmount, currency, {
-        orderId,
-        orderNumber: order.orderNumber,
-        orderDescription: `TFICLUB Order #${order.orderNumber}`,
-        customerEmail: order.user?.email,
-      });
+      gatewayResult = await this.stripeService.createOrder(
+        order.totalAmount,
+        currency,
+        {
+          orderId,
+          orderNumber: order.orderNumber,
+          orderDescription: `TFICLUB Order #${order.orderNumber}`,
+          customerEmail: order.user?.email,
+        },
+      );
 
       // Update order with Stripe session ID
       await this.prisma.order.update({
         where: { id: orderId },
-        data: { stripeSessionId: gatewayResult.gatewayOrderId, paymentMethod: 'ONLINE' },
+        data: {
+          stripeSessionId: gatewayResult.gatewayOrderId,
+          paymentMethod: 'ONLINE',
+        },
       });
     }
 
@@ -163,7 +182,11 @@ export class PaymentsService {
   /**
    * Format the payment response for the frontend.
    */
-  private formatPaymentResponse(payment: any, gateway: string, gatewayResult?: any) {
+  private formatPaymentResponse(
+    payment: any,
+    gateway: string,
+    gatewayResult?: any,
+  ) {
     const base = {
       paymentId: payment.id,
       orderId: payment.orderId,
@@ -176,13 +199,15 @@ export class PaymentsService {
     if (gateway === 'RAZORPAY') {
       return {
         ...base,
-        razorpayOrderId: gatewayResult?.gatewayOrderId || payment.gatewayOrderId,
+        razorpayOrderId:
+          gatewayResult?.gatewayOrderId || payment.gatewayOrderId,
         razorpayKey: this.razorpayService.getPublishableKey(),
       };
     } else {
       return {
         ...base,
-        stripeSessionId: gatewayResult?.gatewayOrderId || payment.gatewayOrderId,
+        stripeSessionId:
+          gatewayResult?.gatewayOrderId || payment.gatewayOrderId,
         stripePublishableKey: this.stripeService.getPublishableKey(),
         checkoutUrl: gatewayResult?.metadata?.checkoutUrl,
       };
@@ -205,7 +230,9 @@ export class PaymentsService {
     });
 
     if (!result.verified) {
-      throw new BadRequestException('Payment verification failed: Invalid signature');
+      throw new BadRequestException(
+        'Payment verification failed: Invalid signature',
+      );
     }
 
     // Find the payment record by gateway order ID
@@ -243,7 +270,11 @@ export class PaymentsService {
       });
     }
 
-    return { verified: true, paymentId: razorpayPaymentId, orderId: razorpayOrderId };
+    return {
+      verified: true,
+      paymentId: razorpayPaymentId,
+      orderId: razorpayOrderId,
+    };
   }
 
   // ─────────────────────────────────────────────────────────
@@ -297,7 +328,10 @@ export class PaymentsService {
    */
   async handleRazorpayWebhook(rawBody: string, signature: string, body: any) {
     // Verify signature
-    const isValid = this.razorpayService.verifyWebhookSignature(rawBody, signature);
+    const isValid = this.razorpayService.verifyWebhookSignature(
+      rawBody,
+      signature,
+    );
 
     // Log the webhook
     await this.prisma.webhookLog.create({
@@ -320,7 +354,12 @@ export class PaymentsService {
       if (body.event === 'payment.captured') {
         const payment = body.payload?.payment?.entity;
         if (payment?.order_id) {
-          await this.confirmPaymentByGatewayOrder('RAZORPAY', payment.order_id, payment.id, payment.method);
+          await this.confirmPaymentByGatewayOrder(
+            'RAZORPAY',
+            payment.order_id,
+            payment.id,
+            payment.method,
+          );
         }
       } else if (body.event === 'payment.failed') {
         const payment = body.payload?.payment?.entity;
@@ -357,7 +396,7 @@ export class PaymentsService {
       data: {
         gateway: 'STRIPE',
         eventType: event?.type || 'unknown',
-        payload: event as any || { raw: 'verification_failed' },
+        payload: event || { raw: 'verification_failed' },
         signature,
         processed: !!event,
         error: event ? null : 'Invalid signature',
@@ -371,7 +410,7 @@ export class PaymentsService {
     try {
       switch (event.type) {
         case 'checkout.session.completed': {
-          const session = event.data.object as any;
+          const session = event.data.object;
           if (session.payment_status === 'paid') {
             await this.confirmPaymentByGatewayOrder(
               'STRIPE',
@@ -383,7 +422,7 @@ export class PaymentsService {
           break;
         }
         case 'payment_intent.payment_failed': {
-          const intent = event.data.object as any;
+          const intent = event.data.object;
           // Find payment by gateway payment ID
           const payment = await this.prisma.payment.findFirst({
             where: { gatewayPaymentId: intent.id },
@@ -394,7 +433,7 @@ export class PaymentsService {
           break;
         }
         case 'charge.refunded': {
-          const charge = event.data.object as any;
+          const charge = event.data.object;
           if (charge.refunds?.data?.length) {
             const refund = charge.refunds.data[0];
             await this.handleGatewayRefundUpdate(refund.id, 'COMPLETED');
@@ -472,7 +511,10 @@ export class PaymentsService {
     }
   }
 
-  private async handleGatewayRefundUpdate(gatewayRefundId: string, status: string) {
+  private async handleGatewayRefundUpdate(
+    gatewayRefundId: string,
+    status: string,
+  ) {
     await this.prisma.refund.updateMany({
       where: { gatewayRefundId },
       data: {
@@ -501,7 +543,9 @@ export class PaymentsService {
       throw new BadRequestException('Can only refund completed payments');
     }
     if (!payment.gatewayPaymentId) {
-      throw new BadRequestException('No gateway payment ID found — cannot refund');
+      throw new BadRequestException(
+        'No gateway payment ID found — cannot refund',
+      );
     }
 
     // Calculate refundable amount
@@ -509,15 +553,23 @@ export class PaymentsService {
       .filter((r) => r.status === 'COMPLETED' || r.status === 'PROCESSING')
       .reduce((sum, r) => sum + r.amount, 0);
 
-    const refundAmount = amount || (payment.amount - alreadyRefunded);
+    const refundAmount = amount || payment.amount - alreadyRefunded;
     if (refundAmount <= 0) throw new BadRequestException('Nothing to refund');
     if (refundAmount > payment.amount - alreadyRefunded) {
-      throw new BadRequestException(`Maximum refundable amount is ₹${(payment.amount - alreadyRefunded).toFixed(2)}`);
+      throw new BadRequestException(
+        `Maximum refundable amount is ₹${(payment.amount - alreadyRefunded).toFixed(2)}`,
+      );
     }
 
     // Process via gateway
-    const gateway = payment.gateway === 'RAZORPAY' ? this.razorpayService : this.stripeService;
-    const result = await gateway.processRefund(payment.gatewayPaymentId, refundAmount);
+    const gateway =
+      payment.gateway === 'RAZORPAY'
+        ? this.razorpayService
+        : this.stripeService;
+    const result = await gateway.processRefund(
+      payment.gatewayPaymentId,
+      refundAmount,
+    );
 
     // Create refund record
     const refund = await this.prisma.refund.create({
@@ -525,9 +577,15 @@ export class PaymentsService {
         paymentId: payment.id,
         amount: refundAmount,
         reason: reason || 'Customer request',
-        status: result.status === 'processed' || result.status === 'succeeded' ? 'COMPLETED' : 'PROCESSING',
+        status:
+          result.status === 'processed' || result.status === 'succeeded'
+            ? 'COMPLETED'
+            : 'PROCESSING',
         gatewayRefundId: result.gatewayRefundId,
-        processedAt: result.status === 'processed' || result.status === 'succeeded' ? new Date() : null,
+        processedAt:
+          result.status === 'processed' || result.status === 'succeeded'
+            ? new Date()
+            : null,
       },
     });
 
@@ -577,7 +635,9 @@ export class PaymentsService {
 
     if (!order) throw new NotFoundException('Order not found');
     if (order.status !== 'PENDING') {
-      throw new BadRequestException('Can only retry payments for pending orders');
+      throw new BadRequestException(
+        'Can only retry payments for pending orders',
+      );
     }
 
     // Mark any existing PENDING payments as CANCELLED
@@ -671,9 +731,10 @@ export class PaymentsService {
       }),
     ]);
 
-    const successRate = totalPayments > 0
-      ? Math.round((completedPayments / totalPayments) * 100)
-      : 0;
+    const successRate =
+      totalPayments > 0
+        ? Math.round((completedPayments / totalPayments) * 100)
+        : 0;
 
     return {
       totalPayments,
@@ -689,7 +750,12 @@ export class PaymentsService {
     };
   }
 
-  async getAdminPayments(page = 1, limit = 20, status?: string, gateway?: string) {
+  async getAdminPayments(
+    page = 1,
+    limit = 20,
+    status?: string,
+    gateway?: string,
+  ) {
     const skip = (page - 1) * limit;
     const where: any = {};
     if (status) where.status = status;

@@ -143,7 +143,6 @@ model Product {
   @@index([isActive])
   @@index([gender])
   @@index([featured, isActive])
-  @@index([slug])
   @@index([createdAt])
   @@map("products")
 }

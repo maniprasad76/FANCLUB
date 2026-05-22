@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Put, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto/orders.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -17,7 +26,11 @@ export class OrdersController {
 
   @UseGuards(JwtAuthGuard)
   @Get('my-orders')
-  findMyOrders(@CurrentUser('authId') authId: string, @Query('page') page = 1, @Query('limit') limit = 10) {
+  findMyOrders(
+    @CurrentUser('authId') authId: string,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+  ) {
     return this.ordersService.findUserOrders(authId, +page, +limit);
   }
 
@@ -29,7 +42,11 @@ export class OrdersController {
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Get()
-  adminFindAll(@Query('page') page = 1, @Query('limit') limit = 20, @Query('status') status?: string) {
+  adminFindAll(
+    @Query('page') page = 1,
+    @Query('limit') limit = 20,
+    @Query('status') status?: string,
+  ) {
     return this.ordersService.adminFindAll(+page, +limit, status);
   }
 

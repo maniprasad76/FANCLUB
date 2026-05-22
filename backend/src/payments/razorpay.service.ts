@@ -30,13 +30,15 @@ export class RazorpayService implements PaymentGatewayProvider {
 
   constructor(private configService: ConfigService) {
     this.keyId = this.configService.get<string>('RAZORPAY_KEY_ID') || '';
-    this.keySecret = this.configService.get<string>('RAZORPAY_KEY_SECRET') || '';
-    this.webhookSecret = this.configService.get<string>('RAZORPAY_WEBHOOK_SECRET') || this.keySecret;
+    this.keySecret =
+      this.configService.get<string>('RAZORPAY_KEY_SECRET') || '';
+    this.webhookSecret =
+      this.configService.get<string>('RAZORPAY_WEBHOOK_SECRET') ||
+      this.keySecret;
 
     // Only initialize Razorpay if real keys are configured
     if (this.keyId && this.keySecret && !this.keyId.startsWith('your-')) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
         const Razorpay = require('razorpay');
         this.razorpay = new Razorpay({
           key_id: this.keyId,
@@ -44,10 +46,14 @@ export class RazorpayService implements PaymentGatewayProvider {
         });
         this.logger.log('✅ Razorpay SDK initialized');
       } catch {
-        this.logger.warn('⚠️ Razorpay SDK not found. Indian payments disabled.');
+        this.logger.warn(
+          '⚠️ Razorpay SDK not found. Indian payments disabled.',
+        );
       }
     } else {
-      this.logger.warn('⚠️ Razorpay keys not configured. Indian payments will be stubbed.');
+      this.logger.warn(
+        '⚠️ Razorpay keys not configured. Indian payments will be stubbed.',
+      );
     }
   }
 
@@ -65,7 +71,11 @@ export class RazorpayService implements PaymentGatewayProvider {
    * Create a Razorpay order for the given amount.
    * Amount is passed in the base currency unit (e.g. ₹) and converted to paise internally.
    */
-  async createOrder(amount: number, currency: string, metadata: Record<string, any>): Promise<GatewayOrder> {
+  async createOrder(
+    amount: number,
+    currency: string,
+    metadata: Record<string, any>,
+  ): Promise<GatewayOrder> {
     if (!this.razorpay) {
       // Stub mode — return a fake order for development
       return {
@@ -126,7 +136,10 @@ export class RazorpayService implements PaymentGatewayProvider {
   /**
    * Process a refund via Razorpay Refunds API.
    */
-  async processRefund(gatewayPaymentId: string, amount: number): Promise<RefundResult> {
+  async processRefund(
+    gatewayPaymentId: string,
+    amount: number,
+  ): Promise<RefundResult> {
     if (!this.razorpay) {
       return {
         gatewayRefundId: `refund_stub_${Date.now()}`,

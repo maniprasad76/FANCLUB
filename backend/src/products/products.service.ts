@@ -1,6 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateProductDto, UpdateProductDto, ProductQueryDto } from './dto/products.dto';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+  ProductQueryDto,
+} from './dto/products.dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -64,7 +68,11 @@ export class ProductsService {
       where: { slug },
       include: {
         category: true,
-        reviews: { include: { user: { select: { id: true, name: true, avatar: true } } }, orderBy: { createdAt: 'desc' }, take: 10 },
+        reviews: {
+          include: { user: { select: { id: true, name: true, avatar: true } } },
+          orderBy: { createdAt: 'desc' },
+          take: 10,
+        },
       },
     });
     if (!product) throw new NotFoundException('Product not found');
@@ -108,7 +116,11 @@ export class ProductsService {
     const product = await this.prisma.product.findUnique({ where: { slug } });
     if (!product) return [];
     return this.prisma.product.findMany({
-      where: { categoryId: product.categoryId, slug: { not: slug }, isActive: true },
+      where: {
+        categoryId: product.categoryId,
+        slug: { not: slug },
+        isActive: true,
+      },
       take: 4,
     });
   }

@@ -4,7 +4,7 @@
  */
 
 export interface GatewayOrder {
-  gatewayOrderId: string;    // razorpay_order_id or stripe_session_id
+  gatewayOrderId: string; // razorpay_order_id or stripe_session_id
   amount: number;
   currency: string;
   status: string;
@@ -15,7 +15,7 @@ export interface VerificationResult {
   verified: boolean;
   gatewayPaymentId: string;
   gatewayOrderId: string;
-  method?: string;           // upi, card, netbanking, etc.
+  method?: string; // upi, card, netbanking, etc.
   metadata?: Record<string, any>;
 }
 
@@ -36,13 +36,20 @@ export interface PaymentDetails {
 
 export interface PaymentGatewayProvider {
   /** Create a payment order/session with the gateway */
-  createOrder(amount: number, currency: string, metadata: Record<string, any>): Promise<GatewayOrder>;
+  createOrder(
+    amount: number,
+    currency: string,
+    metadata: Record<string, any>,
+  ): Promise<GatewayOrder>;
 
   /** Verify a payment callback from the gateway */
   verifyPayment(data: Record<string, any>): Promise<VerificationResult>;
 
   /** Process a refund via the gateway */
-  processRefund(gatewayPaymentId: string, amount: number): Promise<RefundResult>;
+  processRefund(
+    gatewayPaymentId: string,
+    amount: number,
+  ): Promise<RefundResult>;
 
   /** Get payment details from the gateway */
   getPaymentDetails(gatewayPaymentId: string): Promise<PaymentDetails>;

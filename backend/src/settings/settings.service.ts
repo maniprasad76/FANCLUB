@@ -19,7 +19,7 @@ export class SettingsService {
   setSetting(key: string, value: any): void {
     const settings = this.getSettings();
     settings[key] = value;
-    
+
     // Ensure dir exists
     if (!fs.existsSync(path.dirname(this.file))) {
       fs.mkdirSync(path.dirname(this.file), { recursive: true });

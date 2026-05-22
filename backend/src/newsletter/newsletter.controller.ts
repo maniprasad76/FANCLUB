@@ -1,4 +1,13 @@
-import { Controller, Post, Get, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { NewsletterService } from './newsletter.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';

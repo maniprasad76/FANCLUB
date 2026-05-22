@@ -1,4 +1,14 @@
-import { Controller, Post, Get, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { ContactService } from './contact.service';
 import { CreateContactDto } from './dto/contact.dto';
@@ -13,7 +23,12 @@ export class ContactController {
   @Throttle({ default: { ttl: 60000, limit: 3 } })
   @Post()
   create(@Body() dto: CreateContactDto) {
-    return this.contactService.create(dto.name, dto.email, dto.subject, dto.message);
+    return this.contactService.create(
+      dto.name,
+      dto.email,
+      dto.subject,
+      dto.message,
+    );
   }
 
   @SkipThrottle()

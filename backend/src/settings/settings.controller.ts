@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Delete, UploadedFile, UseInterceptors, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  UploadedFile,
+  UseInterceptors,
+  UseGuards,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
@@ -18,25 +26,28 @@ export class SettingsController {
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Post('video/upload')
-  @UseInterceptors(FileInterceptor('video', {
-    storage: diskStorage({
-      destination: (req, file, cb) => {
-        const uploadPath = './public/uploads';
-        if (!fs.existsSync(uploadPath)) {
-          fs.mkdirSync(uploadPath, { recursive: true });
-        }
-        cb(null, uploadPath);
-      },
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, 'footer-video-' + uniqueSuffix + extname(file.originalname));
-      }
+  @UseInterceptors(
+    FileInterceptor('video', {
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          const uploadPath = './public/uploads';
+          if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+          }
+          cb(null, uploadPath);
+        },
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, 'footer-video-' + uniqueSuffix + extname(file.originalname));
+        },
+      }),
+      limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
     }),
-    limits: { fileSize: 50 * 1024 * 1024 } // 50MB
-  }))
+  )
   uploadFooterVideo(@UploadedFile() file: Express.Multer.File) {
-    if (!file) throw new Error("No file uploaded");
-    
+    if (!file) throw new Error('No file uploaded');
+
     const videoUrl = `/public/uploads/${file.filename}`;
     this.settingsService.setSetting('footer_video_url', videoUrl);
     return { success: true, url: videoUrl };
@@ -49,25 +60,28 @@ export class SettingsController {
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Post('about-image/upload')
-  @UseInterceptors(FileInterceptor('image', {
-    storage: diskStorage({
-      destination: (req, file, cb) => {
-        const uploadPath = './public/uploads';
-        if (!fs.existsSync(uploadPath)) {
-          fs.mkdirSync(uploadPath, { recursive: true });
-        }
-        cb(null, uploadPath);
-      },
-      filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        cb(null, 'about-image-' + uniqueSuffix + extname(file.originalname));
-      }
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          const uploadPath = './public/uploads';
+          if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+          }
+          cb(null, uploadPath);
+        },
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, 'about-image-' + uniqueSuffix + extname(file.originalname));
+        },
+      }),
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
     }),
-    limits: { fileSize: 10 * 1024 * 1024 } // 10MB
-  }))
+  )
   uploadAboutImage(@UploadedFile() file: Express.Multer.File) {
-    if (!file) throw new Error("No file uploaded");
-    
+    if (!file) throw new Error('No file uploaded');
+
     const imageUrl = `/public/uploads/${file.filename}`;
     this.settingsService.setSetting('about_image_url', imageUrl);
     return { success: true, url: imageUrl };

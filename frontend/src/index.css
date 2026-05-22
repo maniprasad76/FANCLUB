@@ -8,32 +8,19 @@
 
 :root {
   /* Core palette — Bauhaus Canvas */
-  --bg-primary: #F0F0F0;
-  --bg-secondary: #E0E0E0;
-  --bg-tertiary: #D0D0D0;
-  --bg-card: #FFFFFF;
+  --bg-primary: #f0f0f0;
+  --bg-secondary: #e0e0e0;
+  --bg-tertiary: #d0d0d0;
+  --bg-card: #ffffff;
   --bg-glass: rgba(0, 0, 0, 0.03);
   --bg-glass-hover: rgba(0, 0, 0, 0.06);
 
   /* Bauhaus Primaries */
-  --bauhaus-red: #D02020;
-  --bauhaus-blue: #1040C0;
-  --bauhaus-yellow: #F0C020;
+  --bauhaus-red: #d02020;
+  --bauhaus-blue: #1040c0;
+  --bauhaus-yellow: #f0c020;
   --bauhaus-black: #121212;
-  --bauhaus-white: #FFFFFF;
-
-  /* Legacy accent mappings */
-  --accent-teal: #1040C0;
-  --accent-amber: #F0C020;
-  --accent-gold: #D02020;
-  --accent-rose: #D02020;
-  --accent-emerald: #1040C0;
-
-  /* Gradients — NONE. Bauhaus is flat. Use solid fills. */
-  --gradient-primary: none;
-  --gradient-warm: none;
-  --gradient-hero: none;
-  --gradient-card: none;
+  --bauhaus-white: #ffffff;
 
   /* Text — Ink on Canvas */
   --text-primary: #121212;
@@ -61,11 +48,11 @@
      • mono     → Prices, order numbers, data (JetBrains Mono)
      • editorial→ Quotes, testimonials, about text (Playfair Display)
      ──────────────────────────────────────────── */
-  --font-display: 'Space Grotesk', 'Outfit', sans-serif;
-  --font-body: 'Inter', 'Outfit', sans-serif;
-  --font-accent: 'Outfit', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
-  --font-editorial: 'Playfair Display', 'Georgia', serif;
+  --font-display: "Space Grotesk", "Outfit", sans-serif;
+  --font-body: "Inter", "Outfit", sans-serif;
+  --font-accent: "Outfit", sans-serif;
+  --font-mono: "JetBrains Mono", "Courier New", monospace;
+  --font-editorial: "Playfair Display", "Georgia", serif;
 
   /* Spacing */
   --nav-height: 72px;
@@ -97,7 +84,9 @@
 /* ============================================
    RESET & BASE
    ============================================ */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -127,14 +116,14 @@ body {
 
 /* Dot grid texture overlay — Bauhaus paper feel */
 body::before {
-  content: '';
+  content: "";
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 1;
   opacity: 0.15;
   background-image: radial-gradient(#121212 1px, transparent 1px);
   background-size: 24px 24px;
@@ -159,7 +148,9 @@ button {
   color: inherit;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   font-family: var(--font-body);
   outline: none;
   border: none;
@@ -167,7 +158,8 @@ input, textarea, select {
   color: var(--text-primary);
 }
 
-ul, ol {
+ul,
+ol {
   list-style: none;
 }
 
@@ -254,9 +246,15 @@ ul, ol {
 }
 
 /* ── Font Family Utilities ── */
-.font-display { font-family: var(--font-display); }
-.font-body { font-family: var(--font-body); }
-.font-accent { font-family: var(--font-accent); }
+.font-display {
+  font-family: var(--font-display);
+}
+.font-body {
+  font-family: var(--font-body);
+}
+.font-accent {
+  font-family: var(--font-accent);
+}
 
 .font-mono {
   font-family: var(--font-mono);
@@ -588,28 +586,53 @@ ul, ol {
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(30px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .animate-fade-in-up {
@@ -626,7 +649,12 @@ ul, ol {
 
 /* Loading skeleton */
 .skeleton {
-  background: linear-gradient(90deg, var(--bg-glass) 25%, var(--bg-glass-hover) 50%, var(--bg-glass) 75%);
+  background: linear-gradient(
+    90deg,
+    var(--bg-glass) 25%,
+    var(--bg-glass-hover) 50%,
+    var(--bg-glass) 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: 0;

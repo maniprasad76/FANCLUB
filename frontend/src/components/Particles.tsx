@@ -1,19 +1,18 @@
-import React, { useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useRef } from "react";
 
-export const Particles: React.FC = () => {
+export const Particles = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     let animationFrameId: number;
     let particles: Particle[] = [];
-    const colors = ['#0d9488', '#d97706', '#fbbf24', 'rgba(255,255,255,0.7)'];
+    const colors = ["#D02020", "#1040C0", "#F0C020", "rgba(18,18,18,0.3)"];
 
     class Particle {
       x: number;
@@ -84,30 +83,28 @@ export const Particles: React.FC = () => {
       init();
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
   return (
-    <motion.canvas
+    <canvas
       ref={canvasRef}
       style={{
-        position: 'fixed',
+        position: "fixed",
         top: 0,
         left: 0,
-        width: '100vw',
-        height: '100vh',
-        pointerEvents: 'none',
+        width: "100vw",
+        height: "100vh",
+        pointerEvents: "none",
         zIndex: -1,
-        mixBlendMode: 'screen',
+        mixBlendMode: "multiply",
+        opacity: 1,
       }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 2, ease: 'easeOut' }}
     />
   );
 };

@@ -5,7 +5,12 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ReviewsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(authId: string, productId: string, rating: number, comment?: string) {
+  async create(
+    authId: string,
+    productId: string,
+    rating: number,
+    comment?: string,
+  ) {
     const user = await this.prisma.user.findUnique({ where: { authId } });
     if (!user) throw new NotFoundException('User not found');
 

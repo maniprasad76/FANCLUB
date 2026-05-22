@@ -1,210 +1,482 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  BadRequestException,
+  UnauthorizedException,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseService } from '../supabase/supabase.service.js';
 import { PrismaService } from '../prisma/prisma.service';
-import { SignUpDto, SignInDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
-  private supabase: SupabaseClient;
-  private supabaseAdmin: SupabaseClient;
+  private readonly logger = new Logger(AuthService.name);
 
   constructor(
-    private prisma: PrismaService,
-    private configService: ConfigService,
-  ) {
-    this.supabase = createClient(
-      this.configService.get<string>('SUPABASE_URL')!,
-      this.configService.get<string>('SUPABASE_ANON_KEY')!,
-    );
-    this.supabaseAdmin = createClient(
-      this.configService.get<string>('SUPABASE_URL')!,
-      this.configService.get<string>('SUPABASE_SERVICE_ROLE_KEY')!,
-    );
-  }
+    private readonly supabaseService: SupabaseService,
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
 
-  async signUp(dto: SignUpDto) {
-    // Check local DB first
-    const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
-    if (existing) throw new ConflictException('An account with this email already exists. Please sign in instead.');
+  // ─── SIGN UP ────────────────────────────────────────────────
 
-    const { data, error } = await this.supabase.auth.signUp({
-      email: dto.email,
-      password: dto.password,
-      options: { data: { name: dto.name } },
-    });
+  async signUp(
+    email: string,
+    password: string,
+    name: string,
+  ): Promise<{
+    user: any;
+    session: { access_token: string; refresh_token: string } | null;
+  }> {
+    const client = this.supabaseService.getClient();
 
-    if (error) {
-      // Supabase may say "User already registered"
-      if (error.message?.toLowerCase().includes('already registered') || error.message?.toLowerCase().includes('already been registered')) {
-        throw new ConflictException('An account with this email already exists. Please sign in instead.');
+    try {
+      // Check if user already exists in local DB
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email: email.toLowerCase() },
+      });
+
+      if (existingUser) {
+        throw new HttpException(
+          {
+            statusCode: HttpStatus.CONFLICT,
+            message:
+              'An account with this email already exists. Please sign in instead.',
+          },
+          HttpStatus.CONFLICT,
+        );
       }
-      throw new UnauthorizedException(error.message);
-    }
 
-    const user = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        name: dto.name,
-        phone: dto.phone,
-        authId: data.user!.id,
-        role: 'USER',
-      },
-    });
+      // Create user in Supabase Auth
+      const { data: authData, error: authError } =
+        await client.auth.admin.createUser({
+          email: email.toLowerCase(),
+          password,
+          email_confirm: true, // Auto-confirm email for smooth UX
+          user_metadata: { name },
+        });
 
-    return {
-      user,
-      session: data.session,
-    };
-  }
+      if (authError) {
+        this.logger.error(`Supabase signup error: ${authError.message}`);
 
-  async signIn(dto: SignInDto) {
-    const { data, error } = await this.supabase.auth.signInWithPassword({
-      email: dto.email,
-      password: dto.password,
-    });
-
-    if (error) {
-      if (error.message?.toLowerCase().includes('invalid login credentials')) {
-        // Check if user even exists to give a better message
-        const existingUser = await this.prisma.user.findUnique({ where: { email: dto.email } });
-        if (!existingUser) {
-          throw new UnauthorizedException('No account found with this email. Please sign up first.');
+        if (
+          authError.message.includes('already registered') ||
+          authError.message.includes('already exists')
+        ) {
+          throw new HttpException(
+            {
+              statusCode: HttpStatus.CONFLICT,
+              message:
+                'An account with this email already exists. Please sign in instead.',
+            },
+            HttpStatus.CONFLICT,
+          );
         }
-        throw new UnauthorizedException('Incorrect password. Please try again or reset your password.');
+        throw new BadRequestException(authError.message);
       }
-      throw new UnauthorizedException(error.message);
-    }
 
-    let user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+      if (!authData.user) {
+        throw new BadRequestException('Failed to create user account');
+      }
 
-    if (!user) {
-      // User exists in Supabase but not in our DB — create them
-      user = await this.prisma.user.create({
+      // Create user in local Prisma DB
+      const dbUser = await this.prisma.user.create({
         data: {
-          email: dto.email,
-          name: data.user.user_metadata?.name || dto.email.split('@')[0],
-          authId: data.user.id,
+          email: email.toLowerCase(),
+          name,
+          authId: authData.user.id,
           role: 'USER',
         },
       });
-    }
 
-    return {
-      user,
-      session: data.session,
-    };
-  }
+      this.logger.log(`New user registered: ${email}`);
 
-  async adminSignIn(dto: SignInDto) {
-    const { data, error } = await this.supabase.auth.signInWithPassword({
-      email: dto.email,
-      password: dto.password,
-    });
+      // Sign in immediately to get session tokens
+      const { data: signInData, error: signInError } =
+        await client.auth.signInWithPassword({
+          email: email.toLowerCase(),
+          password,
+        });
 
-    if (error) throw new UnauthorizedException('Invalid credentials');
+      const session = signInData?.session
+        ? {
+            access_token: signInData.session.access_token,
+            refresh_token: signInData.session.refresh_token,
+          }
+        : null;
 
-    // Upsert user — first login after setup script may not have DB record
-    let user = await this.prisma.user.findUnique({ where: { email: dto.email } });
-
-    if (!user) {
-      // Create as ADMIN on first admin login
-      user = await this.prisma.user.create({
-        data: {
-          email: dto.email,
-          name: data.user?.user_metadata?.name || 'Admin',
-          authId: data.user!.id,
-          role: 'ADMIN',
+      return {
+        user: {
+          id: dbUser.id,
+          email: dbUser.email,
+          name: dbUser.name,
+          phone: dbUser.phone,
+          avatar: dbUser.avatar,
+          role: dbUser.role,
         },
-      });
-    } else if (user.role !== 'ADMIN') {
-      // Promote existing user to ADMIN
-      user = await this.prisma.user.update({
-        where: { id: user.id },
-        data: { role: 'ADMIN', authId: data.user!.id },
-      });
+        session,
+      };
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      this.logger.error(`signUp error: ${(error as Error).message}`);
+      throw new BadRequestException('Registration failed');
     }
-
-    return {
-      user,
-      session: data.session,
-    };
   }
 
-  /**
-   * Refresh an expired session using Supabase refresh_token.
-   * Returns a brand new access_token + refresh_token pair.
-   */
-  async refreshSession(refreshToken: string) {
-    const { data, error } = await this.supabase.auth.refreshSession({ refresh_token: refreshToken });
+  // ─── SIGN IN ────────────────────────────────────────────────
 
-    if (error || !data.session) {
+  async signIn(
+    email: string,
+    password: string,
+  ): Promise<{
+    user: any;
+    session: { access_token: string; refresh_token: string };
+  }> {
+    const client = this.supabaseService.getClient();
+
+    try {
+      // Authenticate via Supabase Auth
+      const { data, error } = await client.auth.signInWithPassword({
+        email: email.toLowerCase(),
+        password,
+      });
+
+      if (error) {
+        this.logger.warn(`Sign-in failed for ${email}: ${error.message}`);
+
+        if (error.message.includes('Invalid login credentials')) {
+          // Check if the account exists at all
+          const existingUser = await this.prisma.user.findUnique({
+            where: { email: email.toLowerCase() },
+          });
+
+          if (!existingUser) {
+            throw new UnauthorizedException(
+              'No account found with this email. Please sign up first.',
+            );
+          }
+
+          throw new UnauthorizedException(
+            'Incorrect password. Please try again or reset your password.',
+          );
+        }
+
+        throw new UnauthorizedException(error.message);
+      }
+
+      if (!data.session || !data.user) {
+        throw new UnauthorizedException('Authentication failed');
+      }
+
+      // Find user in local DB
+      let dbUser = await this.prisma.user.findUnique({
+        where: { authId: data.user.id },
+      });
+
+      // If user doesn't exist in local DB (e.g. created directly in Supabase),
+      // create a local record
+      if (!dbUser) {
+        dbUser = await this.prisma.user.create({
+          data: {
+            email: email.toLowerCase(),
+            name: data.user.user_metadata?.name || null,
+            authId: data.user.id,
+            role: 'USER',
+          },
+        });
+        this.logger.log(`Local user created on sign-in for ${email}`);
+      }
+
+      this.logger.log(`User signed in: ${email}`);
+
+      return {
+        user: {
+          id: dbUser.id,
+          email: dbUser.email,
+          name: dbUser.name,
+          phone: dbUser.phone,
+
+          avatar: dbUser.avatar,
+          role: dbUser.role,
+        },
+        session: {
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        },
+      };
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      this.logger.error(`signIn error: ${(error as Error).message}`);
+      throw new UnauthorizedException('Invalid credentials');
+    }
+  }
+
+  // ─── FORGOT PASSWORD ───────────────────────────────────────
+
+  async forgotPassword(
+    email: string,
+    redirectTo?: string,
+  ): Promise<{ message: string }> {
+    const client = this.supabaseService.getClient();
+
+    try {
+      const { error } = await client.auth.resetPasswordForEmail(
+        email.toLowerCase(),
+        {
+          redirectTo: redirectTo || undefined,
+        },
+      );
+
+      if (error) {
+        this.logger.error(
+          `Forgot password error for ${email}: ${error.message}`,
+        );
+        // Don't reveal whether the email exists — always show success
+      }
+
+      // Always return success to prevent email enumeration
+      return {
+        message:
+          'If an account with that email exists, a reset link has been sent.',
+      };
+    } catch (error) {
+      this.logger.error(`forgotPassword error: ${(error as Error).message}`);
+      // Still return success to prevent enumeration
+      return {
+        message:
+          'If an account with that email exists, a reset link has been sent.',
+      };
+    }
+  }
+
+  // ─── REFRESH TOKEN ──────────────────────────────────────────
+
+  async refreshToken(refreshToken: string): Promise<{
+    user: any;
+    session: { access_token: string; refresh_token: string };
+  }> {
+    const client = this.supabaseService.getClient();
+
+    try {
+      const { data, error } = await client.auth.refreshSession({
+        refresh_token: refreshToken,
+      });
+
+      if (error || !data.session || !data.user) {
+        throw new UnauthorizedException(
+          'Session expired. Please sign in again.',
+        );
+      }
+
+      // Fetch user from local DB
+      const dbUser = await this.prisma.user.findUnique({
+        where: { authId: data.user.id },
+      });
+
+      if (!dbUser) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      return {
+        user: {
+          id: dbUser.id,
+          email: dbUser.email,
+          name: dbUser.name,
+          phone: dbUser.phone,
+          avatar: dbUser.avatar,
+          role: dbUser.role,
+        },
+        session: {
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        },
+      };
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      this.logger.error(`refreshToken error: ${(error as Error).message}`);
       throw new UnauthorizedException('Session expired. Please sign in again.');
     }
+  }
 
-    // Ensure user exists in our DB
-    let user = await this.prisma.user.findUnique({ where: { authId: data.user!.id } });
-    if (!user) {
-      user = await this.prisma.user.create({
-        data: {
-          email: data.user!.email!,
-          name: data.user!.user_metadata?.name || data.user!.email!.split('@')[0],
-          authId: data.user!.id,
-          role: 'USER',
+  // ─── LOGOUT ─────────────────────────────────────────────────
+
+  async logout(accessToken: string): Promise<{ success: boolean }> {
+    const client = this.supabaseService.getClient();
+
+    try {
+      // Use admin API to sign out user by their access token
+      const {
+        data: { user },
+      } = await client.auth.getUser(accessToken);
+
+      if (user) {
+        await client.auth.admin.signOut(user.id);
+      }
+
+      this.logger.log('User logged out');
+      return { success: true };
+    } catch (error) {
+      this.logger.error(`Logout error: ${(error as Error).message}`);
+      // Still return success — user should be logged out client-side regardless
+      return { success: true };
+    }
+  }
+
+  // ─── GET PROFILE ────────────────────────────────────────────
+
+  async getProfile(authId: string): Promise<any> {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { authId },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          phone: true,
+          avatar: true,
+          role: true,
         },
       });
+
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      return user;
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      this.logger.error(`getProfile error: ${(error as Error).message}`);
+      throw new UnauthorizedException('Failed to fetch profile');
     }
-
-    return {
-      user,
-      session: data.session,
-    };
   }
 
-  async getProfile(authId: string) {
-    return this.prisma.user.findUnique({
-      where: { authId },
-      include: { addresses: true },
-    });
-  }
+  // ─── SYNC OAUTH USER ───────────────────────────────────────
 
-  async syncOAuth(accessToken: string, requireAdmin: boolean = false) {
-    const { data: { user }, error } = await this.supabase.auth.getUser(accessToken);
-    if (error || !user) throw new UnauthorizedException('Invalid OAuth session');
+  /**
+   * Called after a successful OAuth login (Google/Facebook).
+   * The frontend sends the Supabase access_token, we validate it
+   * and upsert the user in our local Prisma DB.
+   */
+  async syncOAuthUser(accessToken: string): Promise<{
+    user: any;
+    session: { access_token: string } | null;
+  }> {
+    const client = this.supabaseService.getClient();
 
-    let dbUser = await this.prisma.user.findUnique({ where: { authId: user.id } });
+    try {
+      // Validate the access token and get user info
+      const {
+        data: { user: authUser },
+        error,
+      } = await client.auth.getUser(accessToken);
 
-    if (!dbUser) {
-      dbUser = await this.prisma.user.create({
-        data: {
-          email: user.email!,
-          name: user.user_metadata?.full_name || user.user_metadata?.name || user.email!.split('@')[0],
-          avatar: user.user_metadata?.avatar_url,
-          authId: user.id,
-          role: 'USER',
-        },
+      if (error || !authUser) {
+        this.logger.error(
+          `OAuth sync failed: ${error?.message || 'No user returned'}`,
+        );
+        throw new UnauthorizedException('Invalid OAuth token');
+      }
+
+      const email = authUser.email;
+      if (!email) {
+        throw new BadRequestException('OAuth account has no email');
+      }
+
+      // Upsert user in local DB
+      let dbUser = await this.prisma.user.findUnique({
+        where: { authId: authUser.id },
       });
+
+      if (!dbUser) {
+        // Check if user exists by email (could have registered with email first)
+        dbUser = await this.prisma.user.findUnique({
+          where: { email: email.toLowerCase() },
+        });
+
+        if (dbUser) {
+          // Link existing local user to this OAuth identity
+          dbUser = await this.prisma.user.update({
+            where: { id: dbUser.id },
+            data: {
+              authId: authUser.id,
+              avatar:
+                dbUser.avatar ||
+                authUser.user_metadata?.avatar_url ||
+                authUser.user_metadata?.picture ||
+                null,
+              name:
+                dbUser.name ||
+                authUser.user_metadata?.full_name ||
+                authUser.user_metadata?.name ||
+                null,
+            },
+          });
+          this.logger.log(`OAuth user linked to existing account: ${email}`);
+        } else {
+          // Create new user
+          dbUser = await this.prisma.user.create({
+            data: {
+              email: email.toLowerCase(),
+              name:
+                authUser.user_metadata?.full_name ||
+                authUser.user_metadata?.name ||
+                null,
+              avatar:
+                authUser.user_metadata?.avatar_url ||
+                authUser.user_metadata?.picture ||
+                null,
+              authId: authUser.id,
+              role: 'USER',
+            },
+          });
+          this.logger.log(`New OAuth user created: ${email}`);
+        }
+      } else {
+        // Update avatar/name from OAuth provider if not set locally
+        const updates: any = {};
+        if (
+          !dbUser.avatar &&
+          (authUser.user_metadata?.avatar_url ||
+            authUser.user_metadata?.picture)
+        ) {
+          updates.avatar =
+            authUser.user_metadata.avatar_url || authUser.user_metadata.picture;
+        }
+        if (
+          !dbUser.name &&
+          (authUser.user_metadata?.full_name || authUser.user_metadata?.name)
+        ) {
+          updates.name =
+            authUser.user_metadata.full_name || authUser.user_metadata.name;
+        }
+
+        if (Object.keys(updates).length > 0) {
+          dbUser = await this.prisma.user.update({
+            where: { id: dbUser.id },
+            data: updates,
+          });
+        }
+      }
+
+      return {
+        user: {
+          id: dbUser.id,
+          email: dbUser.email,
+          name: dbUser.name,
+          phone: dbUser.phone,
+          avatar: dbUser.avatar,
+          role: dbUser.role,
+        },
+        session: {
+          access_token: accessToken,
+        },
+      };
+    } catch (error) {
+      if (error instanceof HttpException) throw error;
+      this.logger.error(`syncOAuthUser error: ${(error as Error).message}`);
+      throw new BadRequestException('OAuth sync failed');
     }
-
-    if (requireAdmin && dbUser.role !== 'ADMIN') {
-      throw new UnauthorizedException('Admin access denied');
-    }
-
-    return {
-      user: dbUser,
-      session: { access_token: accessToken },
-    };
-  }
-
-  async forgotPassword(email: string, redirectTo: string) {
-    const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
-      redirectTo,
-    });
-
-    if (error) {
-      throw new UnauthorizedException(error.message);
-    }
-
-    return { message: 'Password reset link sent successfully' };
   }
 }

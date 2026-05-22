@@ -1,132 +1,96 @@
-import { Controller, Post, Body, Get, UseGuards, Res } from '@nestjs/common';
-import type { Response } from 'express';
-import { Throttle, SkipThrottle } from '@nestjs/throttler';
-import { AuthService } from './auth.service';
-import { SignUpDto, SignInDto, ForgotPasswordDto } from './dto/auth.dto';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { CurrentUser } from './decorators/current-user.decorator';
-
-/** Cookie options for the JWT access token */
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: true,
-  sameSite: 'none' as const,
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  path: '/',
-};
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  UseGuards,
+  Req,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import type { Request } from 'express';
+import { AuthService } from './auth.service.js';
+import { SignInDto } from './dto/signin.dto.js';
+import { SignUpDto } from './dto/signup.dto.js';
+import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
+import { RefreshTokenDto } from './dto/refresh-token.dto.js';
+import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
+import { CurrentUser } from './decorators/current-user.decorator.js';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
-  /** 5 attempts per 60 seconds — brute-force protection */
-  @Throttle({ default: { ttl: 60000, limit: 5 } })
+  // ─── POST /auth/signup ─────────────────────────────────────
+
   @Post('signup')
-  async signUp(@Body() dto: SignUpDto, @Res({ passthrough: true }) res: any) {
-    const result = await this.authService.signUp(dto);
-    if (result.session?.access_token) {
-      res.cookie('access_token', result.session.access_token, COOKIE_OPTIONS);
-    }
-    // Return user data, session (with refresh_token for client storage)
-    return {
-      user: result.user,
-      session: {
-        access_token: result.session?.access_token,
-        refresh_token: result.session?.refresh_token,
-      },
-    };
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
+  @HttpCode(HttpStatus.CREATED)
+  async signUp(@Body() dto: SignUpDto) {
+    return this.authService.signUp(dto.email, dto.password, dto.name);
   }
 
-  /** 5 attempts per 60 seconds — brute-force protection */
-  @Throttle({ default: { ttl: 60000, limit: 5 } })
+  // ─── POST /auth/signin ────────────────────────────────────
+
   @Post('signin')
-  async signIn(@Body() dto: SignInDto, @Res({ passthrough: true }) res: any) {
-    const result = await this.authService.signIn(dto);
-    if (result.session?.access_token) {
-      res.cookie('access_token', result.session.access_token, COOKIE_OPTIONS);
-    }
-    return {
-      user: result.user,
-      session: {
-        access_token: result.session?.access_token,
-        refresh_token: result.session?.refresh_token,
-      },
-    };
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
+  @HttpCode(HttpStatus.OK)
+  async signIn(@Body() dto: SignInDto) {
+    return this.authService.signIn(dto.email, dto.password);
   }
 
-  /** 5 attempts per 60 seconds — brute-force protection */
+  // ─── POST /auth/forgot-password ───────────────────────────
+
+  @Post('forgot-password')
   @Throttle({ default: { ttl: 60000, limit: 5 } })
-  @Post('admin/signin')
-  async adminSignIn(@Body() dto: SignInDto, @Res({ passthrough: true }) res: any) {
-    const result = await this.authService.adminSignIn(dto);
-    if (result.session?.access_token) {
-      res.cookie('access_token', result.session.access_token, COOKIE_OPTIONS);
-    }
-    return {
-      user: result.user,
-      session: {
-        access_token: result.session?.access_token,
-        refresh_token: result.session?.refresh_token,
-      },
-    };
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto.email, dto.redirectTo);
   }
 
-  /**
-   * Refresh an expired JWT using the Supabase refresh_token.
-   * The client sends the refresh_token; we get a new access_token
-   * and set it as an httpOnly cookie.
-   */
-  @SkipThrottle()
+  // ─── POST /auth/refresh ───────────────────────────────────
+
   @Post('refresh')
-  async refreshSession(@Body('refresh_token') refreshToken: string, @Res({ passthrough: true }) res: any) {
-    const result = await this.authService.refreshSession(refreshToken);
-    if (result.session?.access_token) {
-      res.cookie('access_token', result.session.access_token, COOKIE_OPTIONS);
-    }
-    return {
-      user: result.user,
-      session: {
-        access_token: result.session?.access_token,
-        refresh_token: result.session?.refresh_token,
-      },
-    };
+  @Throttle({ default: { ttl: 60000, limit: 20 } })
+  @HttpCode(HttpStatus.OK)
+  async refreshToken(@Body() dto: RefreshTokenDto) {
+    return this.authService.refreshToken(dto.refresh_token);
   }
 
-  @Post('user/oauth/sync')
-  async syncUserOAuth(@Body('access_token') accessToken: string, @Res({ passthrough: true }) res: any) {
-    const result = await this.authService.syncOAuth(accessToken, false);
-    if (result.session?.access_token) {
-      res.cookie('access_token', result.session.access_token, COOKIE_OPTIONS);
-    }
-    return { user: result.user, session: result.session };
-  }
+  // ─── POST /auth/logout ───────────────────────────────────
 
-  @Post('admin/oauth/sync')
-  async syncAdminOAuth(@Body('access_token') accessToken: string, @Res({ passthrough: true }) res: any) {
-    const result = await this.authService.syncOAuth(accessToken, true);
-    if (result.session?.access_token) {
-      res.cookie('access_token', result.session.access_token, COOKIE_OPTIONS);
-    }
-    return { user: result.user, session: result.session };
-  }
-
-  @SkipThrottle()
   @Post('logout')
-  async logout(@Res({ passthrough: true }) res: any) {
-    res.clearCookie('access_token', { path: '/', sameSite: 'none' as const, secure: true });
-    return { message: 'Logged out successfully' };
+  @HttpCode(HttpStatus.OK)
+  async logout(@Req() req: Request) {
+    const token = this.extractTokenFromHeader(req);
+    return this.authService.logout(token || '');
   }
 
-  @SkipThrottle()
-  @UseGuards(JwtAuthGuard)
+  // ─── GET /auth/profile ───────────────────────────────────
+
   @Get('profile')
-  getProfile(@CurrentUser('authId') authId: string) {
+  @UseGuards(JwtAuthGuard)
+  async getProfile(@CurrentUser('authId') authId: string) {
     return this.authService.getProfile(authId);
   }
 
-  @Throttle({ default: { ttl: 60000, limit: 3 } })
-  @Post('forgot-password')
-  async forgotPassword(@Body() dto: ForgotPasswordDto, @Body('redirectTo') redirectTo: string) {
-    return this.authService.forgotPassword(dto.email, redirectTo);
+  // ─── POST /auth/user/oauth/sync ──────────────────────────
+
+  @Post('user/oauth/sync')
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
+  @HttpCode(HttpStatus.OK)
+  async syncOAuthUser(@Body() body: { access_token: string }) {
+    return this.authService.syncOAuthUser(body.access_token);
+  }
+
+  // ─── PRIVATE HELPERS ─────────────────────────────────────
+
+  private extractTokenFromHeader(request: Request): string | null {
+    const authHeader = request.headers.authorization;
+    if (!authHeader) return null;
+    const [type, token] = authHeader.split(' ');
+    if (type !== 'Bearer' || !token) return null;
+    return token;
   }
 }

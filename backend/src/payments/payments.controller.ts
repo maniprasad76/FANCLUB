@@ -14,7 +14,12 @@ import { SkipThrottle } from '@nestjs/throttler';
 import { PaymentsService } from './payments.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
-import { CreatePaymentDto, VerifyRazorpayDto, RefundDto, RetryPaymentDto } from './dto/payment.dto';
+import {
+  CreatePaymentDto,
+  VerifyRazorpayDto,
+  RefundDto,
+  RetryPaymentDto,
+} from './dto/payment.dto';
 
 /**
  * PaymentsController — API endpoints for payment operations.
@@ -88,7 +93,10 @@ export class PaymentsController {
    */
   @UseGuards(JwtAuthGuard)
   @Post('retry/:orderId')
-  retryPayment(@Param('orderId') orderId: string, @Body() dto: RetryPaymentDto) {
+  retryPayment(
+    @Param('orderId') orderId: string,
+    @Body() dto: RetryPaymentDto,
+  ) {
     return this.paymentsService.retryPayment(orderId, dto.gateway);
   }
 
@@ -153,7 +161,11 @@ export class PaymentsController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Post('refund/:paymentId')
   processRefund(@Param('paymentId') paymentId: string, @Body() dto: RefundDto) {
-    return this.paymentsService.processRefund(paymentId, dto.amount, dto.reason);
+    return this.paymentsService.processRefund(
+      paymentId,
+      dto.amount,
+      dto.reason,
+    );
   }
 
   /**
@@ -176,6 +188,11 @@ export class PaymentsController {
     @Query('status') status?: string,
     @Query('gateway') gateway?: string,
   ) {
-    return this.paymentsService.getAdminPayments(+page, +limit, status, gateway);
+    return this.paymentsService.getAdminPayments(
+      +page,
+      +limit,
+      status,
+      gateway,
+    );
   }
 }

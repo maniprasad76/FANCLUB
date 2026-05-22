@@ -33,7 +33,9 @@ export class AdminSeederService implements OnModuleInit {
     const password = this.config.get<string>('ADMIN_PASSWORD');
 
     if (!email || !password) {
-      this.logger.warn('ADMIN_EMAIL or ADMIN_PASSWORD not set — skipping admin seed');
+      this.logger.warn(
+        'ADMIN_EMAIL or ADMIN_PASSWORD not set — skipping admin seed',
+      );
       return;
     }
 
@@ -67,7 +69,9 @@ export class AdminSeederService implements OnModuleInit {
         });
 
       if (updateErr) {
-        this.logger.error(`Failed to update admin password: ${updateErr.message}`);
+        this.logger.error(
+          `Failed to update admin password: ${updateErr.message}`,
+        );
       } else {
         supabaseUser = updated.user;
         this.logger.log(`Admin password updated for ${email}`);
@@ -83,7 +87,9 @@ export class AdminSeederService implements OnModuleInit {
         });
 
       if (createErr) {
-        this.logger.error(`Failed to create admin in Supabase: ${createErr.message}`);
+        this.logger.error(
+          `Failed to create admin in Supabase: ${createErr.message}`,
+        );
         return;
       }
 
