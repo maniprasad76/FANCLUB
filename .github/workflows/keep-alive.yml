@@ -2,8 +2,9 @@ name: Keep Render Backend Awake
 
 on:
   schedule:
-    # Runs every 14 minutes to prevent Render's 15-minute inactivity spin-down
-    - cron: '*/14 * * * *'
+    # Runs every 14 minutes during active hours (6AM–11PM IST = 0:30–17:30 UTC)
+    # This saves ~55% of GitHub Actions minutes vs running 24/7
+    - cron: '*/14 1-17 * * *'
   workflow_dispatch:
 
 jobs:
