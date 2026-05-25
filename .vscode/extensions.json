@@ -15,6 +15,10 @@
     "gruntfuggly.todo-tree",
     "alefragnani.project-manager",
     "wix.vscode-import-cost",
-    "oderwat.indent-rainbow"
+    "oderwat.indent-rainbow",
+    "Prisma.prisma",
+    "dsznajder.es7-react-js-snippets",
+    "christian-kohler.npm-intellisense",
+    "eamodio.gitlens"
   ]
 }
