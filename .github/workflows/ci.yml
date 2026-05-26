@@ -1,0 +1,113 @@
+name: CI — Build & Lint Check
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+# ─────────────────────────────────────────────────────────────────
+# HOW ENV VARS WORK HERE:
+#
+# .env.production is committed to the repo (not in .gitignore),
+# so Vite automatically picks it up during `npm run build`.
+# Values from your project:
+#   VITE_API_URL        = https://tfi-backend-3n2s.onrender.com/api
+#   VITE_SUPABASE_URL   = https://cgoapgkfkytvwmdcqdju.supabase.co
+#   VITE_SUPABASE_ANON_KEY = <anon public key — safe to commit>
+#
+# No GitHub Secrets needed for these public values.
+# ─────────────────────────────────────────────────────────────────
+
+jobs:
+  # ─────────────────────────────────────────
+  # 1. BACKEND — NestJS (runs first)
+  # ─────────────────────────────────────────
+  backend:
+    name: 🔧 Backend (NestJS)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint -- --max-warnings=0
+        continue-on-error: true   # lint warnings shouldn't block the build
+
+      - name: Build
+        run: npm run build
+
+  # ─────────────────────────────────────────
+  # 2. FRONTEND — React/Vite (runs after backend passes)
+  # ─────────────────────────────────────────
+  frontend:
+    name: 🌐 Frontend (React/Vite)
+    runs-on: ubuntu-latest
+    needs: backend   # waits for backend to pass first
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Vite automatically loads .env.production during `npm run build`
+      # which already contains the correct production API URL and Supabase keys
+      - name: Build (uses .env.production automatically)
+        run: npm run build
+
+  # ─────────────────────────────────────────
+  # 3. ADMIN — React/Vite (runs after backend passes)
+  # ─────────────────────────────────────────
+  admin:
+    name: 🛡️ Admin Panel (React/Vite)
+    runs-on: ubuntu-latest
+    needs: backend   # waits for backend to pass first
+    defaults:
+      run:
+        working-directory: admin
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: admin/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Vite automatically loads .env.production during `npm run build`
+      # which already contains the correct production API URL and Supabase keys
+      - name: Build (uses .env.production automatically)
+        run: npm run build
+

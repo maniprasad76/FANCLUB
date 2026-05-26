@@ -1,15 +1,26 @@
-name: Keep Render Backend Awake
+name: 🏓 Keep Render Backend Awake
 
 on:
   schedule:
     # Runs every 14 minutes during active hours (6AM–11PM IST = 0:30–17:30 UTC)
+    # IST is UTC+5:30, so 6:00 AM IST = 00:30 UTC, 11:00 PM IST = 17:30 UTC
     # This saves ~55% of GitHub Actions minutes vs running 24/7
-    - cron: '*/14 1-17 * * *'
-  workflow_dispatch:
+    - cron: '*/14 0-17 * * *'
+  workflow_dispatch:   # also allows manual trigger from GitHub Actions UI
 
 jobs:
   ping:
+    name: Ping Backend Health
     runs-on: ubuntu-latest
     steps:
       - name: Ping Backend
-        run: curl -fsS https://tfi-backend-3n2s.onrender.com/api/health || true
+        run: |
+          echo "🏓 Pinging backend at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          response=$(curl -fsS -o /dev/null -w "%{http_code}" \
+            https://tfi-backend-3n2s.onrender.com/api/health) || true
+          echo "Response code: $response"
+          if [ "$response" = "200" ]; then
+            echo "✅ Backend is healthy!"
+          else
+            echo "⚠️ Backend returned: $response (may be warming up)"
+          fi
