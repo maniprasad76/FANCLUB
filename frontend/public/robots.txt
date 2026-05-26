@@ -7,6 +7,12 @@ Disallow: /register
 Disallow: /checkout
 Disallow: /cart
 Disallow: /profile
+Disallow: /wishlist
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /order-success
+Disallow: /payment-status
+Disallow: /launch-checklist
 
 # Sitemap
 Sitemap: https://tfi-frontend-kappa.vercel.app/sitemap.xml

@@ -30,6 +30,7 @@ import FAQ from "./pages/Support/FAQ";
 import Privacy from "./pages/Support/Privacy";
 import Returns from "./pages/Support/Returns";
 import Terms from "./pages/Support/Terms";
+import LaunchChecklist from "./pages/LaunchChecklist/LaunchChecklist";
 import NotFound from "./pages/NotFound";
 import SocialProofToast from "./components/SocialProofToast";
 import { Toaster } from "react-hot-toast";
@@ -113,6 +114,7 @@ function AppShell() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/returns" element={<Returns />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/launch-checklist" element={<LaunchChecklist />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AnimatePresence>

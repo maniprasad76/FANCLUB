@@ -9,7 +9,7 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    // Use direct connection for migrations, session pooler for runtime
+    // DIRECT_URL for migrations (no pooler), DATABASE_URL (transaction pooler) for runtime
     url: process.env["DIRECT_URL"] || process.env["DATABASE_URL"],
   },
 });
