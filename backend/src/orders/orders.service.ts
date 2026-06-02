@@ -74,9 +74,10 @@ export class OrdersService {
     // ── Resolve the customer's country from their address ──
     let customerCountry = dto.country || 'India';
     if (dto.addressId) {
-      const address = await this.prisma.address.findUnique({
-        where: { id: dto.addressId },
+      const address = await this.prisma.address.findFirst({
+        where: { id: dto.addressId, userId: user.id },
       });
+      if (!address) throw new BadRequestException('Invalid shipping address');
       if (address) customerCountry = address.country || 'India';
     }
 
@@ -184,7 +185,7 @@ export class OrdersService {
     return { orders, total, page, pages: Math.ceil(total / limit) };
   }
 
-  async findById(id: string) {
+  async findById(id: string, actor: { id: string; role: string }) {
     const order = await this.prisma.order.findUnique({
       where: { id },
       include: {
@@ -198,6 +199,9 @@ export class OrdersService {
       },
     });
     if (!order) throw new NotFoundException('Order not found');
+    if (actor.role !== 'ADMIN' && order.userId !== actor.id) {
+      throw new NotFoundException('Order not found');
+    }
     return order;
   }
 

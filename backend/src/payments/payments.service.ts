@@ -71,6 +71,7 @@ export class PaymentsService {
     gateway?: string,
     country?: string,
     currency: string = 'INR',
+    actor?: { id: string; role: string },
   ) {
     // Fetch the order
     const order = await this.prisma.order.findUnique({
@@ -78,6 +79,9 @@ export class PaymentsService {
       include: { items: true, user: { select: { email: true, name: true } } },
     });
     if (!order) throw new NotFoundException('Order not found');
+    if (actor && actor.role !== 'ADMIN' && order.userId !== actor.id) {
+      throw new NotFoundException('Order not found');
+    }
 
     // Resolve gateway
     const resolvedGateway = this.resolveGateway(country, gateway);
@@ -222,6 +226,7 @@ export class PaymentsService {
     razorpayOrderId: string,
     razorpayPaymentId: string,
     signature: string,
+    actor?: { id: string; role: string },
   ) {
     const result = await this.razorpayService.verifyPayment({
       razorpayOrderId,
@@ -238,9 +243,14 @@ export class PaymentsService {
     // Find the payment record by gateway order ID
     const payment = await this.prisma.payment.findFirst({
       where: { gatewayOrderId: razorpayOrderId },
+      include: { order: { select: { userId: true } } },
     });
 
     if (payment) {
+      if (actor && actor.role !== 'ADMIN' && payment.order.userId !== actor.id) {
+        throw new NotFoundException('Payment not found');
+      }
+
       // Update payment status
       await this.prisma.payment.update({
         where: { id: payment.id },
@@ -263,6 +273,15 @@ export class PaymentsService {
         data: { paymentId: razorpayPaymentId, status: 'CONFIRMED' },
       });
     } else {
+      const order = await this.prisma.order.findFirst({
+        where: { razorpayOrderId },
+        select: { userId: true },
+      });
+
+      if (!order || (actor && actor.role !== 'ADMIN' && order.userId !== actor.id)) {
+        throw new NotFoundException('Payment not found');
+      }
+
       // Legacy fallback — update order directly (for orders created before migration)
       await this.prisma.order.updateMany({
         where: { razorpayOrderId },
@@ -281,7 +300,10 @@ export class PaymentsService {
   // VERIFY PAYMENT — Stripe session check
   // ─────────────────────────────────────────────────────────
 
-  async verifyStripePayment(sessionId: string) {
+  async verifyStripePayment(
+    sessionId: string,
+    actor?: { id: string; role: string },
+  ) {
     const result = await this.stripeService.verifyPayment({ sessionId });
 
     if (!result.verified) {
@@ -291,7 +313,13 @@ export class PaymentsService {
     // Find payment record
     const payment = await this.prisma.payment.findFirst({
       where: { gatewayOrderId: sessionId },
+      include: { order: { select: { userId: true } } },
     });
+
+    if (!payment) throw new NotFoundException('Payment not found');
+    if (actor && actor.role !== 'ADMIN' && payment.order.userId !== actor.id) {
+      throw new NotFoundException('Payment not found');
+    }
 
     if (payment && payment.status !== 'COMPLETED') {
       await this.prisma.payment.update({
@@ -627,13 +655,20 @@ export class PaymentsService {
   // RETRY FAILED PAYMENT
   // ─────────────────────────────────────────────────────────
 
-  async retryPayment(orderId: string, gateway?: string) {
+  async retryPayment(
+    orderId: string,
+    gateway?: string,
+    actor?: { id: string; role: string },
+  ) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: { address: true },
     });
 
     if (!order) throw new NotFoundException('Order not found');
+    if (actor && actor.role !== 'ADMIN' && order.userId !== actor.id) {
+      throw new NotFoundException('Order not found');
+    }
     if (order.status !== 'PENDING') {
       throw new BadRequestException(
         'Can only retry payments for pending orders',
@@ -648,27 +683,45 @@ export class PaymentsService {
 
     // Create a new payment order
     const country = order.address?.country || 'India';
-    return this.createPaymentOrder(orderId, gateway, country);
+    return this.createPaymentOrder(orderId, gateway, country, undefined, actor);
   }
 
   // ─────────────────────────────────────────────────────────
   // PAYMENT STATUS & QUERIES
   // ─────────────────────────────────────────────────────────
 
-  async getPaymentStatus(paymentId: string) {
+  async getPaymentStatus(
+    paymentId: string,
+    actor?: { id: string; role: string },
+  ) {
     const payment = await this.prisma.payment.findUnique({
       where: { id: paymentId },
       include: {
         transactions: { orderBy: { createdAt: 'desc' } },
         refunds: { orderBy: { createdAt: 'desc' } },
-        order: { select: { orderNumber: true, status: true } },
+        order: { select: { orderNumber: true, status: true, userId: true } },
       },
     });
     if (!payment) throw new NotFoundException('Payment not found');
+    if (actor && actor.role !== 'ADMIN' && payment.order.userId !== actor.id) {
+      throw new NotFoundException('Payment not found');
+    }
     return payment;
   }
 
-  async getOrderPayments(orderId: string) {
+  async getOrderPayments(
+    orderId: string,
+    actor?: { id: string; role: string },
+  ) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      select: { userId: true },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    if (actor && actor.role !== 'ADMIN' && order.userId !== actor.id) {
+      throw new NotFoundException('Order not found');
+    }
+
     return this.prisma.payment.findMany({
       where: { orderId },
       include: {

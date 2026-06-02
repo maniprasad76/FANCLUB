@@ -22,9 +22,13 @@ export default function AdminSettings() {
   const [currentImage, setCurrentImage] = useState("");
   const imageInputRef = useRef<HTMLInputElement>(null);
 
+  const [codEnabled, setCodEnabled] = useState(true);
+  const [updatingCod, setUpdatingCod] = useState(false);
+
   useEffect(() => {
     fetchCurrentVideo();
     fetchCurrentImage();
+    fetchCodStatus();
   }, []);
 
   const fetchCurrentVideo = async () => {
@@ -42,6 +46,32 @@ export default function AdminSettings() {
       if (res.data?.url) setCurrentImage(res.data.url);
     } catch (err: any) {
       // No image configured yet
+    }
+  };
+
+  const fetchCodStatus = async () => {
+    try {
+      const res = await api.get("/settings/cod");
+      if (res.data && typeof res.data.enabled === 'boolean') {
+        setCodEnabled(res.data.enabled);
+      }
+    } catch (err: any) {
+      console.error("Failed to fetch COD status");
+    }
+  };
+
+  const handleToggleCod = async () => {
+    setUpdatingCod(true);
+    try {
+      const res = await api.post("/settings/cod", { enabled: !codEnabled });
+      if (res.data?.success) {
+        setCodEnabled(res.data.enabled);
+        toast.success(`Cash on Delivery ${res.data.enabled ? 'Enabled' : 'Disabled'}`);
+      }
+    } catch (err: any) {
+      toast.error("Failed to update COD status");
+    } finally {
+      setUpdatingCod(false);
     }
   };
 
@@ -271,6 +301,95 @@ export default function AdminSettings() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Checkout Settings Card */}
+        <div className="glass" style={{ padding: 32 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              marginBottom: 8,
+            }}
+          >
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                background: "var(--bauhaus-red)",
+                border: "2px solid var(--bauhaus-black)",
+                boxShadow: "2px 2px 0px 0px var(--bauhaus-black)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <SettingsIcon size={20} color="white" />
+            </div>
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 900,
+                fontSize: "1.1rem",
+                textTransform: "uppercase",
+                letterSpacing: "1px",
+              }}
+            >
+              Checkout Options
+            </h2>
+          </div>
+          <p
+            style={{
+              color: "var(--text-muted)",
+              marginBottom: 24,
+              fontSize: "0.85rem",
+            }}
+          >
+            Manage payment methods available during checkout.
+          </p>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "16px",
+              border: "2px solid var(--bauhaus-black)",
+              background: "var(--bg-primary)",
+            }}
+          >
+            <div>
+              <h4 style={{ margin: "0 0 4px 0", fontWeight: 700 }}>
+                Cash on Delivery (COD)
+              </h4>
+              <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                Allow customers to pay upon receiving their order.
+              </p>
+            </div>
+            <button
+              onClick={handleToggleCod}
+              disabled={updatingCod}
+              style={{
+                padding: "8px 16px",
+                border: "2px solid var(--bauhaus-black)",
+                background: codEnabled ? "var(--bauhaus-blue)" : "var(--bg-secondary)",
+                color: codEnabled ? "white" : "var(--text-primary)",
+                fontWeight: 700,
+                cursor: updatingCod ? "not-allowed" : "pointer",
+                boxShadow: codEnabled
+                  ? "2px 2px 0px 0px var(--bauhaus-black)"
+                  : "inset 2px 2px 0px 0px var(--bauhaus-black)",
+                opacity: updatingCod ? 0.7 : 1,
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              {updatingCod && <Loader2 size={14} className="spin" />}
+              {codEnabled ? "ON" : "OFF"}
+            </button>
           </div>
         </div>
 

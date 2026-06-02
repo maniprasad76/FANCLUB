@@ -31,11 +31,12 @@ export class AuthService {
     session: { access_token: string; refresh_token: string } | null;
   }> {
     const client = this.supabaseService.getClient();
+    const normalizedEmail = email.toLowerCase();
 
     try {
       // Check if user already exists in local DB
       const existingUser = await this.prisma.user.findUnique({
-        where: { email: email.toLowerCase() },
+        where: { email: normalizedEmail },
       });
 
       if (existingUser) {
@@ -52,7 +53,7 @@ export class AuthService {
       // Create user in Supabase Auth
       const { data: authData, error: authError } =
         await client.auth.admin.createUser({
-          email: email.toLowerCase(),
+          email: normalizedEmail,
           password,
           email_confirm: true, // Auto-confirm email for smooth UX
           user_metadata: { name },
@@ -81,22 +82,55 @@ export class AuthService {
         throw new BadRequestException('Failed to create user account');
       }
 
-      // Create user in local Prisma DB
-      const dbUser = await this.prisma.user.create({
-        data: {
-          email: email.toLowerCase(),
-          name,
-          authId: authData.user.id,
-          role: 'USER',
-        },
-      });
+      // Create user in local Prisma DB — handle race condition (double-click /
+      // concurrent requests) where two signUp calls pass the findUnique check
+      // above, both create Supabase users, and then race on the Prisma insert.
+      let dbUser;
+      try {
+        dbUser = await this.prisma.user.create({
+          data: {
+            email: normalizedEmail,
+            name,
+            authId: authData.user.id,
+            role: 'USER',
+          },
+        });
+      } catch (prismaError: any) {
+        // Prisma P2002 = unique constraint violation (email or authId already taken)
+        if (prismaError?.code === 'P2002') {
+          this.logger.warn(
+            `Race condition detected for ${normalizedEmail} — cleaning up orphaned Supabase user ${authData.user.id}`,
+          );
 
-      this.logger.log(`New user registered: ${email}`);
+          // Roll back the Supabase user we just created to avoid orphans
+          try {
+            await client.auth.admin.deleteUser(authData.user.id);
+          } catch (cleanupError) {
+            this.logger.error(
+              `Failed to clean up orphaned Supabase user ${authData.user.id}: ${(cleanupError as Error).message}`,
+            );
+          }
+
+          throw new HttpException(
+            {
+              statusCode: HttpStatus.CONFLICT,
+              message:
+                'An account with this email already exists. Please sign in instead.',
+            },
+            HttpStatus.CONFLICT,
+          );
+        }
+
+        // Re-throw any other Prisma error
+        throw prismaError;
+      }
+
+      this.logger.log(`New user registered: ${normalizedEmail}`);
 
       // Sign in immediately to get session tokens
       const { data: signInData, error: signInError } =
         await client.auth.signInWithPassword({
-          email: email.toLowerCase(),
+          email: normalizedEmail,
           password,
         });
 

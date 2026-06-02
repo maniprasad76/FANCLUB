@@ -14,6 +14,7 @@ import { SkipThrottle } from '@nestjs/throttler';
 import { PaymentsService } from './payments.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import {
   CreatePaymentDto,
   VerifyRazorpayDto,
@@ -55,12 +56,13 @@ export class PaymentsController {
    */
   @UseGuards(JwtAuthGuard)
   @Post('create-order')
-  createOrder(@Body() dto: CreatePaymentDto) {
+  createOrder(@Body() dto: CreatePaymentDto, @CurrentUser() user: any) {
     return this.paymentsService.createPaymentOrder(
       dto.orderId,
       dto.gateway,
       dto.country,
       dto.currency || 'INR',
+      user,
     );
   }
 
@@ -70,11 +72,12 @@ export class PaymentsController {
    */
   @UseGuards(JwtAuthGuard)
   @Post('verify')
-  verifyRazorpay(@Body() dto: VerifyRazorpayDto) {
+  verifyRazorpay(@Body() dto: VerifyRazorpayDto, @CurrentUser() user: any) {
     return this.paymentsService.verifyRazorpayPayment(
       dto.razorpayOrderId,
       dto.razorpayPaymentId,
       dto.signature,
+      user,
     );
   }
 
@@ -83,9 +86,9 @@ export class PaymentsController {
    */
   @UseGuards(JwtAuthGuard)
   @Get('stripe/verify')
-  verifyStripe(@Query('session_id') sessionId: string) {
+  verifyStripe(@Query('session_id') sessionId: string, @CurrentUser() user: any) {
     if (!sessionId) throw new BadRequestException('Missing session_id');
-    return this.paymentsService.verifyStripePayment(sessionId);
+    return this.paymentsService.verifyStripePayment(sessionId, user);
   }
 
   /**
@@ -96,8 +99,9 @@ export class PaymentsController {
   retryPayment(
     @Param('orderId') orderId: string,
     @Body() dto: RetryPaymentDto,
+    @CurrentUser() user: any,
   ) {
-    return this.paymentsService.retryPayment(orderId, dto.gateway);
+    return this.paymentsService.retryPayment(orderId, dto.gateway, user);
   }
 
   /**
@@ -105,8 +109,11 @@ export class PaymentsController {
    */
   @UseGuards(JwtAuthGuard)
   @Get(':paymentId/status')
-  getPaymentStatus(@Param('paymentId') paymentId: string) {
-    return this.paymentsService.getPaymentStatus(paymentId);
+  getPaymentStatus(
+    @Param('paymentId') paymentId: string,
+    @CurrentUser() user: any,
+  ) {
+    return this.paymentsService.getPaymentStatus(paymentId, user);
   }
 
   /**
@@ -114,8 +121,11 @@ export class PaymentsController {
    */
   @UseGuards(JwtAuthGuard)
   @Get('order/:orderId')
-  getOrderPayments(@Param('orderId') orderId: string) {
-    return this.paymentsService.getOrderPayments(orderId);
+  getOrderPayments(
+    @Param('orderId') orderId: string,
+    @CurrentUser() user: any,
+  ) {
+    return this.paymentsService.getOrderPayments(orderId, user);
   }
 
   // ─────────────────────────────────────────────────────────

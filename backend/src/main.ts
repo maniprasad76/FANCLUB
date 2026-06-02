@@ -76,12 +76,22 @@ async function bootstrap() {
     process.env.ADMIN_URL,
     'https://tfi-frontend-kappa.vercel.app',
     'https://tfi-admin-six.vercel.app',
-  ].filter(Boolean) as string[];
+  ].filter((origin): origin is string => typeof origin === 'string' && origin.length > 0);
   // Deduplicate
   const uniqueOrigins = [...new Set(allowedOrigins)];
 
+  // In production, refuse to start if no origins are configured —
+  // falling back to `origin: true` would allow any domain to make
+  // credentialed cross-origin requests.
+  if (uniqueOrigins.length === 0) {
+    const msg =
+      'FATAL: No CORS origins configured. Set FRONTEND_URL and/or ADMIN_URL environment variables.';
+    console.error(msg);
+    throw new Error(msg);
+  }
+
   app.enableCors({
-    origin: uniqueOrigins.length > 0 ? uniqueOrigins : true,
+    origin: uniqueOrigins,
     credentials: true,
   });
 

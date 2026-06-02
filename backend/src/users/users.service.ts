@@ -75,10 +75,26 @@ export class UsersService {
         data: { isDefault: false },
       });
     }
-    return this.prisma.address.update({ where: { id: addressId }, data: dto });
+    const result = await this.prisma.address.updateMany({
+      where: { id: addressId, userId: user.id },
+      data: dto,
+    });
+
+    if (result.count === 0) throw new NotFoundException('Address not found');
+
+    return this.prisma.address.findUnique({ where: { id: addressId } });
   }
 
-  async deleteAddress(addressId: string) {
-    return this.prisma.address.delete({ where: { id: addressId } });
+  async deleteAddress(authId: string, addressId: string) {
+    const user = await this.prisma.user.findUnique({ where: { authId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    const result = await this.prisma.address.deleteMany({
+      where: { id: addressId, userId: user.id },
+    });
+
+    if (result.count === 0) throw new NotFoundException('Address not found');
+
+    return { deleted: true };
   }
 }

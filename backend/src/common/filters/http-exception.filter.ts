@@ -8,9 +8,17 @@ import {
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 
+/**
+ * Global exception filter that catches ALL unhandled errors.
+ *
+ * - HttpExceptions: formatted into a standard API response.
+ * - Unknown errors: logged with stack trace, but the response body
+ *   hides internal details in production to prevent information leaks.
+ */
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);
+  private readonly isProduction = process.env.NODE_ENV === 'production';
 
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
@@ -35,21 +43,56 @@ export class HttpExceptionFilter implements ExceptionFilter {
         message = (resp.message as string | string[]) || exception.message;
         error = (resp.error as string) || exception.name;
       }
+
+      // Log client errors (4xx) at warn level, server errors (5xx) at error level
+      if (status >= 500) {
+        this.logger.error(
+          `[${request.method}] ${request.url} → ${status}: ${JSON.stringify(message)}`,
+          exception.stack,
+        );
+      } else {
+        this.logger.warn(
+          `[${request.method}] ${request.url} → ${status}: ${JSON.stringify(message)}`,
+        );
+      }
     } else if (exception instanceof Error) {
-      message = exception.message;
+      // Unhandled exception — always log the full details server-side
       this.logger.error(
-        `Unhandled exception: ${exception.message}`,
+        `[${request.method}] ${request.url} → Unhandled: ${exception.message}`,
         exception.stack,
       );
+
+      // In production, hide the real error message from the client
+      if (this.isProduction) {
+        message = 'An unexpected error occurred. Please try again later.';
+      } else {
+        message = exception.message;
+      }
+    } else {
+      // Non-Error thrown (string, number, etc.) — very unusual
+      this.logger.error(
+        `[${request.method}] ${request.url} → Non-Error thrown: ${String(exception)}`,
+      );
+
+      if (this.isProduction) {
+        message = 'An unexpected error occurred. Please try again later.';
+      } else {
+        message = String(exception);
+      }
     }
 
-    const body = {
+    const body: Record<string, unknown> = {
       statusCode: status,
       message,
       error,
       timestamp: new Date().toISOString(),
       path: request.url,
     };
+
+    // In development, include the stack trace for debugging convenience
+    if (!this.isProduction && exception instanceof Error) {
+      body.stack = exception.stack;
+    }
 
     response.status(status).json(body);
   }

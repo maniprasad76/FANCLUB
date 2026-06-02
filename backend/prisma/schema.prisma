@@ -7,6 +7,285 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  name      String?
+  phone     String?
+  avatar    String?
+  role      Role       @default(USER)
+  authId    String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  addresses Address[]
+  cartItems CartItem[]
+  orders    Order[]
+  reviews   Review[]
+  wishlists Wishlist[]
+
+  @@index([role])
+  @@map("users")
+}
+
+model Address {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  phone     String
+  street    String
+  city      String
+  state     String
+  pincode   String
+  country   String   @default("India")
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders    Order[]
+
+  @@index([userId])
+  @@map("addresses")
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  image       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id           String      @id @default(uuid())
+  name         String
+  slug         String      @unique
+  description  String
+  price        Float
+  comparePrice Float?
+  images       String[]
+  sizes        String[]
+  colors       String[]
+  categoryId   String
+  stock        Int         @default(0)
+  featured     Boolean     @default(false)
+  bestseller   Boolean     @default(false)
+  newArrival   Boolean     @default(false)
+  rating       Float       @default(0)
+  reviewCount  Int         @default(0)
+  tags         String[]
+  gender       Gender      @default(UNISEX)
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  cartItems    CartItem[]
+  orderItems   OrderItem[]
+  category     Category    @relation(fields: [categoryId], references: [id])
+  reviews      Review[]
+  wishlists    Wishlist[]
+
+  @@index([categoryId])
+  @@index([featured])
+  @@index([bestseller])
+  @@index([newArrival])
+  @@index([isActive])
+  @@index([gender])
+  @@index([featured, isActive])
+  @@index([createdAt])
+  @@map("products")
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  quantity  Int      @default(1)
+  size      String?
+  color     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId, size, color])
+  @@index([userId])
+  @@index([productId])
+  @@map("cart_items")
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  orderNumber     String      @unique @default(uuid())
+  userId          String
+  totalAmount     Float
+  shippingAmount  Float       @default(0)
+  discountAmount  Float       @default(0)
+  addressId       String?
+  paymentMethod   String?
+  paymentId       String?
+  razorpayOrderId String?
+  stripeSessionId String?
+  status          OrderStatus @default(PENDING)
+  trackingId      String?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  items           OrderItem[]
+  address         Address?    @relation(fields: [addressId], references: [id])
+  user            User        @relation(fields: [userId], references: [id])
+  payments        Payment[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  size      String?
+  color     String?
+  price     Float
+  name      String
+  image     String?
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+model Payment {
+  id               String         @id @default(uuid())
+  orderId          String
+  gateway          PaymentGateway
+  gatewayPaymentId String?
+  gatewayOrderId   String?
+  amount           Float
+  currency         String         @default("INR")
+  status           PaymentStatus  @default(PENDING)
+  method           String?
+  idempotencyKey   String         @unique
+  metadata         Json?
+  paidAt           DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  order            Order          @relation(fields: [orderId], references: [id])
+  refunds          Refund[]
+  transactions     Transaction[]
+
+  @@index([orderId])
+  @@index([gatewayPaymentId])
+  @@index([gatewayOrderId])
+  @@index([status])
+  @@map("payments")
+}
+
+model Transaction {
+  id         String   @id @default(uuid())
+  paymentId  String
+  type       String
+  amount     Float
+  currency   String   @default("INR")
+  status     String
+  gatewayRef String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  payment    Payment  @relation(fields: [paymentId], references: [id])
+
+  @@index([paymentId])
+  @@map("transactions")
+}
+
+model Refund {
+  id              String       @id @default(uuid())
+  paymentId       String
+  amount          Float
+  reason          String?
+  status          RefundStatus @default(PENDING)
+  gatewayRefundId String?
+  processedAt     DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  payment         Payment      @relation(fields: [paymentId], references: [id])
+
+  @@index([paymentId])
+  @@map("refunds")
+}
+
+model WebhookLog {
+  id        String   @id @default(uuid())
+  gateway   String
+  eventType String
+  payload   Json
+  signature String?
+  processed Boolean  @default(false)
+  error     String?
+  createdAt DateTime @default(now())
+
+  @@index([gateway, eventType])
+  @@index([createdAt])
+  @@map("webhook_logs")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([productId])
+  @@map("reviews")
+}
+
+model Wishlist {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
+  @@map("wishlists")
+}
+
+model Newsletter {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+
+  @@map("newsletters")
+}
+
+model Contact {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("contacts")
+}
+
 enum Role {
   USER
   ADMIN
@@ -49,293 +328,4 @@ enum RefundStatus {
   PROCESSING
   COMPLETED
   FAILED
-}
-
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  phone     String?
-  avatar    String?
-  role      Role     @default(USER)
-  authId    String   @unique // Supabase auth user id
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  addresses Address[]
-  cartItems CartItem[]
-  orders    Order[]
-  reviews   Review[]
-  wishlists Wishlist[]
-
-  @@index([role])
-  @@map("users")
-}
-
-model Address {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name      String
-  phone     String
-  street    String
-  city      String
-  state     String
-  pincode   String
-  country   String   @default("India")
-  isDefault Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  orders Order[]
-
-  @@index([userId])
-  @@map("addresses")
-}
-
-model Category {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  slug        String   @unique
-  description String?
-  image       String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  products Product[]
-
-  @@map("categories")
-}
-
-model Product {
-  id           String   @id @default(uuid())
-  name         String
-  slug         String   @unique
-  description  String
-  price        Float
-  comparePrice Float?
-  images       String[]
-  sizes        String[]
-  colors       String[]
-  categoryId   String
-  category     Category @relation(fields: [categoryId], references: [id])
-  stock        Int      @default(0)
-  featured     Boolean  @default(false)
-  bestseller   Boolean  @default(false)
-  newArrival   Boolean  @default(false)
-  rating       Float    @default(0)
-  reviewCount  Int      @default(0)
-  tags         String[]
-  gender       Gender   @default(UNISEX)
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  cartItems  CartItem[]
-  orderItems OrderItem[]
-  reviews    Review[]
-  wishlists  Wishlist[]
-
-  @@index([categoryId])
-  @@index([featured])
-  @@index([bestseller])
-  @@index([newArrival])
-  @@index([isActive])
-  @@index([gender])
-  @@index([featured, isActive])
-  @@index([createdAt])
-  @@map("products")
-}
-
-model CartItem {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  quantity  Int      @default(1)
-  size      String?
-  color     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, productId, size, color])
-  @@index([userId])
-  @@index([productId])
-  @@map("cart_items")
-}
-
-model Order {
-  id              String      @id @default(uuid())
-  orderNumber     String      @unique @default(uuid())
-  userId          String
-  user            User        @relation(fields: [userId], references: [id])
-  items           OrderItem[]
-  totalAmount     Float
-  shippingAmount  Float       @default(0)
-  discountAmount  Float       @default(0)
-  addressId       String?
-  address         Address?    @relation(fields: [addressId], references: [id])
-  paymentMethod   String?
-  paymentId       String?
-  razorpayOrderId String?
-  stripeSessionId String?
-  status          OrderStatus @default(PENDING)
-  trackingId      String?
-  notes           String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-
-  payments Payment[]
-
-  @@index([userId])
-  @@index([status])
-  @@index([createdAt])
-  @@map("orders")
-}
-
-model OrderItem {
-  id        String  @id @default(uuid())
-  orderId   String
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-  quantity  Int
-  size      String?
-  color     String?
-  price     Float
-  name      String
-  image     String?
-
-  @@index([orderId])
-  @@index([productId])
-  @@map("order_items")
-}
-
-// ============================================================
-// PAYMENT GATEWAY MODELS — Razorpay + Stripe dual-gateway
-// ============================================================
-
-model Payment {
-  id               String         @id @default(uuid())
-  orderId          String
-  order            Order          @relation(fields: [orderId], references: [id])
-  gateway          PaymentGateway
-  gatewayPaymentId String?        // razorpay_payment_id or stripe_payment_intent_id
-  gatewayOrderId   String?        // razorpay_order_id or stripe_session_id
-  amount           Float
-  currency         String         @default("INR")
-  status           PaymentStatus  @default(PENDING)
-  method           String?        // upi, card, netbanking, wallet, etc.
-  idempotencyKey   String         @unique
-  metadata         Json?
-  paidAt           DateTime?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-
-  transactions Transaction[]
-  refunds      Refund[]
-
-  @@index([orderId])
-  @@index([gatewayPaymentId])
-  @@index([gatewayOrderId])
-  @@index([status])
-  @@map("payments")
-}
-
-model Transaction {
-  id          String   @id @default(uuid())
-  paymentId   String
-  payment     Payment  @relation(fields: [paymentId], references: [id])
-  type        String   // CHARGE, REFUND, SETTLEMENT
-  amount      Float
-  currency    String   @default("INR")
-  status      String
-  gatewayRef  String?  // gateway transaction ID
-  metadata    Json?
-  createdAt   DateTime @default(now())
-
-  @@index([paymentId])
-  @@map("transactions")
-}
-
-model Refund {
-  id              String       @id @default(uuid())
-  paymentId       String
-  payment         Payment      @relation(fields: [paymentId], references: [id])
-  amount          Float
-  reason          String?
-  status          RefundStatus @default(PENDING)
-  gatewayRefundId String?
-  processedAt     DateTime?
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-
-  @@index([paymentId])
-  @@map("refunds")
-}
-
-model WebhookLog {
-  id        String   @id @default(uuid())
-  gateway   String   // RAZORPAY or STRIPE
-  eventType String
-  payload   Json
-  signature String?
-  processed Boolean  @default(false)
-  error     String?
-  createdAt DateTime @default(now())
-
-  @@index([gateway, eventType])
-  @@index([createdAt])
-  @@map("webhook_logs")
-}
-
-model Review {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  rating    Int
-  comment   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, productId])
-  @@index([productId])
-  @@map("reviews")
-}
-
-model Wishlist {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-
-  @@unique([userId, productId])
-  @@index([userId])
-  @@index([productId])
-  @@map("wishlists")
-}
-
-model Newsletter {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
-
-  @@map("newsletters")
-}
-
-model Contact {
-  id        String   @id @default(uuid())
-  name      String
-  email     String
-  subject   String
-  message   String
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  @@map("contacts")
 }

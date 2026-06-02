@@ -1,0 +1,159 @@
+/* ============================================
+   ERROR BOUNDARY — Bauhaus Constructivist
+   ============================================ */
+
+.error-boundary {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 24px;
+  background: var(--bg-primary);
+  overflow: hidden;
+}
+
+/* ── Geometric decorations ── */
+.error-boundary__geo {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.error-boundary__geo--circle {
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  opacity: 0.08;
+  top: -60px;
+  right: -80px;
+}
+
+.error-boundary__geo--square {
+  width: 200px;
+  height: 200px;
+  background: var(--accent-secondary);
+  opacity: 0.06;
+  bottom: 10%;
+  left: -40px;
+  transform: rotate(45deg);
+}
+
+.error-boundary__geo--triangle {
+  width: 0;
+  height: 0;
+  border-left: 80px solid transparent;
+  border-right: 80px solid transparent;
+  border-bottom: 140px solid var(--bg-tertiary);
+  opacity: 0.07;
+  top: 40%;
+  left: 10%;
+}
+
+/* ── Content ── */
+.error-boundary__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  max-width: 520px;
+  width: 100%;
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* ── Icon ── */
+.error-boundary__icon-wrap {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-primary);
+  color: white;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Typography ── */
+.error-boundary__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 3.5rem);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -2px;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.error-boundary__subtitle {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  max-width: 380px;
+}
+
+/* ── Dev error details ── */
+.error-boundary__details {
+  width: 100%;
+  background: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+  padding: 16px;
+  text-align: left;
+}
+
+.error-boundary__details-label {
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--bg-tertiary);
+  margin-bottom: 8px;
+}
+
+.error-boundary__details-pre {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Actions ── */
+.error-boundary__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .error-boundary__title {
+    font-size: 2rem;
+    letter-spacing: -1px;
+  }
+
+  .error-boundary__icon-wrap {
+    width: 56px;
+    height: 56px;
+  }
+
+  .error-boundary__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .error-boundary__actions .btn {
+    width: 100%;
+  }
+}

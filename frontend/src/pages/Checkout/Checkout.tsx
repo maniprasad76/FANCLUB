@@ -83,6 +83,7 @@ export default function Checkout() {
   const [newAddr, setNewAddr] = useState({ name: '', phone: '', street: '', city: '', state: '', pincode: '', country: 'India' });
   const [showNewAddr, setShowNewAddr] = useState(false);
   const [customerCountry, setCustomerCountry] = useState('India');
+  const [codEnabled, setCodEnabled] = useState(true);
 
   /* redirect guests to login (with return path), empty-cart users to cart */
   useEffect(() => {
@@ -101,6 +102,17 @@ export default function Checkout() {
         toast.error('Session expired. Please sign in again.');
         navigate('/login?redirect=/checkout');
       }
+    });
+
+    api.get('/settings/cod').then(r => {
+      if (r.data && typeof r.data.enabled === 'boolean') {
+        setCodEnabled(r.data.enabled);
+        if (!r.data.enabled) {
+          setPaymentMethod('ONLINE');
+        }
+      }
+    }).catch(() => {
+      // Silently ignore if endpoint fails, default to true
     });
   }, [user]);
 
@@ -305,14 +317,16 @@ export default function Checkout() {
               <h3 className="heading-sm"><CreditCard size={18} /> Payment Method</h3>
 
               {/* COD */}
-              <label className={`payment-option ${paymentMethod === 'COD' ? 'active' : ''}`}>
-                <input type="radio" name="payment" checked={paymentMethod === 'COD'} onChange={() => setPaymentMethod('COD')} />
-                <div className="payment-icon cod-icon"><Truck size={20} /></div>
-                <div className="payment-info">
-                  <span className="payment-label">Cash on Delivery</span>
-                  <span className="payment-desc">Pay when you receive your order</span>
-                </div>
-              </label>
+              {codEnabled && (
+                <label className={`payment-option ${paymentMethod === 'COD' ? 'active' : ''}`}>
+                  <input type="radio" name="payment" checked={paymentMethod === 'COD'} onChange={() => setPaymentMethod('COD')} />
+                  <div className="payment-icon cod-icon"><Truck size={20} /></div>
+                  <div className="payment-info">
+                    <span className="payment-label">Cash on Delivery</span>
+                    <span className="payment-desc">Pay when you receive your order</span>
+                  </div>
+                </label>
+              )}
 
               {/* Online */}
               <label className={`payment-option ${paymentMethod === 'ONLINE' ? 'active' : ''}`}>

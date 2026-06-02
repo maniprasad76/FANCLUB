@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AdminGuard } from '../auth/guards/admin.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import {
   UpdateUserDto,
@@ -22,6 +23,7 @@ import {
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Get()
   findAll(@Query('page') page = 1, @Query('limit') limit = 20) {
     return this.usersService.findAll(+page, +limit);
@@ -63,10 +65,14 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Delete('me/addresses/:addressId')
-  deleteAddress(@Param('addressId') addressId: string) {
-    return this.usersService.deleteAddress(addressId);
+  deleteAddress(
+    @CurrentUser('authId') authId: string,
+    @Param('addressId') addressId: string,
+  ) {
+    return this.usersService.deleteAddress(authId, addressId);
   }
 
+  @UseGuards(JwtAuthGuard, AdminGuard)
   @Get(':id')
   findById(@Param('id') id: string) {
     return this.usersService.findById(id);

@@ -29,7 +29,7 @@ function supabaseReq(method, apiPath, body) {
 function backendReq(method, apiPath, body) {
   return new Promise((resolve, reject) => {
     const req = http.request({
-      hostname: 'localhost', port: 5000, path: '/api' + apiPath, method,
+      hostname: 'localhost', port: parseInt(process.env.PORT) || 5000, path: '/api' + apiPath, method,
       headers: { 'Content-Type': 'application/json' },
     }, res => {
       let d = '', cookies = res.headers['set-cookie'] || [];

@@ -1,5 +1,8 @@
-/* Google Fonts loaded via <link> in index.html for optimal performance */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
+/* Google Fonts loaded via <link> in index.html for optimal performance */
 /* ============================================
    TFI — BAUHAUS CONSTRUCTIVIST DESIGN SYSTEM
    Form follows function. Geometric purity.

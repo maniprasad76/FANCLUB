@@ -1,0 +1,20 @@
+{
+  "name": "tfi-development",
+  "version": "1.0.0",
+  "description": "TFI Club e-commerce platform — core development skills for React 19, NestJS 11, Prisma 7, Supabase, and Razorpay/Stripe payments",
+  "author": "tfi-team",
+  "skills": [
+    "tfi-project-context",
+    "nestjs-patterns",
+    "prisma-automation",
+    "react-component-forge",
+    "payment-gateway-debug"
+  ],
+  "triggers": [
+    "TFI", "TFICLUB", "product", "order", "payment", "cart", "wishlist",
+    "NestJS", "controller", "service", "module", "guard", "DTO", "decorator",
+    "Prisma", "schema", "migration", "model", "relation",
+    "React", "component", "page", "Framer Motion", "AnimatedPage", "bauhaus",
+    "Razorpay", "Stripe", "webhook", "refund", "checkout"
+  ]
+}

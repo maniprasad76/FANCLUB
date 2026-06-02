@@ -5,7 +5,9 @@
  * Prerequisites: Backend must be running on localhost:5000
  *                Admin must be set up (run setup-admin.cjs first)
  */
+const path = require('path');
 const http = require('http');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 
 // ── Admin credentials (from setup-admin.cjs) ──
 const ADMIN_EMAIL = 'admin@tficlub.com';
@@ -17,7 +19,7 @@ function apiRequest(method, path, body) {
   return new Promise((resolve, reject) => {
     const req = http.request({
       hostname: 'localhost',
-      port: 5000,
+      port: parseInt(process.env.PORT) || 5000,
       path: '/api' + path,
       method,
       headers: {

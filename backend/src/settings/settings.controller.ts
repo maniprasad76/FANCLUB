@@ -6,6 +6,7 @@ import {
   UploadedFile,
   UseInterceptors,
   UseGuards,
+  Body,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -117,5 +118,19 @@ export class SettingsController {
       this.settingsService.deleteSetting('about_image_url');
     }
     return { success: true };
+  }
+
+  @Get('cod')
+  getCodStatus() {
+    const status = this.settingsService.getSetting('cod_enabled');
+    // Default to true if not explicitly set to false
+    return { enabled: status !== false };
+  }
+
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Post('cod')
+  toggleCod(@Body('enabled') enabled: boolean) {
+    this.settingsService.setSetting('cod_enabled', enabled);
+    return { success: true, enabled };
   }
 }
