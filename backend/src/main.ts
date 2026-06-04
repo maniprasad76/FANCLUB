@@ -118,9 +118,10 @@ async function bootstrap() {
   });
 
   const port = process.env.PORT || 5000;
-  await app.listen(port, 'localhost');
+  const host = process.env.NODE_ENV === 'production' || process.env.RENDER ? '0.0.0.0' : 'localhost';
+  await app.listen(port, host);
   console.log(
-    `🎬 FAN Backend running securely on http://localhost:${port} (Local Only)`,
+    `🎬 FAN Backend running on http://${host}:${port}`,
   );
 }
 bootstrap();
