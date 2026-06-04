@@ -1,12 +1,12 @@
 ---
 name: vercel-cloudrun-deploy
-description: "Deployment automation for TFI Club. ACTIVATE when: deploying frontend/admin to Vercel, deploying backend to Cloud Run, configuring vercel.json, writing Dockerfiles for NestJS, setting up GitHub Actions CI/CD, configuring environment variables for production, troubleshooting deployment failures, managing preview deployments, or setting up custom domains. Triggers: Vercel, Cloud Run, deploy, Dockerfile, GitHub Actions, CI/CD, production, build, vercel.json, preview deployment."
+description: "Deployment automation for FAN Club. ACTIVATE when: deploying frontend/admin to Vercel, deploying backend to Cloud Run, configuring vercel.json, writing Dockerfiles for NestJS, setting up GitHub Actions CI/CD, configuring environment variables for production, troubleshooting deployment failures, managing preview deployments, or setting up custom domains. Triggers: Vercel, Cloud Run, deploy, Dockerfile, GitHub Actions, CI/CD, production, build, vercel.json, preview deployment."
 metadata:
-  author: tfi-team
+  author: fan-team
   version: "1.0.0"
 ---
 
-# Deployment Automation — TFI Club
+# Deployment Automation — FAN Club
 
 ## Deployment Architecture
 
@@ -19,7 +19,7 @@ metadata:
 │   :5173 (dev)    │     │   :5174 (dev)    │     │   :3001 (dev)     │
 └────────┬─────────┘     └────────┬─────────┘     └────────┬──────────┘
          │                        │                         │
-         │   tfi-frontend-        │   tfi-admin-            │   Cloud Run
+         │   fan-frontend-        │   fan-admin-            │   Cloud Run
          │   kappa.vercel.app     │   six.vercel.app        │   service
          └────────────────────────┴─────────────────────────┘
                               ↕
@@ -88,12 +88,12 @@ vercel --prod
 
 ### Preview Deployments
 
-Vercel automatically creates preview deployments for every PR/branch push. Each preview gets a unique URL like `tfi-frontend-abc123.vercel.app`.
+Vercel automatically creates preview deployments for every PR/branch push. Each preview gets a unique URL like `fan-frontend-abc123.vercel.app`.
 
 ### Custom Domain Setup
 
 1. Go to Vercel Dashboard → Project → Settings → Domains
-2. Add your custom domain (e.g., `shop.tficlub.com`)
+2. Add your custom domain (e.g., `shop.fanclub.com`)
 3. Configure DNS: Add CNAME record pointing to `cname.vercel-dns.com`
 4. Vercel auto-provisions SSL certificate
 
@@ -164,11 +164,11 @@ CMD ["node", "dist/main.js"]
 
 ```bash
 # Build and push container
-gcloud builds submit --tag gcr.io/PROJECT_ID/tfi-backend
+gcloud builds submit --tag gcr.io/PROJECT_ID/fan-backend
 
 # Deploy to Cloud Run
-gcloud run deploy tfi-backend \
-  --image gcr.io/PROJECT_ID/tfi-backend \
+gcloud run deploy fan-backend \
+  --image gcr.io/PROJECT_ID/fan-backend \
   --platform managed \
   --region asia-south1 \
   --allow-unauthenticated \
@@ -277,7 +277,7 @@ jobs:
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: tfi-backend
+          service: fan-backend
           region: asia-south1
           source: backend
 ```
@@ -343,5 +343,5 @@ jobs:
 
 ### CORS Errors in Production
 1. Verify `FRONTEND_URL` and `ADMIN_URL` are set correctly in Cloud Run secrets
-2. URLs must include protocol: `https://tfi-frontend-kappa.vercel.app` (no trailing slash)
+2. URLs must include protocol: `https://fan-frontend-kappa.vercel.app` (no trailing slash)
 3. Check that hardcoded Vercel domains in `main.ts` match actual deployment URLs

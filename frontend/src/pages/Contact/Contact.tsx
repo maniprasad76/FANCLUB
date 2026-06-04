@@ -19,9 +19,9 @@ export default function Contact() {
   return (
     <AnimatedPage>
       <SEOHead
-        title="Contact Us — TFICLUB | Get in Touch"
-        description="Have questions about TFICLUB? Contact us via email, phone, or the contact form. We're here to help with orders, returns, and more."
-        keywords="TFICLUB contact, customer support, help, email, phone, Srikakulam"
+        title="Contact Us — FANCLUB | Get in Touch"
+        description="Have questions about FANCLUB? Contact us via email, phone, or the contact form. We're here to help with orders, returns, and more."
+        keywords="FANCLUB contact, customer support, help, email, phone, Srikakulam"
       />
       <div className="container" style={{ paddingTop: 'calc(var(--nav-height) + 40px)', minHeight: '100vh', maxWidth: 1100, margin: '0 auto', paddingBottom: '80px' }} id="contact-page">
         <div className="section-header" style={{ marginBottom: '60px' }}>
@@ -41,7 +41,7 @@ export default function Contact() {
               </div>
               <div style={{ paddingTop: '4px' }}>
                 <h3 style={{ fontSize: '1.2rem', margin: '0 0 4px 0', fontFamily: 'var(--font-display)', textTransform: 'uppercase' }}>Email</h3>
-                <p style={{ margin: 0, color: 'var(--text-secondary)', fontWeight: 500 }}>hello@tficlub.com</p>
+                <p style={{ margin: 0, color: 'var(--text-secondary)', fontWeight: 500 }}>hello@fanclub.com</p>
               </div>
             </div>
 

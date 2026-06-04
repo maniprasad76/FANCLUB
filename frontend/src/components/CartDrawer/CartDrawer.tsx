@@ -50,7 +50,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   {items.map((item) => (
                     <div className="cart-drawer-item" key={item.id}>
                       <img 
-                        src={formatImageUrl(item.product.images?.[0]) || 'https://placehold.co/100x120/f0f0f0/111?text=TFI'} 
+                        src={formatImageUrl(item.product.images?.[0]) || 'https://placehold.co/100x120/f0f0f0/111?text=FAN'} 
                         alt={item.product.name} 
                         className="cart-item-img"
                       />

@@ -1,12 +1,12 @@
 ---
 name: fullstack-testing
-description: "Testing patterns for TFI Club. ACTIVATE when: writing unit tests, e2e tests, integration tests, mocking Prisma/Supabase/Axios, testing NestJS controllers/services/guards, testing React components, setting up Jest configuration, running test suites, testing payment flows, or debugging test failures. Triggers: test, jest, spec, describe, it, expect, mock, beforeEach, TestingModule, supertest, testing-library."
+description: "Testing patterns for FAN Club. ACTIVATE when: writing unit tests, e2e tests, integration tests, mocking Prisma/Supabase/Axios, testing NestJS controllers/services/guards, testing React components, setting up Jest configuration, running test suites, testing payment flows, or debugging test failures. Triggers: test, jest, spec, describe, it, expect, mock, beforeEach, TestingModule, supertest, testing-library."
 metadata:
-  author: tfi-team
+  author: fan-team
   version: "1.0.0"
 ---
 
-# Full-Stack Testing — TFI Club
+# Full-Stack Testing — FAN Club
 
 ## Test Infrastructure
 

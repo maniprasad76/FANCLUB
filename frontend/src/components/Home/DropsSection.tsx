@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import ProductCard from '../ProductCard/ProductCard';
-import { minimalStagger, minimalItem } from '../AnimatedPage';
+import { cinematicStagger, cinematicItem } from '../AnimatedPage';
 
 interface Product {
   id: string;
@@ -29,13 +29,13 @@ export default function DropsSection({ drops }: DropsSectionProps) {
           initial="initial"
           whileInView="animate"
           viewport={{ once: true, amount: 0.3 }}
-          variants={minimalStagger}
+          variants={cinematicStagger}
         >
-          <motion.p className="section-subtitle" variants={minimalItem}>Latest</motion.p>
-          <motion.h2 className="section-title" variants={minimalItem}>
+          <motion.p className="section-subtitle" variants={cinematicItem}>Latest</motion.p>
+          <motion.h2 className="section-title" variants={cinematicItem}>
             NEW <span className="text-gradient">DROPS</span>
           </motion.h2>
-          <motion.div className="section-divider" variants={minimalItem} />
+          <motion.div className="section-divider" variants={cinematicItem} />
         </motion.div>
       </div>
 
@@ -59,3 +59,4 @@ export default function DropsSection({ drops }: DropsSectionProps) {
     </section>
   );
 }
+

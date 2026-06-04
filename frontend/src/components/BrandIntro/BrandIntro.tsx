@@ -43,7 +43,7 @@ const BrandIntro: React.FC = () => {
               animate={{ x: "0%" }}
               transition={{ duration: 0.8, ease: [0.33, 1, 0.68, 1], delay: 0.6 }}
             >
-              TFICLUB
+              FANCLUB
             </motion.h1>
           </div>
           <div className="overflow-hidden">

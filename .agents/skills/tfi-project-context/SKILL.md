@@ -1,21 +1,21 @@
 ---
-name: tfi-project-context
-description: "Project architecture and conventions for TFI Club e-commerce platform. ACTIVATE when: working on any TFI feature, creating new modules/components/pages, debugging project-specific issues, asking about project structure, understanding business logic (orders, payments, refunds), or when needing context about file naming, module organization, environment variables, or deployment targets. This is the primary skill for all TFI Club development."
+name: fan-project-context
+description: "Project architecture and conventions for FAN Club e-commerce platform. ACTIVATE when: working on any FAN feature, creating new modules/components/pages, debugging project-specific issues, asking about project structure, understanding business logic (orders, payments, refunds), or when needing context about file naming, module organization, environment variables, or deployment targets. This is the primary skill for all FAN Club development."
 metadata:
-  author: tfi-team
+  author: fan-team
   version: "1.0.0"
 ---
 
-# TFI Club — Project Context & Architecture
+# FAN Club — Project Context & Architecture
 
 ## Project Overview
 
-TFI Club is a **full-stack e-commerce platform** with three applications:
+FAN Club is a **full-stack e-commerce platform** with three applications:
 
 | App | Tech | Port | Deployment |
 |-----|------|------|------------|
-| **Frontend** (Customer Storefront) | React 19 + Vite 8 + TypeScript | `5173` | Vercel (`tfi-frontend-kappa.vercel.app`) |
-| **Admin** (Dashboard) | React 19 + Vite 8 + TypeScript | `5174` | Vercel (`tfi-admin-six.vercel.app`) |
+| **Frontend** (Customer Storefront) | React 19 + Vite 8 + TypeScript | `5173` | Vercel (`fan-frontend-kappa.vercel.app`) |
+| **Admin** (Dashboard) | React 19 + Vite 8 + TypeScript | `5174` | Vercel (`fan-admin-six.vercel.app`) |
 | **Backend** (REST API) | NestJS 11 + Prisma 7 + TypeScript | `3001` | Cloud Run |
 
 **Database:** PostgreSQL via Supabase (Session Mode Pooler)
@@ -29,7 +29,7 @@ TFI Club is a **full-stack e-commerce platform** with three applications:
 ## Project File Structure
 
 ```
-TFI/
+FAN/
 ├── frontend/                 # Customer storefront (React + Vite)
 │   ├── src/
 │   │   ├── App.tsx           # Root component with BrowserRouter + AnimatePresence
@@ -254,7 +254,7 @@ feature/
 - **Typography (5 fonts):**
   - `--font-display` (Space Grotesk) → Headlines, titles
   - `--font-body` (Inter) → Body text
-  - `--font-accent` (Outfit) → Buttons, nav, labels
+  - `--font-accent` (Oufant) → Buttons, nav, labels
   - `--font-mono` (JetBrains Mono) → Prices, order numbers
   - `--font-editorial` (Playfair Display) → Quotes, testimonials
 - **Borders:** Thick, black, deliberate (2-3px solid #121212)

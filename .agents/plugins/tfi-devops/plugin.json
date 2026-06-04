@@ -1,8 +1,8 @@
 {
-  "name": "tfi-devops",
+  "name": "fan-devops",
   "version": "1.0.0",
-  "description": "TFI Club e-commerce platform — deployment, testing, and performance optimization skills for Vercel, Cloud Run, Jest, and Lighthouse",
-  "author": "tfi-team",
+  "description": "FAN Club e-commerce platform — deployment, testing, and performance optimization skills for Vercel, Cloud Run, Jest, and Lighthouse",
+  "author": "fan-team",
   "skills": [
     "vercel-cloudrun-deploy",
     "fullstack-testing",

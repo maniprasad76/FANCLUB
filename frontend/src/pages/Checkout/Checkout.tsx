@@ -80,10 +80,10 @@ export default function Checkout() {
   const [onlineSubMethod, setOnlineSubMethod] = useState('gpay');
   const [loading, setLoading] = useState(false);
   const [savingAddr, setSavingAddr] = useState(false);
+  const [fetchingLocation, setFetchingLocation] = useState(false);
   const [newAddr, setNewAddr] = useState({ name: '', phone: '', street: '', city: '', state: '', pincode: '', country: 'India' });
   const [showNewAddr, setShowNewAddr] = useState(false);
   const [customerCountry, setCustomerCountry] = useState('India');
-  const [codEnabled, setCodEnabled] = useState(true);
 
   /* redirect guests to login (with return path), empty-cart users to cart */
   useEffect(() => {
@@ -103,17 +103,6 @@ export default function Checkout() {
         navigate('/login?redirect=/checkout');
       }
     });
-
-    api.get('/settings/cod').then(r => {
-      if (r.data && typeof r.data.enabled === 'boolean') {
-        setCodEnabled(r.data.enabled);
-        if (!r.data.enabled) {
-          setPaymentMethod('ONLINE');
-        }
-      }
-    }).catch(() => {
-      // Silently ignore if endpoint fails, default to true
-    });
   }, [user]);
 
   /* Auto-route gateway when address changes */
@@ -130,6 +119,45 @@ export default function Checkout() {
   const handleAddressSelect = (addr: any) => {
     setSelectedAddress(addr.id);
     updateGatewayFromCountry(addr.country || 'India');
+  };
+
+  /* ── Smart Location ── */
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error('Geolocation is not supported by your browser');
+      return;
+    }
+    setFetchingLocation(true);
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      try {
+        const { latitude, longitude } = position.coords;
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+        const data = await response.json();
+        
+        if (data && data.address) {
+          const addr = data.address;
+          setNewAddr(prev => ({
+            ...prev,
+            street: data.display_name?.split(',').slice(0, 2).join(', ') || '',
+            city: addr.city || addr.town || addr.village || addr.county || '',
+            state: addr.state || '',
+            pincode: addr.postcode || '',
+            country: addr.country === 'India' ? 'India' : (addr.country || 'India')
+          }));
+          setShowNewAddr(true);
+          toast.success('Location updated successfully!');
+        } else {
+          toast.error('Could not determine location details.');
+        }
+      } catch (error) {
+        toast.error('Failed to fetch location details.');
+      } finally {
+        setFetchingLocation(false);
+      }
+    }, (error) => {
+      setFetchingLocation(false);
+      toast.error('Location access denied or failed.');
+    });
   };
 
   /* ── Save new address to profile ── */
@@ -158,7 +186,7 @@ export default function Checkout() {
         key,
         amount: amount * 100,
         currency: 'INR',
-        name: 'TFICLUB',
+        name: 'FANCLUB',
         description: 'Order Payment',
         order_id: razorpayOrderId,
         handler: (response: any) => {
@@ -253,6 +281,7 @@ export default function Checkout() {
                   <motion.label
                     key={addr.id}
                     className={`address-option ${selectedAddress === addr.id ? 'active' : ''}`}
+                    aria-label={`Select address: ${addr.name}, ${addr.street}, ${addr.city}`}
                     initial={{ opacity: 0, y: 18 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: Math.min(i * 0.07, 0.35) }}
@@ -273,9 +302,14 @@ export default function Checkout() {
                   </motion.label>
                 ))}
               </div>
-              <button className="btn btn-outline btn-sm" onClick={() => setShowNewAddr(!showNewAddr)}>
-                {showNewAddr ? 'Cancel' : '+ Add New Address'}
-              </button>
+              <div style={{ display: 'flex', gap: '12px', marginTop: '12px', marginBottom: '8px' }}>
+                <button className="btn btn-outline btn-sm" onClick={() => setShowNewAddr(!showNewAddr)} aria-expanded={showNewAddr}>
+                  {showNewAddr ? 'Cancel' : '+ Add New Address'}
+                </button>
+                <button type="button" className="btn btn-primary btn-sm" onClick={handleUseCurrentLocation} disabled={fetchingLocation} style={{ display: 'flex', alignItems: 'center' }}>
+                  {fetchingLocation ? <><Loader2 size={14} className="spin" style={{marginRight: '6px'}} /> Locating...</> : <><MapPin size={14} style={{marginRight: '6px'}} /> Use Current Location</>}
+                </button>
+              </div>
               <AnimatePresence>
                 {showNewAddr && (
                   <motion.form onSubmit={handleAddAddress} className="new-addr-form" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}>
@@ -304,7 +338,7 @@ export default function Checkout() {
                       <option value="UAE">UAE</option>
                       <option value="Other">Other</option>
                     </select>
-                    <button type="submit" className="btn btn-primary btn-sm" disabled={savingAddr}>
+                    <button type="submit" className="btn btn-primary btn-sm" disabled={savingAddr} aria-busy={savingAddr}>
                       {savingAddr ? <><Loader2 size={14} className="spin" /> Saving...</> : 'Save Address to Profile'}
                     </button>
                   </motion.form>
@@ -317,16 +351,14 @@ export default function Checkout() {
               <h3 className="heading-sm"><CreditCard size={18} /> Payment Method</h3>
 
               {/* COD */}
-              {codEnabled && (
-                <label className={`payment-option ${paymentMethod === 'COD' ? 'active' : ''}`}>
-                  <input type="radio" name="payment" checked={paymentMethod === 'COD'} onChange={() => setPaymentMethod('COD')} />
-                  <div className="payment-icon cod-icon"><Truck size={20} /></div>
-                  <div className="payment-info">
-                    <span className="payment-label">Cash on Delivery</span>
-                    <span className="payment-desc">Pay when you receive your order</span>
-                  </div>
-                </label>
-              )}
+              <label className={`payment-option ${paymentMethod === 'COD' ? 'active' : ''}`}>
+                <input type="radio" name="payment" checked={paymentMethod === 'COD'} onChange={() => setPaymentMethod('COD')} />
+                <div className="payment-icon cod-icon"><Truck size={20} /></div>
+                <div className="payment-info">
+                  <span className="payment-label">Cash on Delivery</span>
+                  <span className="payment-desc">Pay when you receive your order</span>
+                </div>
+              </label>
 
               {/* Online */}
               <label className={`payment-option ${paymentMethod === 'ONLINE' ? 'active' : ''}`}>
@@ -440,7 +472,7 @@ export default function Checkout() {
                   : <span><Globe size={14} /> Stripe International</span>}
             </div>
 
-            <button className="btn btn-primary btn-lg" style={{ width: '100%' }} onClick={handlePlaceOrder} disabled={loading} id="place-order-btn">
+            <button className="btn btn-primary btn-lg" style={{ width: '100%' }} onClick={handlePlaceOrder} disabled={loading} id="place-order-btn" aria-busy={loading}>
               {loading
                 ? <><Loader2 size={18} className="spin" /> Processing...</>
                 : paymentMethod === 'ONLINE'

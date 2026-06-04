@@ -1,11 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Oufant:wght@400;500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Outfit:wght@400;500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap');
-
 /* ============================================
-   TFI ADMIN — BAUHAUS CONSTRUCTIVIST DESIGN
+   FAN ADMIN — BAUHAUS CONSTRUCTIVIST DESIGN
    Matching the frontend design system exactly.
    Multi-font typography for visual hierarchy.
    ============================================ */
@@ -23,6 +23,7 @@
   --bauhaus-red: #D02020;
   --bauhaus-blue: #1040C0;
   --bauhaus-yellow: #F0C020;
+  --bauhaus-green: #009E60;
   --bauhaus-black: #121212;
   --bauhaus-white: #FFFFFF;
 
@@ -51,9 +52,9 @@
   --shadow-lg: 8px 8px 0px 0px #121212;
 
   /* ── TYPOGRAPHY SYSTEM ── */
-  --font-display: 'Space Grotesk', 'Outfit', sans-serif;
-  --font-body: 'Inter', 'Outfit', sans-serif;
-  --font-accent: 'Outfit', sans-serif;
+  --font-display: 'Space Grotesk', 'Oufant', sans-serif;
+  --font-body: 'Inter', 'Oufant', sans-serif;
+  --font-accent: 'Oufant', sans-serif;
   --font-mono: 'JetBrains Mono', 'Courier New', monospace;
   --font-editorial: 'Playfair Display', 'Georgia', serif;
 
@@ -279,8 +280,8 @@ ul, ol {
 }
 
 .badge-success {
-  background: #E8F5E9;
-  color: #2E7D32;
+  background: var(--bauhaus-green);
+  color: var(--bauhaus-white);
 }
 
 .badge-warning {
@@ -289,13 +290,13 @@ ul, ol {
 }
 
 .badge-danger {
-  background: #FFEBEE;
-  color: var(--bauhaus-red);
+  background: var(--bauhaus-red);
+  color: var(--bauhaus-white);
 }
 
 .badge-info {
-  background: #E3F2FD;
-  color: var(--bauhaus-blue);
+  background: var(--bauhaus-blue);
+  color: var(--bauhaus-white);
 }
 
 /* ============================================
@@ -328,4 +329,32 @@ ul, ol {
 
 .animate-fade-in-up {
   animation: fadeInUp 0.3s ease-out forwards;
+}
+
+/* ============================================
+   GLOBAL COLOR BAR
+   ============================================ */
+.bauhaus-color-bar {
+  display: flex;
+  width: 100%;
+  height: 6px;
+}
+
+.bauhaus-color-bar::before {
+  content: "";
+  flex: 1;
+  background: var(--bauhaus-red);
+}
+.bauhaus-color-bar::after {
+  content: "";
+  flex: 1;
+  background: var(--bauhaus-blue);
+}
+.bauhaus-color-bar > div:first-child {
+  flex: 1;
+  background: var(--bauhaus-yellow);
+}
+.bauhaus-color-bar > div:last-child {
+  flex: 1;
+  background: var(--bauhaus-green);
 }

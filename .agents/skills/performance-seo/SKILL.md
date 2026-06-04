@@ -1,12 +1,12 @@
 ---
 name: performance-seo
-description: "Performance optimization and SEO for TFI Club. ACTIVATE when: running Lighthouse audits, optimizing bundle size, adding meta tags, implementing structured data, fixing Core Web Vitals, lazy loading images/routes, optimizing CSS/JS delivery, adding Open Graph tags, creating sitemaps, debugging slow page loads, analyzing network requests, or checking accessibility. Triggers: Lighthouse, performance, SEO, meta tags, Core Web Vitals, bundle, lazy load, Open Graph, structured data, sitemap, accessibility, LCP, CLS, FID, TTFB."
+description: "Performance optimization and SEO for FAN Club. ACTIVATE when: running Lighthouse audits, optimizing bundle size, adding meta tags, implementing structured data, fixing Core Web Vitals, lazy loading images/routes, optimizing CSS/JS delivery, adding Open Graph tags, creating sitemaps, debugging slow page loads, analyzing network requests, or checking accessibility. Triggers: Lighthouse, performance, SEO, meta tags, Core Web Vitals, bundle, lazy load, Open Graph, structured data, sitemap, accessibility, LCP, CLS, FID, TTFB."
 metadata:
-  author: tfi-team
+  author: fan-team
   version: "1.0.0"
 ---
 
-# Performance & SEO — TFI Club
+# Performance & SEO — FAN Club
 
 ## Lighthouse Audit Automation
 
@@ -134,7 +134,7 @@ import SEOHead, { buildProductSchema, buildFAQSchema, buildBreadcrumbSchema, bui
 
 // Product page:
 <SEOHead
-  title={`${product.name} - TFICLUB`}
+  title={`${product.name} - FANCLUB`}
   description={product.description.substring(0, 160)}
   ogImage={product.images[0]}
   ogType="product"
@@ -143,13 +143,13 @@ import SEOHead, { buildProductSchema, buildFAQSchema, buildBreadcrumbSchema, bui
 
 // Category page with breadcrumbs:
 <SEOHead
-  title="T-Shirts - TFICLUB"
+  title="T-Shirts - FANCLUB"
   description="Cinema-inspired streetwear tees"
   jsonLd={[
     buildBreadcrumbSchema([
-      { name: 'Home', url: 'https://tficlub.com/' },
-      { name: 'Shop', url: 'https://tficlub.com/shop' },
-      { name: 'T-Shirts', url: 'https://tficlub.com/shop?category=t-shirts' },
+      { name: 'Home', url: 'https://fanclub.com/' },
+      { name: 'Shop', url: 'https://fanclub.com/shop' },
+      { name: 'T-Shirts', url: 'https://fanclub.com/shop?category=t-shirts' },
     ]),
     buildCollectionSchema('T-Shirts', 'Cinema-inspired t-shirts'),
   ]}
@@ -157,7 +157,7 @@ import SEOHead, { buildProductSchema, buildFAQSchema, buildBreadcrumbSchema, bui
 
 // FAQ page:
 <SEOHead
-  title="FAQ - TFICLUB"
+  title="FAQ - FANCLUB"
   description="Frequently asked questions"
   jsonLd={buildFAQSchema(faqs)}
 />
@@ -177,7 +177,7 @@ import SEOHead, { buildProductSchema, buildFAQSchema, buildBreadcrumbSchema, bui
   "description": product.description,
   "brand": {
     "@type": "Brand",
-    "name": "TFI Club"
+    "name": "FAN Club"
   },
   "offers": {
     "@type": "Offer",
@@ -186,7 +186,7 @@ import SEOHead, { buildProductSchema, buildFAQSchema, buildBreadcrumbSchema, bui
     "availability": product.stock > 0
       ? "https://schema.org/InStock"
       : "https://schema.org/OutOfStock",
-    "url": `https://tficlub.com/product/${product.slug}`
+    "url": `https://fanclub.com/product/${product.slug}`
   },
   "aggregateRating": product.reviewCount > 0 ? {
     "@type": "AggregateRating",
@@ -200,15 +200,15 @@ import SEOHead, { buildProductSchema, buildFAQSchema, buildBreadcrumbSchema, bui
 ### Open Graph Tags Checklist
 ```html
 <!-- Required for social sharing -->
-<meta property="og:title" content="Product Name - TFI Club" />
+<meta property="og:title" content="Product Name - FAN Club" />
 <meta property="og:description" content="Product description..." />
 <meta property="og:image" content="https://supabase-url/product-image.jpg" />
-<meta property="og:url" content="https://tficlub.com/product/slug" />
+<meta property="og:url" content="https://fanclub.com/product/slug" />
 <meta property="og:type" content="product" />
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="Product Name - TFI Club" />
+<meta name="twitter:title" content="Product Name - FAN Club" />
 <meta name="twitter:description" content="Product description..." />
 <meta name="twitter:image" content="https://supabase-url/product-image.jpg" />
 ```
@@ -220,11 +220,11 @@ Create a static sitemap or generate dynamically:
 <!-- public/sitemap.xml -->
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://tficlub.com/</loc><priority>1.0</priority></url>
-  <url><loc>https://tficlub.com/shop</loc><priority>0.9</priority></url>
-  <url><loc>https://tficlub.com/about</loc><priority>0.7</priority></url>
-  <url><loc>https://tficlub.com/contact</loc><priority>0.6</priority></url>
-  <url><loc>https://tficlub.com/faq</loc><priority>0.5</priority></url>
+  <url><loc>https://fanclub.com/</loc><priority>1.0</priority></url>
+  <url><loc>https://fanclub.com/shop</loc><priority>0.9</priority></url>
+  <url><loc>https://fanclub.com/about</loc><priority>0.7</priority></url>
+  <url><loc>https://fanclub.com/contact</loc><priority>0.6</priority></url>
+  <url><loc>https://fanclub.com/faq</loc><priority>0.5</priority></url>
   <!-- Dynamic product pages generated by backend -->
 </urlset>
 ```
@@ -239,7 +239,7 @@ Disallow: /checkout
 Disallow: /cart
 Disallow: /login
 Disallow: /register
-Sitemap: https://tficlub.com/sitemap.xml
+Sitemap: https://fanclub.com/sitemap.xml
 ```
 
 ---
@@ -300,7 +300,7 @@ Fonts are loaded via `<link>` in `index.html` for optimal performance:
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@500;600;700&family=Playfair+Display:ital,wght@1,400;1,500&family=Space+Grotesk:wght@700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Oufant:wght@500;600;700&family=Playfair+Display:ital,wght@1,400;1,500&family=Space+Grotesk:wght@700;800;900&display=swap" rel="stylesheet">
 ```
 
 - `font-display: swap` prevents invisible text during font loading
@@ -309,7 +309,7 @@ Fonts are loaded via `<link>` in `index.html` for optimal performance:
 ### CSS Optimization Checklist
 - [ ] No unused CSS classes (run PurgeCSS or check manually)
 - [ ] CSS variables used consistently (no hardcoded hex colors)
-- [ ] Media queries use mobile-first or desktop-first consistently (TFI uses desktop-first)
+- [ ] Media queries use mobile-first or desktop-first consistently (FAN uses desktop-first)
 - [ ] `will-change` only on animated elements (`.cinematic-layer`)
 - [ ] No layout thrashing (batch DOM reads before DOM writes)
 

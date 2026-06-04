@@ -34,7 +34,7 @@ interface CartContextType {
   fetchCart: () => Promise<void>;
 }
 
-const GUEST_CART_KEY = 'tfi_guest_cart';
+const GUEST_CART_KEY = 'fan_guest_cart';
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 

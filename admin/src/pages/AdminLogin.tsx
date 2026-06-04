@@ -56,7 +56,7 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
               padding: '6px 12px',
               letterSpacing: '2px',
               fontFamily: 'var(--font-heading)',
-            }}>TFI</span>
+            }}>FAN</span>
             <span style={{
               fontWeight: 900,
               fontSize: '1.5rem',
@@ -95,7 +95,7 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="admin@tficlub.com"
+              placeholder="admin@fanclub.com"
               required
               id="admin-login-email"
             />

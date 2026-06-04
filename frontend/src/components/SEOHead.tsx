@@ -66,7 +66,7 @@ export default function SEOHead({
     setMeta('property', 'og:type', ogType);
     setMeta('property', 'og:url', canonicalUrl);
     if (ogImage) setMeta('property', 'og:image', ogImage.startsWith('http') ? ogImage : window.location.origin + ogImage);
-    setMeta('property', 'og:site_name', 'TFICLUB');
+    setMeta('property', 'og:site_name', 'FANCLUB');
     setMeta('property', 'og:locale', 'en_IN');
 
     // --- Twitter Card (SXO) ---
@@ -85,15 +85,15 @@ export default function SEOHead({
     const baseOrg = {
       '@context': 'https://schema.org',
       '@type': 'Organization',
-      name: 'TFICLUB',
+      name: 'FANCLUB',
       url: window.location.origin,
       logo: window.location.origin + '/favicon.svg',
       description: 'Cinema-inspired streetwear celebrating Telugu Film Industry culture. Premium t-shirts, hoodies, and accessories.',
       sameAs: [
-        'https://instagram.com/tficlub',
-        'https://youtube.com/@tficlub',
-        'https://twitter.com/tficlub',
-        'https://pinterest.com/tficlub',
+        'https://instagram.com/fanclub',
+        'https://youtube.com/@fanclub',
+        'https://twitter.com/fanclub',
+        'https://pinterest.com/fanclub',
       ],
       contactPoint: {
         '@type': 'ContactPoint',
@@ -106,7 +106,7 @@ export default function SEOHead({
     const webSiteSchema = {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
-      name: 'TFICLUB',
+      name: 'FANCLUB',
       url: window.location.origin,
       potentialAction: {
         '@type': 'SearchAction',
@@ -148,7 +148,7 @@ export function buildProductSchema(product: any) {
     description: product.description,
     image: product.images,
     sku: product.id,
-    brand: { '@type': 'Brand', name: 'TFICLUB' },
+    brand: { '@type': 'Brand', name: 'FANCLUB' },
     category: product.category?.name,
     offers: {
       '@type': 'Offer',
@@ -157,7 +157,7 @@ export function buildProductSchema(product: any) {
       price: product.price,
       ...(product.comparePrice && { priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] }),
       availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-      seller: { '@type': 'Organization', name: 'TFICLUB' },
+      seller: { '@type': 'Organization', name: 'FANCLUB' },
       shippingDetails: {
         '@type': 'OfferShippingDetails',
         shippingRate: {
@@ -192,7 +192,7 @@ export function buildProductSchema(product: any) {
     ...(product.reviews?.length > 0 && {
       review: product.reviews.slice(0, 5).map((r: any) => ({
         '@type': 'Review',
-        author: { '@type': 'Person', name: r.user?.name || 'TFI Customer' },
+        author: { '@type': 'Person', name: r.user?.name || 'FAN Customer' },
         reviewRating: { '@type': 'Rating', ratingValue: r.rating, bestRating: 5 },
         reviewBody: r.comment || '',
         datePublished: r.createdAt,
@@ -238,6 +238,6 @@ export function buildCollectionSchema(title: string, description: string) {
     '@type': 'CollectionPage',
     name: title,
     description: description,
-    isPartOf: { '@type': 'WebSite', name: 'TFICLUB', url: window.location.origin },
+    isPartOf: { '@type': 'WebSite', name: 'FANCLUB', url: window.location.origin },
   };
 }

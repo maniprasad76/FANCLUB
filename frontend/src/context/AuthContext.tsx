@@ -38,9 +38,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * Force logout — called when session cannot be refreshed.
    */
   const forceLogout = useCallback(() => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("access_token");
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("refresh_token");
+    sessionStorage.removeItem("access_token");
     setUser(null);
   }, []);
 
@@ -53,21 +53,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const isOAuthCallback =
       hashParams.has("access_token") || hashParams.has("refresh_token");
+    const oauthError = hashParams.get("error_description") || hashParams.get("error");
 
-    // ── 1. Try to restore session from localStorage ──
-    const storedUser = localStorage.getItem("user");
+    if (oauthError) {
+      toast.error("Authentication Error: " + oauthError.replace(/\+/g, " "));
+      // Clean up the hash
+      if (window.location.hash) {
+        window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      }
+    }
+
+    // ── 1. Try to restore session from sessionStorage ──
+    const storedUser = sessionStorage.getItem("user");
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
       } catch {
-        localStorage.removeItem("user");
+        sessionStorage.removeItem("user");
       }
       // Verify the session cookie is still valid (this will trigger auto-refresh via api interceptor if needed)
       api
         .get("/auth/profile")
         .then((res) => {
           setUser(res.data);
-          localStorage.setItem("user", JSON.stringify(res.data));
+          sessionStorage.setItem("user", JSON.stringify(res.data));
         })
         .catch(() => {
           // Token refresh also failed — clear everything
@@ -98,12 +107,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             access_token: session.access_token,
           });
           setUser(res.data.user);
-          localStorage.setItem("user", JSON.stringify(res.data.user));
+          sessionStorage.setItem("user", JSON.stringify(res.data.user));
           if (res.data.session?.access_token) {
-            localStorage.setItem("access_token", res.data.session.access_token);
+            sessionStorage.setItem("access_token", res.data.session.access_token);
           }
           if (session.refresh_token) {
-            localStorage.setItem("refresh_token", session.refresh_token);
+            sessionStorage.setItem("refresh_token", session.refresh_token);
           }
           // Clean up the hash fragments from the URL
           if (window.location.hash) {
@@ -113,8 +122,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               window.location.pathname + window.location.search,
             );
           }
-        } catch (err) {
+        } catch (err: any) {
           console.error("Failed to sync OAuth session:", err);
+          toast.error("Login Error: " + (err.response?.data?.message || err.message || "Unknown backend error"));
           await supabase.auth.signOut();
         } finally {
           setLoading(false);
@@ -147,13 +157,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     const { data } = await api.post("/auth/signin", { email, password });
     // Store user data
-    localStorage.setItem("user", JSON.stringify(data.user));
+    sessionStorage.setItem("user", JSON.stringify(data.user));
     // Store tokens for automatic token refresh
     if (data.session?.access_token) {
-      localStorage.setItem("access_token", data.session.access_token);
+      sessionStorage.setItem("access_token", data.session.access_token);
     }
     if (data.session?.refresh_token) {
-      localStorage.setItem("refresh_token", data.session.refresh_token);
+      sessionStorage.setItem("refresh_token", data.session.refresh_token);
     }
     setUser(data.user);
   };
@@ -161,12 +171,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = async (name: string, email: string, password: string) => {
     const { data } = await api.post("/auth/signup", { email, password, name });
     if (data.user) {
-      localStorage.setItem("user", JSON.stringify(data.user));
+      sessionStorage.setItem("user", JSON.stringify(data.user));
       if (data.session?.access_token) {
-        localStorage.setItem("access_token", data.session.access_token);
+        sessionStorage.setItem("access_token", data.session.access_token);
       }
       if (data.session?.refresh_token) {
-        localStorage.setItem("refresh_token", data.session.refresh_token);
+        sessionStorage.setItem("refresh_token", data.session.refresh_token);
       }
       setUser(data.user);
     }
@@ -178,9 +188,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // Server may be unreachable — still clear local state
     }
-    localStorage.removeItem("user");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("access_token");
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("refresh_token");
+    sessionStorage.removeItem("access_token");
     setUser(null);
   };
 
@@ -188,7 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) {
       const updated = { ...user, ...data };
       setUser(updated);
-      localStorage.setItem("user", JSON.stringify(updated));
+      sessionStorage.setItem("user", JSON.stringify(updated));
     }
   };
 

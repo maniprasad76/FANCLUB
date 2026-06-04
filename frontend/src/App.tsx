@@ -1,8 +1,11 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { AnimatePresence } from "framer-motion";
+import ErrorBoundary from "./components/ErrorBoundary";
+import { PageSkeleton } from "./components/SkeletonLoader";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { Particles } from "./components/Particles";
 import TopNav from "./components/TopNav/TopNav";
 import Footer from "./components/Footer/Footer";
@@ -47,6 +50,10 @@ function AppShell() {
 
   return (
     <>
+      <div className="bauhaus-color-bar" style={{ position: 'relative', zIndex: 99999 }}>
+        <div />
+        <div />
+      </div>
       <TopNav />
       <main className="app-main">
         <AnimatePresence mode="wait" initial={false}>
@@ -181,11 +188,17 @@ function App() {
         {showIntro && <BrandIntro key="brand-intro" />}
       </AnimatePresence>
       <Particles />
-      <AuthProvider>
-        <CartProvider>
-          <AppShell />
-        </CartProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <CartProvider>
+            <ErrorBoundary>
+              <Suspense fallback={<PageSkeleton />}>
+                <AppShell />
+              </Suspense>
+            </ErrorBoundary>
+          </CartProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

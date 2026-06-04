@@ -5,8 +5,12 @@ import { ValidationPipe } from '@nestjs/common';
 import { join } from 'path';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
+import { validateEnv } from './common/validators/validate-env';
 
 async function bootstrap() {
+  // Validate required environment variables before creating the app
+  validateEnv();
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     rawBody: true, // Needed for Razorpay + Stripe webhook signature verification
   });
@@ -17,7 +21,7 @@ async function bootstrap() {
   const expressApp = app.getHttpAdapter().getInstance();
   expressApp.get('/', (_req: any, res: any) => {
     res.json({
-      name: 'TFI Backend API',
+      name: 'FAN Backend API',
       status: 'running',
       version: '1.0.0',
       docs: '/api',
@@ -64,18 +68,21 @@ async function bootstrap() {
       },
       crossOriginEmbedderPolicy: false,
       crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow images/videos to load from admin & frontend origins
+      hsts: {
+        maxAge: 63072000, // 2 years in seconds
+        includeSubDomains: true,
+        preload: true,
+      },
     }),
   );
 
   // Cookie parser middleware for httpOnly JWT cookies
   app.use(cookieParser());
 
-  // CORS — restrict to known frontend/admin origins
+  // CORS — restrict to known frontend/admin origins (purely env-driven)
   const allowedOrigins = [
     process.env.FRONTEND_URL,
     process.env.ADMIN_URL,
-    'https://tfi-frontend-kappa.vercel.app',
-    'https://tfi-admin-six.vercel.app',
   ].filter((origin): origin is string => typeof origin === 'string' && origin.length > 0);
   // Deduplicate
   const uniqueOrigins = [...new Set(allowedOrigins)];
@@ -108,9 +115,9 @@ async function bootstrap() {
   });
 
   const port = process.env.PORT || 5000;
-  await app.listen(port, '0.0.0.0');
+  await app.listen(port, 'localhost');
   console.log(
-    `🎬 TFI Backend running on http://0.0.0.0:${port} (Network Exposed)`,
+    `🎬 FAN Backend running securely on http://localhost:${port} (Local Only)`,
   );
 }
 bootstrap();

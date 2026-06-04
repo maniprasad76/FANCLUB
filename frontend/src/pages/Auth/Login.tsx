@@ -73,7 +73,10 @@ export default function Login() {
       await login(email, password);
       navigate(redirectTo);
     } catch (err: any) {
-      const msg = err.response?.data?.message || "Invalid credentials";
+      let msg = err.response?.data?.message || "Invalid credentials";
+      if (Array.isArray(msg)) msg = msg[0];
+      if (typeof msg !== 'string') msg = "Invalid credentials";
+
       setError(msg);
       // Detect specific error types for better UX
       if (
@@ -118,7 +121,7 @@ export default function Login() {
                   padding: "0 10px",
                 }}
               >
-                TFI
+                FAN
               </span>
               <span
                 className="logo-text-out"
@@ -130,7 +133,7 @@ export default function Login() {
             <h1 className="heading-lg auth-title">
               Welcome <span className="text-gradient">Back</span>
             </h1>
-            <p className="text-muted">Sign in to your TFICLUB account</p>
+            <p className="text-muted">Sign in to your FANCLUB account</p>
           </div>
 
           {error && (

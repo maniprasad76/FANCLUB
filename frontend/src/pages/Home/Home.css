@@ -78,10 +78,28 @@
   height: 0;
   border-left: 100px solid transparent;
   border-right: 100px solid transparent;
-  border-bottom: 180px solid var(--bauhaus-yellow);
+  border-bottom: 180px solid var(--bauhaus-green);
   opacity: 0.1;
   top: 30%;
   left: 15%;
+}
+
+.hero-geo-cross {
+  width: 150px;
+  height: 30px;
+  background: var(--bauhaus-yellow);
+  opacity: 0.15;
+  top: 40%;
+  right: 15%;
+}
+.hero-geo-cross::before {
+  content: "";
+  position: absolute;
+  width: 30px;
+  height: 150px;
+  background: var(--bauhaus-yellow);
+  top: -60px;
+  left: 60px;
 }
 
 .hero-content {
@@ -160,8 +178,15 @@
 }
 
 @keyframes scrollPulse {
-  0%, 100% { opacity: 0.4; height: 48px; }
-  50% { opacity: 0.1; height: 24px; }
+  0%,
+  100% {
+    opacity: 0.4;
+    height: 48px;
+  }
+  50% {
+    opacity: 0.1;
+    height: 24px;
+  }
 }
 
 /* ── THIN TEXT MARQUEE ────────────────────── */
@@ -172,6 +197,23 @@
   padding: 8px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.text-marquee-container-accent {
+  overflow: hidden;
+  background: var(--bauhaus-yellow);
+  color: var(--bauhaus-black);
+  padding: 10px 0;
+  border-bottom: 2px solid var(--bauhaus-black);
+  border-top: 2px solid var(--bauhaus-black);
+  transform: rotate(-1deg) scale(1.02);
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.text-marquee-container-accent .marquee-shape {
+  color: var(--bauhaus-green);
 }
 
 .text-marquee-track {
@@ -203,8 +245,12 @@
 }
 
 @keyframes textMarqueeLeft {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 /* ── DROPS — MARQUEE ──────────────────────── */
@@ -419,7 +465,9 @@
   background: var(--bg-secondary);
   border: 2px solid var(--bauhaus-black);
   box-shadow: var(--shadow-md);
-  transition: box-shadow var(--transition-base), transform var(--transition-base);
+  transition:
+    box-shadow var(--transition-base),
+    transform var(--transition-base);
   min-width: 0;
 }
 
@@ -586,7 +634,7 @@
   position: absolute;
   width: 200px;
   height: 200px;
-  border: 4px solid var(--bauhaus-yellow);
+  border: 4px solid var(--bauhaus-green);
   transform: rotate(45deg);
   opacity: 0.5;
 }
@@ -624,32 +672,32 @@
 .feature-card {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 24px;
+  gap: 10px;
+  padding: 10px 16px;
   background: var(--bauhaus-white);
   color: var(--bauhaus-black);
-  border: 2px solid var(--bauhaus-black);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--bauhaus-black);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
   transition: all var(--transition-base);
   cursor: default;
 }
 
 .feature-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-2px);
 }
 
 .feature-card:active {
-  transform: translate(2px, 2px);
+  transform: translate(1px, 1px);
   box-shadow: none;
 }
 
 .feature-icon-wrap {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--bauhaus-black);
+  border: 1px solid var(--bauhaus-black);
   background: var(--bauhaus-yellow);
   color: var(--bauhaus-black);
   flex-shrink: 0;
@@ -665,11 +713,16 @@
   color: white;
 }
 
+.feature-card-green .feature-icon-wrap {
+  background: var(--bauhaus-green);
+  color: white;
+}
+
 .feature-label {
   font-family: var(--font-accent);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
   text-transform: uppercase;
   color: var(--bauhaus-black);
   white-space: nowrap;
@@ -946,19 +999,28 @@
 }
 
 .upcoming-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -50%;
   left: -50%;
   width: 200%;
   height: 200%;
-  background: conic-gradient(from 0deg, transparent, rgba(16, 64, 192, 0.04), transparent 30%);
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    rgba(16, 64, 192, 0.04),
+    transparent 30%
+  );
   animation: upcomingGlow 8s linear infinite;
 }
 
 @keyframes upcomingGlow {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .upcoming-content {

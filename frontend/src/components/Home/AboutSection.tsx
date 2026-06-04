@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Magnetic } from '../Magnetic';
-import { minimalStagger, minimalItem } from '../AnimatedPage';
+import { cinematicStagger, cinematicItem } from '../AnimatedPage';
 import { formatImageUrl } from '../../lib/utils';
 
 interface AboutSectionProps {
@@ -17,17 +17,17 @@ export default function AboutSection({ aboutImage }: AboutSectionProps) {
       initial="initial"
       whileInView="animate"
       viewport={{ once: true, amount: 0.2 }}
-      variants={minimalStagger}
+      variants={cinematicStagger}
     >
       <div className="container about-grid">
-        <motion.div className="about-text" variants={minimalItem}>
+        <motion.div className="about-text" variants={cinematicItem}>
           <p className="section-subtitle">The Story</p>
           <h2 className="about-title">
             STREETWEAR <br />AS <span className="text-gradient">CINEMA</span>
           </h2>
           <p className="about-body">
             Every thread tells a story. Dedicated to the Telugu Film Industry, its legendary characters,
-            and cinematic masterpieces — TFICLUB blends our rich cultural heritage with premium aesthetics.
+            and cinematic masterpieces — FANCLUB blends our rich cultural heritage with premium aesthetics.
             We don't just make clothes. We craft scenes you can wear.
           </p>
           <Magnetic strength={0.3}>
@@ -37,12 +37,12 @@ export default function AboutSection({ aboutImage }: AboutSectionProps) {
           </Magnetic>
         </motion.div>
 
-        <motion.div className="about-visual" variants={minimalItem}>
+        <motion.div className="about-visual" variants={cinematicItem}>
           <div className="about-visual-inner">
             {aboutImage ? (
               <img 
                 src={formatImageUrl(aboutImage)} 
-                alt="TFI Story" 
+                alt="FAN Story" 
                 className="about-brand-logo" 
                 style={{ objectFit: 'cover', width: '100%', height: '100%', borderRadius: 0 }}
               />
@@ -61,3 +61,4 @@ export default function AboutSection({ aboutImage }: AboutSectionProps) {
     </motion.section>
   );
 }
+

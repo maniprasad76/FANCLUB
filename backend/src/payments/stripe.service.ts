@@ -94,7 +94,7 @@ export class StripeService implements PaymentGatewayProvider {
           price_data: {
             currency: currency.toLowerCase(),
             product_data: {
-              name: metadata.orderDescription || 'TFI Order',
+              name: metadata.orderDescription || 'FAN Order',
               description: metadata.orderNumber
                 ? `Order #${metadata.orderNumber}`
                 : undefined,

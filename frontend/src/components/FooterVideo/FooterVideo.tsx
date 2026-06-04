@@ -28,7 +28,7 @@ export default function FooterVideo() {
   return (
     <section style={{ width: '100%', borderTop: '4px solid var(--bauhaus-black)', background: 'var(--bauhaus-black)', position: 'relative', overflow: 'hidden' }}>
       <div className="container" style={{ padding: '60px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <h2 className="heading-lg" style={{ color: 'var(--bauhaus-yellow)', marginBottom: '30px', textAlign: 'center', textTransform: 'uppercase', fontFamily: 'var(--font-display)' }}>TFI In Motion</h2>
+        <h2 className="heading-lg" style={{ color: 'var(--bauhaus-yellow)', marginBottom: '30px', textAlign: 'center', textTransform: 'uppercase', fontFamily: 'var(--font-display)' }}>FAN In Motion</h2>
         <div style={{ width: '100%', maxWidth: '1200px', border: '4px solid var(--bauhaus-red)', borderRadius: '0px', overflow: 'hidden', background: '#000', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
           <video 
             src={videoUrl} 

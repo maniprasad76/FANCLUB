@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Shield, Truck, RotateCcw, Headphones } from 'lucide-react';
-import { minimalStagger, minimalItem } from '../AnimatedPage';
+import { cinematicStagger, cinematicItem } from '../AnimatedPage';
 
 const FEATURES = [
   { icon: Shield, label: 'Secure Payment', color: 'red' },
@@ -17,7 +17,7 @@ export default function FeaturesSection() {
       initial="initial"
       whileInView="animate"
       viewport={{ once: true, amount: 0.4 }}
-      variants={minimalStagger}
+      variants={cinematicStagger}
     >
       <div className="container">
         <div className="features-row">
@@ -25,7 +25,7 @@ export default function FeaturesSection() {
             <motion.div
               className={`feature-card feature-card-${color}`}
               key={label}
-              variants={minimalItem}
+              variants={cinematicItem}
               whileHover={{ y: -4 }}
               whileTap={{ scale: 0.97 }}
             >
@@ -40,3 +40,4 @@ export default function FeaturesSection() {
     </motion.section>
   );
 }
+

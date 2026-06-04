@@ -5,9 +5,9 @@ export default function Privacy() {
   return (
     <AnimatedPage>
       <SEOHead
-        title="Privacy Policy — TFICLUB"
-        description="TFICLUB Privacy Policy: how we collect, use, store, and protect your personal data. Covers GDPR rights, data handling, cookies, and third-party sharing."
-        keywords="privacy policy, data protection, GDPR, TFICLUB privacy"
+        title="Privacy Policy — FANCLUB"
+        description="FANCLUB Privacy Policy: how we collect, use, store, and protect your personal data. Covers GDPR rights, data handling, cookies, and third-party sharing."
+        keywords="privacy policy, data protection, GDPR, FANCLUB privacy"
       />
       <div style={{ paddingTop: 'calc(var(--nav-height) + 40px)', paddingBottom: '80px', minHeight: '100vh', background: 'var(--bg-primary)' }}>
         <div className="container" style={{ maxWidth: '800px' }}>
@@ -31,7 +31,7 @@ export default function Privacy() {
             <section style={{ marginBottom: '32px' }}>
               <h2 style={{ fontFamily: 'var(--font-accent)', textTransform: 'uppercase', marginBottom: '16px', fontSize: '1.2rem', color: 'var(--bauhaus-black)' }}>1. Information We Collect</h2>
               <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8 }}>
-                At TFICLUB, your privacy is our priority. We collect personal information that you voluntarily provide to us when registering on the website, expressing an interest in obtaining information about our products, or when purchasing items. This includes your name, shipping address, email address, and phone number. Payment information is processed securely by our payment gateway providers (Razorpay) and is never stored on our servers.
+                At FANCLUB, your privacy is our priority. We collect personal information that you voluntarily provide to us when registering on the website, expressing an interest in obtaining information about our products, or when purchasing items. This includes your name, shipping address, email address, and phone number. Payment information is processed securely by our payment gateway providers (Razorpay) and is never stored on our servers.
               </p>
             </section>
 
@@ -104,7 +104,7 @@ export default function Privacy() {
                 <strong>Lawful basis for processing:</strong> We process your data under the following lawful bases: (a) contractual necessity (order fulfillment), (b) legitimate interests (fraud prevention, site security), and (c) consent (marketing communications).
               </p>
               <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, marginTop: '12px' }}>
-                To exercise any of these rights, contact us at <strong>privacy@tficlub.com</strong>. We will respond within 30 days.
+                To exercise any of these rights, contact us at <strong>privacy@fanclub.com</strong>. We will respond within 30 days.
               </p>
             </section>
 
@@ -120,7 +120,7 @@ export default function Privacy() {
             <section>
               <h2 style={{ fontFamily: 'var(--font-accent)', textTransform: 'uppercase', marginBottom: '16px', fontSize: '1.2rem', color: 'var(--bauhaus-black)' }}>8. Contact Us</h2>
               <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, margin: 0 }}>
-                If you have questions or comments about this Privacy Policy, you may email us at <strong>privacy@tficlub.com</strong> or contact us via our support lines. For GDPR-related inquiries, you may also contact our Data Protection Officer at <strong>dpo@tficlub.com</strong>.
+                If you have questions or comments about this Privacy Policy, you may email us at <strong>privacy@fanclub.com</strong> or contact us via our support lines. For GDPR-related inquiries, you may also contact our Data Protection Officer at <strong>dpo@fanclub.com</strong>.
               </p>
             </section>
           </div>

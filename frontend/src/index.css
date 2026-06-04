@@ -1,10 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 /* Google Fonts loaded via <link> in index.html for optimal performance */
+
 /* ============================================
-   TFI — BAUHAUS CONSTRUCTIVIST DESIGN SYSTEM
+   FAN — BAUHAUS CONSTRUCTIVIST DESIGN SYSTEM
    Form follows function. Geometric purity.
    Multi-font typography for visual hierarchy.
    ============================================ */
@@ -22,6 +19,7 @@
   --bauhaus-red: #d02020;
   --bauhaus-blue: #1040c0;
   --bauhaus-yellow: #f0c020;
+  --bauhaus-green: #009e60;
   --bauhaus-black: #121212;
   --bauhaus-white: #ffffff;
 
@@ -47,13 +45,13 @@
      5 fonts, each with a distinct purpose:
      • display  → Bold hero headlines & page titles (Space Grotesk)
      • body     → Readable paragraphs & descriptions (Inter)
-     • accent   → UI labels, nav, buttons, badges (Outfit)
+     • accent   → UI labels, nav, buttons, badges (Oufant)
      • mono     → Prices, order numbers, data (JetBrains Mono)
      • editorial→ Quotes, testimonials, about text (Playfair Display)
      ──────────────────────────────────────────── */
-  --font-display: "Space Grotesk", "Outfit", sans-serif;
-  --font-body: "Inter", "Outfit", sans-serif;
-  --font-accent: "Outfit", sans-serif;
+  --font-display: "Space Grotesk", "Oufant", sans-serif;
+  --font-body: "Inter", "Oufant", sans-serif;
+  --font-accent: "Oufant", sans-serif;
   --font-mono: "JetBrains Mono", "Courier New", monospace;
   --font-editorial: "Playfair Display", "Georgia", serif;
 
@@ -84,6 +82,38 @@
   --radius-full: 9999px;
 }
 
+/* ── DARK MODE SYSTEM ────────────────────── */
+body.dark {
+  --bg-primary: #121212;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #2a2a2a;
+  --bg-card: #1e1e1e;
+  --bg-glass: rgba(255, 255, 255, 0.05);
+  --bg-glass-hover: rgba(255, 255, 255, 0.1);
+
+  --text-primary: #f0f0f0;
+  --text-secondary: #a0a0a0;
+  --text-muted: #888888;
+
+  --border-subtle: #ffffff;
+  --border-glass: #ffffff;
+  --border-accent: #ffffff;
+
+  --shadow-sm: 3px 3px 0px 0px #ffffff;
+  --shadow-md: 6px 6px 0px 0px #ffffff;
+  --shadow-lg: 8px 8px 0px 0px #ffffff;
+  --shadow-glow: 4px 4px 0px 0px #ffffff;
+  --shadow-glow-amber: 4px 4px 0px 0px #ffffff;
+
+  /* Invert bauhaus black and white for contrast */
+  --bauhaus-black: #ffffff;
+  --bauhaus-white: #121212;
+}
+
+body.dark::before {
+  opacity: 0.05; /* Tone down the dot grid in dark mode */
+}
+
 /* ============================================
    RESET & BASE
    ============================================ */
@@ -93,6 +123,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+::selection {
+  background: rgba(0, 158, 96, 0.25);
+  color: var(--text-primary);
 }
 
 html {
@@ -128,7 +163,7 @@ body::before {
   pointer-events: none;
   z-index: 1;
   opacity: 0.15;
-  background-image: radial-gradient(#121212 1px, transparent 1px);
+  background-image: radial-gradient(var(--bauhaus-green) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
@@ -180,7 +215,7 @@ ol {
   border-radius: 0;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--bauhaus-red);
+  background: var(--bauhaus-green);
 }
 
 /* ============================================
@@ -447,7 +482,8 @@ ol {
   transition: all var(--transition-fast);
 }
 .input-field:focus {
-  box-shadow: var(--shadow-sm);
+  box-shadow: 3px 3px 0px 0px rgba(0, 158, 96, 0.5);
+  border-color: var(--bauhaus-green);
 }
 .input-field::placeholder {
   color: var(--text-muted);
@@ -484,7 +520,7 @@ ol {
 }
 
 .badge-success {
-  background: var(--bauhaus-blue);
+  background: var(--bauhaus-green);
   color: white;
 }
 
@@ -726,4 +762,32 @@ ol {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ============================================
+   GLOBAL COLOR BAR
+   ============================================ */
+.bauhaus-color-bar {
+  display: flex;
+  width: 100%;
+  height: 6px;
+}
+
+.bauhaus-color-bar::before {
+  content: "";
+  flex: 1;
+  background: var(--bauhaus-red);
+}
+.bauhaus-color-bar::after {
+  content: "";
+  flex: 1;
+  background: var(--bauhaus-blue);
+}
+.bauhaus-color-bar > div:first-child {
+  flex: 1;
+  background: var(--bauhaus-yellow);
+}
+.bauhaus-color-bar > div:last-child {
+  flex: 1;
+  background: var(--bauhaus-green);
 }

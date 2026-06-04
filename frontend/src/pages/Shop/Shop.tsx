@@ -62,13 +62,13 @@ export default function Shop() {
   return (
     <AnimatedPage>
       <SEOHead
-        title={`${search ? `"${search}" results` : category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Shop All'} | TFICLUB — Cinema Streetwear`}
-        description={`Browse ${total} ${category || 'cinema-inspired'} products at TFICLUB. Premium streetwear from ₹499. Free shipping over ₹999. ${gender ? `For ${gender.toLowerCase()}.` : ''}`}
-        keywords={`TFICLUB shop, ${category || 'streetwear'}, cinema fashion, buy online India, ${gender || 'unisex'}`}
+        title={`${search ? `"${search}" results` : category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Shop All'} | FANCLUB — Cinema Streetwear`}
+        description={`Browse ${total} ${category || 'cinema-inspired'} products at FANCLUB. Premium streetwear from ₹499. Free shipping over ₹999. ${gender ? `For ${gender.toLowerCase()}.` : ''}`}
+        keywords={`FANCLUB shop, ${category || 'streetwear'}, cinema fashion, buy online India, ${gender || 'unisex'}`}
         jsonLd={[
           buildCollectionSchema(
-            `${category || 'All Products'} — TFICLUB`,
-            `Shop ${total} cinema-inspired fashion products at TFICLUB`
+            `${category || 'All Products'} — FANCLUB`,
+            `Shop ${total} cinema-inspired fashion products at FANCLUB`
           ),
           buildBreadcrumbSchema([
             { name: 'Home', url: window.location.origin },

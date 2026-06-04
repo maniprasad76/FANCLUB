@@ -237,7 +237,7 @@ const SECTIONS: CheckSection[] = [
   },
 ];
 
-const STORAGE_KEY = "tfi-launch-checklist-v1";
+const STORAGE_KEY = "fan-launch-checklist-v1";
 
 /* ── Helpers ──────────────────────────────────────────────────── */
 function loadChecked(): Record<string, boolean> {
@@ -434,7 +434,7 @@ export default function LaunchChecklist() {
   return (
     <AnimatedPage>
       <SEOHead
-        title="App Launch Checklist — TFICLUB Pre-Launch Guide"
+        title="App Launch Checklist — FANCLUB Pre-Launch Guide"
         description="The definitive app launch checklist: App Store optimization, website readiness, SEO setup, marketing prep, and legal compliance. Don't ship without it."
         keywords="app launch checklist, app store optimization, pre-launch checklist, app marketing, ASO checklist"
         noIndex={true}
@@ -447,7 +447,7 @@ export default function LaunchChecklist() {
           <div className="checklist-hero">
             <div className="checklist-hero-inner">
               <div>
-                <div className="checklist-eyebrow">TFI Club · Pre-Launch</div>
+                <div className="checklist-eyebrow">FAN Club · Pre-Launch</div>
                 <h1 className="checklist-title">
                   App Launch<br />
                   <span>Checklist</span>

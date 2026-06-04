@@ -42,7 +42,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <img
             src={
               formatImageUrl(product.images?.[0]) ||
-              "https://placehold.co/400x500/f0f0f0/111?text=TFI"
+              "https://placehold.co/400x500/f0f0f0/111?text=FAN"
             }
             alt={product.name}
             className="mpc-image"
@@ -60,7 +60,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               </span>
             )}
             <div className="mpc-brand-box">
-              <span>TFI</span>
+              <span>FAN</span>
             </div>
           </div>
 

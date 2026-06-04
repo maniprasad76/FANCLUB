@@ -178,12 +178,12 @@ function getProducts(categoryMap) {
     },
     // Caps
     {
-      name: 'TFI Classic Snapback',
-      slug: 'tfi-classic-snapback',
-      description: 'The signature TFICLUB snapback cap with embroidered logo. Structured 6-panel design with adjustable snap closure. One size fits most.',
+      name: 'FAN Classic Snapback',
+      slug: 'fan-classic-snapback',
+      description: 'The signature FANCLUB snapback cap with embroidered logo. Structured 6-panel design with adjustable snap closure. One size fits most.',
       price: 599,
       comparePrice: 999,
-      images: ['https://placehold.co/800x1000/1a1a2e/ffffff?text=TFI+Snapback'],
+      images: ['https://placehold.co/800x1000/1a1a2e/ffffff?text=FAN+Snapback'],
       sizes: [],
       colors: ['Black', 'White', 'Red'],
       categoryId: categoryMap['caps'],
@@ -191,7 +191,7 @@ function getProducts(categoryMap) {
       featured: false,
       bestseller: true,
       newArrival: false,
-      tags: ['cap', 'snapback', 'tfi'],
+      tags: ['cap', 'snapback', 'fan'],
       gender: 'UNISEX',
     },
     {
@@ -282,8 +282,8 @@ function getProducts(categoryMap) {
     },
     // Stickers
     {
-      name: 'TFI Dialogue Sticker Pack',
-      slug: 'tfi-dialogue-sticker-pack',
+      name: 'FAN Dialogue Sticker Pack',
+      slug: 'fan-dialogue-sticker-pack',
       description: 'Pack of 10 premium vinyl stickers featuring iconic Telugu cinema dialogues. Waterproof, UV-resistant, and perfect for laptops, bottles, and notebooks.',
       price: 199,
       comparePrice: 399,
@@ -319,7 +319,7 @@ function getProducts(categoryMap) {
 }
 
 async function main() {
-  console.log('\n🎬 TFICLUB — Direct Database Seeder\n');
+  console.log('\n🎬 FANCLUB — Direct Database Seeder\n');
   console.log('Connecting to database...');
 
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });

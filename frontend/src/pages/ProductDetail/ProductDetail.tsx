@@ -212,16 +212,16 @@ export default function ProductDetail() {
   const displayImages =
     product.images?.length > 0
       ? product.images
-      : ["https://placehold.co/800x1000/1a1a2e/8b5cf6?text=TFI"];
+      : ["https://placehold.co/800x1000/1a1a2e/8b5cf6?text=FAN"];
 
   return (
     <AnimatedPage>
       <div className="pdp-page" id="product-detail-page">
         {/* SEO + Structured Data */}
         <SEOHead
-          title={`${product.name} — TFICLUB | ₹${product.price.toLocaleString("en-IN")}`}
-          description={`${product.description?.slice(0, 155)}... Shop ${product.name} at TFICLUB.`}
-          keywords={`${product.name}, TFICLUB, ${product.category?.name || ""}, cinema fashion, buy online India`}
+          title={`${product.name} — FANCLUB | ₹${product.price.toLocaleString("en-IN")}`}
+          description={`${product.description?.slice(0, 155)}... Shop ${product.name} at FANCLUB.`}
+          keywords={`${product.name}, FANCLUB, ${product.category?.name || ""}, cinema fashion, buy online India`}
           ogType="product"
           ogImage={formatImageUrl(displayImages[0])}
           jsonLd={[

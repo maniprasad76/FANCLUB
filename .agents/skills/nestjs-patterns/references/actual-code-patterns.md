@@ -1,6 +1,6 @@
 # NestJS Reference — Actual Code Patterns
 
-> Extracted from the TFI Club backend source code.
+> Extracted from the FAN Club backend source code.
 
 ## Custom Decorators
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * TFI NestJS Module Scaffolder
+ * FAN NestJS Module Scaffolder
  * 
  * Usage: node scaffold-module.js feature-name
  * 

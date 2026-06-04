@@ -7,6 +7,7 @@ import {
   Req,
   HttpCode,
   HttpStatus,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import type { Request } from 'express';
@@ -38,6 +39,19 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async signIn(@Body() dto: SignInDto) {
     return this.authService.signIn(dto.email, dto.password);
+  }
+
+  // ─── POST /auth/admin/signin ──────────────────────────────
+
+  @Post('admin/signin')
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
+  @HttpCode(HttpStatus.OK)
+  async adminSignIn(@Body() dto: SignInDto) {
+    const result = await this.authService.signIn(dto.email, dto.password);
+    if (result.user.role !== 'ADMIN') {
+      throw new UnauthorizedException('Access restricted to administrators');
+    }
+    return result;
   }
 
   // ─── POST /auth/forgot-password ───────────────────────────
@@ -82,6 +96,19 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async syncOAuthUser(@Body() body: { access_token: string }) {
     return this.authService.syncOAuthUser(body.access_token);
+  }
+
+  // ─── POST /auth/admin/oauth/sync ──────────────────────────
+
+  @Post('admin/oauth/sync')
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
+  @HttpCode(HttpStatus.OK)
+  async syncAdminOAuthUser(@Body() body: { access_token: string }) {
+    const result = await this.authService.syncOAuthUser(body.access_token);
+    if (result.user.role !== 'ADMIN') {
+      throw new UnauthorizedException('Access restricted to administrators');
+    }
+    return result;
   }
 
   // ─── PRIVATE HELPERS ─────────────────────────────────────

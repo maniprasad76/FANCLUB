@@ -118,7 +118,10 @@ export default function Register() {
       await register(name, email, password);
       navigate(redirectTo);
     } catch (err: any) {
-      const msg = err.response?.data?.message || "Registration failed";
+      let msg = err.response?.data?.message || "Registration failed";
+      if (Array.isArray(msg)) msg = msg[0];
+      if (typeof msg !== 'string') msg = "Registration failed";
+      
       setError(msg);
       if (
         msg.toLowerCase().includes("already exists") ||
@@ -163,7 +166,7 @@ export default function Register() {
                   padding: "0 10px",
                 }}
               >
-                TFI
+                FAN
               </span>
               <span
                 className="logo-text-out"
@@ -173,7 +176,7 @@ export default function Register() {
               </span>
             </div>
             <h1 className="heading-lg auth-title">
-              Join <span className="text-gradient">TFICLUB</span>
+              Join <span className="text-gradient">FANCLUB</span>
             </h1>
             <p className="text-muted">Create your account</p>
           </div>

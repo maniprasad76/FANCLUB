@@ -1,12 +1,12 @@
 ---
 name: prisma-automation
-description: "Prisma ORM automation for TFI Club. ACTIVATE when: modifying database schema, creating/running migrations, writing Prisma queries, adding new models or relations, seeding data, debugging Prisma connection issues, optimizing database queries, working with Prisma transactions, or configuring Prisma with Supabase PostgreSQL. Triggers: schema.prisma, prisma migrate, prisma generate, prisma db, PrismaService, PrismaClient, @@map, @relation."
+description: "Prisma ORM automation for FAN Club. ACTIVATE when: modifying database schema, creating/running migrations, writing Prisma queries, adding new models or relations, seeding data, debugging Prisma connection issues, optimizing database queries, working with Prisma transactions, or configuring Prisma with Supabase PostgreSQL. Triggers: schema.prisma, prisma migrate, prisma generate, prisma db, PrismaService, PrismaClient, @@map, @relation."
 metadata:
-  author: tfi-team
+  author: fan-team
   version: "1.0.0"
 ---
 
-# Prisma Automation — TFI Club
+# Prisma Automation — FAN Club
 
 ## Schema Location & Configuration
 

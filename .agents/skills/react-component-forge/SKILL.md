@@ -1,12 +1,12 @@
 ---
 name: react-component-forge
-description: "React frontend component patterns for TFI Club. ACTIVATE when: creating new React pages/components, styling with CSS variables, adding Framer Motion animations, setting up React Router routes, using Axios API calls, managing auth/cart state, implementing responsive layouts, adding toast notifications, working with Lucide icons, building product cards/grids, or creating modals/drawers. Triggers: React, JSX, TSX, Vite, Framer Motion, AnimatedPage, CSS variables, bauhaus, component, page."
+description: "React frontend component patterns for FAN Club. ACTIVATE when: creating new React pages/components, styling with CSS variables, adding Framer Motion animations, setting up React Router routes, using Axios API calls, managing auth/cart state, implementing responsive layouts, adding toast notifications, working with Lucide icons, building product cards/grids, or creating modals/drawers. Triggers: React, JSX, TSX, Vite, Framer Motion, AnimatedPage, CSS variables, bauhaus, component, page."
 metadata:
-  author: tfi-team
+  author: fan-team
   version: "1.0.0"
 ---
 
-# React Component Forge — TFI Club Frontend
+# React Component Forge — FAN Club Frontend
 
 ## Creating a New Page
 
@@ -163,7 +163,7 @@ import FeatureName from './pages/FeatureName/FeatureName';
 |---------|------|-------|
 | `--font-display` | Space Grotesk | Headlines, page titles, hero text |
 | `--font-body` | Inter | Body text, descriptions, paragraphs |
-| `--font-accent` | Outfit | Buttons, nav items, labels, badges |
+| `--font-accent` | Oufant | Buttons, nav items, labels, badges |
 | `--font-mono` | JetBrains Mono | Prices, order numbers, tracking IDs |
 | `--font-editorial` | Playfair Display | Quotes, testimonials, about text |
 

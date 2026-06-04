@@ -4,10 +4,10 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import api from '../lib/api';
 
 const statIcons = [
-  { icon: DollarSign, bg: '#FFEBEE', color: '#D02020' },
-  { icon: ShoppingCart, bg: '#E3F2FD', color: '#1040C0' },
-  { icon: Users, bg: '#FFF8E1', color: '#F0C020' },
-  { icon: Package, bg: '#E8F5E9', color: '#2E7D32' },
+  { icon: DollarSign, bg: 'var(--bauhaus-white)', color: 'var(--bauhaus-red)' },
+  { icon: ShoppingCart, bg: 'var(--bauhaus-white)', color: 'var(--bauhaus-blue)' },
+  { icon: Users, bg: 'var(--bauhaus-white)', color: 'var(--bauhaus-yellow)' },
+  { icon: Package, bg: 'var(--bauhaus-white)', color: 'var(--bauhaus-green)' },
 ];
 
 export default function Dashboard() {
@@ -50,12 +50,13 @@ export default function Dashboard() {
           <TrendingUp size={28} style={{ color: 'var(--bauhaus-red)' }} />
           <h1 className="page-title">Dashboard</h1>
         </div>
-        <p className="page-subtitle">Welcome back to TFICLUB Admin</p>
+        <p className="page-subtitle">Welcome back to FANCLUB Admin</p>
         {/* Bauhaus decorative bar */}
         <div style={{ display: 'flex', gap: 0, marginTop: 12, height: 4, maxWidth: 200 }}>
           <div style={{ flex: 1, background: 'var(--bauhaus-red)' }} />
           <div style={{ flex: 1, background: 'var(--bauhaus-blue)' }} />
           <div style={{ flex: 1, background: 'var(--bauhaus-yellow)' }} />
+          <div style={{ flex: 1, background: 'var(--bauhaus-green)' }} />
         </div>
       </div>
 

@@ -27,6 +27,7 @@ export default function PaymentStatus() {
   const [order, setOrder] = useState<any>(null);
   const [payment, setPayment] = useState<any>(null);
   const [retrying, setRetrying] = useState(false);
+  const [pollCount, setPollCount] = useState(0);
 
   useEffect(() => {
     if (!user) {
@@ -36,8 +37,20 @@ export default function PaymentStatus() {
     checkPaymentStatus();
   }, [orderId, user]);
 
-  const checkPaymentStatus = async () => {
-    setStatus('loading');
+  // Automatic polling for pending statuses (webhooks can take a few seconds)
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if ((status === 'pending' || status === 'loading') && pollCount < 10) {
+      interval = setInterval(() => {
+        setPollCount(p => p + 1);
+        checkPaymentStatus(true);
+      }, 3000); // Poll every 3 seconds
+    }
+    return () => clearInterval(interval);
+  }, [status, pollCount]);
+
+  const checkPaymentStatus = async (isPolling = false) => {
+    if (!isPolling) setStatus('loading');
 
     try {
       // Check if this is a Stripe redirect
@@ -108,7 +121,7 @@ export default function PaymentStatus() {
           key: data.razorpayKey,
           amount: data.amount * 100,
           currency: data.currency || 'INR',
-          name: 'TFICLUB',
+          name: 'FANCLUB',
           description: 'Order Payment Retry',
           order_id: data.razorpayOrderId,
           handler: async (response: any) => {

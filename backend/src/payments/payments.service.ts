@@ -139,7 +139,7 @@ export class PaymentsService {
         order.totalAmount,
         currency,
         {
-          receipt: `tfi_${order.orderNumber}`,
+          receipt: `fan_${order.orderNumber}`,
           notes: { orderId, paymentId: payment.id },
         },
       );
@@ -159,7 +159,7 @@ export class PaymentsService {
         {
           orderId,
           orderNumber: order.orderNumber,
-          orderDescription: `TFICLUB Order #${order.orderNumber}`,
+          orderDescription: `FANCLUB Order #${order.orderNumber}`,
           customerEmail: order.user?.email,
         },
       );

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { SOCIAL_LINKS } from '../../config';
 import { InstagramIcon, WhatsAppIcon, YoutubeIcon, PinterestIcon, TwitterIcon } from '../../lib/socialIcons';
-import { minimalStagger, minimalItem } from '../AnimatedPage';
+import { cinematicStagger, cinematicItem } from '../AnimatedPage';
 
 const SOCIAL_ITEMS = [
   { key: 'instagram', href: SOCIAL_LINKS.instagram, label: 'Instagram', Icon: InstagramIcon },
@@ -19,14 +19,14 @@ export default function SocialSection() {
       initial="initial"
       whileInView="animate"
       viewport={{ once: true, amount: 0.3 }}
-      variants={minimalStagger}
+      variants={cinematicStagger}
     >
       {/* Corner decorations */}
       <div className="bauhaus-corner bauhaus-corner-tl" />
       <div className="bauhaus-corner bauhaus-corner-br" />
 
       <div className="container delivery-content">
-        <motion.div className="social-icons-row" variants={minimalItem}>
+        <motion.div className="social-icons-row" variants={cinematicItem}>
           {SOCIAL_ITEMS.map(({ key, href, label, Icon }) => (
             <a
               key={key}
@@ -44,3 +44,4 @@ export default function SocialSection() {
     </motion.section>
   );
 }
+

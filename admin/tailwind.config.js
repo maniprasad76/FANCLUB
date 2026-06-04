@@ -16,9 +16,9 @@ export default {
         muted: "#E0E0E0",
       },
       fontFamily: {
-        sans: ['Outfit', 'sans-serif'],
-        display: ['Outfit', 'sans-serif'],
-        body: ['Outfit', 'sans-serif'],
+        sans: ['Oufant', 'sans-serif'],
+        display: ['Oufant', 'sans-serif'],
+        body: ['Oufant', 'sans-serif'],
       },
       boxShadow: {
         sm: "4px 4px 0px 0px black",

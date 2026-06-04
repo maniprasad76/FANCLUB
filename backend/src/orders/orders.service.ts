@@ -69,7 +69,7 @@ export class OrdersService {
       subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
     const totalAmount = subtotal + shippingAmount;
 
-    const orderNumber = `TFI-${Date.now().toString(36).toUpperCase()}-${uuidv4().slice(0, 4).toUpperCase()}`;
+    const orderNumber = `FAN-${Date.now().toString(36).toUpperCase()}-${uuidv4().slice(0, 4).toUpperCase()}`;
 
     // ── Resolve the customer's country from their address ──
     let customerCountry = dto.country || 'India';

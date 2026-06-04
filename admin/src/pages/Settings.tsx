@@ -227,7 +227,7 @@ export default function AdminSettings() {
               letterSpacing: "2px",
             }}
           >
-            TFI Admin Panel
+            FAN Admin Panel
           </h2>
           <p
             style={{
@@ -252,7 +252,7 @@ export default function AdminSettings() {
             {[
               {
                 label: "Store Name",
-                value: "TFI",
+                value: "FAN",
                 color: "var(--bauhaus-red)",
               },
               {

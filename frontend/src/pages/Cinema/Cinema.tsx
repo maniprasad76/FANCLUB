@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Film, Sparkles, Palette, Clapperboard } from 'lucide-react';
 import AnimatedPage, { cinematicItem, cinematicStagger } from '../../components/AnimatedPage';
@@ -6,6 +6,19 @@ import './Cinema.css';
 
 export default function Cinema() {
   const heroRef = useRef<HTMLElement>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [showVideo, setShowVideo] = useState(true);
+
+  useEffect(() => {
+    import('../../lib/api').then(({ default: api }) => {
+      api.get('/settings/video').then(res => {
+        if (res.data?.url) {
+          setVideoUrl(import.meta.env.VITE_API_URL.replace('/api', '') + res.data.url);
+        }
+      }).catch(() => {});
+    });
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -18,7 +31,7 @@ export default function Cinema() {
 
   const inspirations = [
     { title: 'The Character Within', desc: 'Where characters live in characters. Our designs embody the soul of iconic roles.', icon: Film, color: 'var(--bauhaus-yellow)' },
-    { title: 'Excellence of Cinema', desc: 'Celebrating the legacy, action, drama, and pure emotion of TFI.', icon: Sparkles, color: 'var(--bauhaus-red)' },
+    { title: 'Excellence of Cinema', desc: 'Celebrating the legacy, action, drama, and pure emotion of FAN.', icon: Sparkles, color: 'var(--bauhaus-red)' },
     { title: 'Script & Typography', desc: 'Unique typography that speaks the language of our beautiful cinema.', icon: Palette, color: 'var(--bauhaus-blue)' },
     { title: 'Cinematic Glory', desc: 'From the silver screen to the streets, wearing the culture proudly.', icon: Clapperboard, color: 'var(--bauhaus-white)' },
   ];
@@ -40,10 +53,37 @@ export default function Cinema() {
     <AnimatedPage>
       <div className="cinema-page" id="cinema-page">
         {/* Hero */}
-        <section className="cinema-hero" ref={heroRef}>
-          <motion.div className="cinema-hero-bg" style={{ y: heroY }} />
-          <motion.div className="cinema-hero-vignette" style={{ opacity: heroOpacity }} />
-          <div className="container cinema-hero-content">
+        <section className="cinema-hero" ref={heroRef} style={{ position: 'relative', overflow: 'hidden' }}>
+          <motion.div className="cinema-hero-bg" style={{ y: heroY, zIndex: 1 }} />
+          
+          {videoUrl && showVideo && (
+            <motion.div 
+              className="cinema-hero-video-wrapper"
+              style={{ y: heroY, position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: isVideoLoaded ? 1 : 0 }}
+              transition={{ duration: 1.5 }}
+            >
+              <video
+                src={videoUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                onLoadedData={() => setIsVideoLoaded(true)}
+                onError={() => setShowVideo(false)}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  filter: 'grayscale(100%) contrast(1.2)'
+                }}
+              />
+            </motion.div>
+          )}
+
+          <motion.div className="cinema-hero-vignette" style={{ opacity: heroOpacity, zIndex: 2, background: 'radial-gradient(circle at center, transparent 0%, var(--bg-primary) 85%)' }} />
+          <div className="container cinema-hero-content" style={{ zIndex: 3, position: 'relative' }}>
             <motion.div
               style={{ y: heroContentY }}
               variants={cinematicStagger}
@@ -79,7 +119,7 @@ export default function Cinema() {
             </div>
             <div className="cinema-philosophy">
               <p>
-                At TFICLUB, we believe that the most powerful art comes from the stories that move us. 
+                At FANCLUB, we believe that the most powerful art comes from the stories that move us. 
                 The unmatched aura of Telugu Film Industry, the dialogues that turn into anthems, 
                 and the larger-than-life characters — these moments deserve to live forever.
               </p>
@@ -92,7 +132,7 @@ export default function Cinema() {
           </div>
         </motion.section>
 
-        {/* The Legacy of TFI */}
+        {/* The Legacy of FAN */}
         <motion.section
           className="section"
           initial={{ opacity: 0, y: 42 }}
@@ -114,24 +154,24 @@ export default function Cinema() {
               gap: '30px',
               marginTop: '40px'
             }}>
-              <div style={{ padding: '30px', border: '2px solid var(--bauhaus-red)', background: 'rgba(255,255,255,0.02)', transition: 'transform 0.3s ease' }} className="tfi-info-card">
+              <div style={{ padding: '30px', border: '2px solid var(--bauhaus-red)', background: 'rgba(255,255,255,0.02)', transition: 'transform 0.3s ease' }} className="fan-info-card">
                 <h3 className="heading-sm" style={{ color: 'var(--bauhaus-red)', marginBottom: '16px', fontSize: '1.4rem' }}>The 'Mass' Culture</h3>
                 <p style={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.7, fontSize: '0.95rem' }}>
                   In Telugu cinema, "Mass" isn't just an audience—it's an emotion. It's the high-octane background scores, gravity-defying action, and punch dialogues that echo in theaters long after the movie ends. It is unapologetic, raw, and full of swagger.
                 </p>
               </div>
 
-              <div style={{ padding: '30px', border: '2px solid var(--bauhaus-yellow)', background: 'rgba(255,255,255,0.02)', transition: 'transform 0.3s ease' }} className="tfi-info-card">
+              <div style={{ padding: '30px', border: '2px solid var(--bauhaus-yellow)', background: 'rgba(255,255,255,0.02)', transition: 'transform 0.3s ease' }} className="fan-info-card">
                 <h3 className="heading-sm" style={{ color: 'var(--bauhaus-yellow)', marginBottom: '16px', fontSize: '1.4rem' }}>A Global Canvas</h3>
                 <p style={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.7, fontSize: '0.95rem' }}>
                   What started as a regional powerhouse has now commanded the world's attention. With Oscar-winning music, breathtaking visual effects, and epics that transcend language, Tollywood has redefined the scale of Indian storytelling on the global stage.
                 </p>
               </div>
 
-              <div style={{ padding: '30px', border: '2px solid var(--bauhaus-blue)', background: 'rgba(255,255,255,0.02)', transition: 'transform 0.3s ease' }} className="tfi-info-card">
+              <div style={{ padding: '30px', border: '2px solid var(--bauhaus-blue)', background: 'rgba(255,255,255,0.02)', transition: 'transform 0.3s ease' }} className="fan-info-card">
                 <h3 className="heading-sm" style={{ color: 'var(--bauhaus-blue)', marginBottom: '16px', fontSize: '1.4rem' }}>Unmatched Fandom</h3>
                 <p style={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.7, fontSize: '0.95rem' }}>
-                  The release of a superstar's movie is a festival. From 100-foot cutouts to theaters erupting in confetti and non-stop cheers, the fans breathe life into cinema. At TFICLUB, we design our apparel explicitly for this burning passion.
+                  The release of a superstar's movie is a festival. From 100-foot cutouts to theaters erupting in confetti and non-stop cheers, the fans breathe life into cinema. At FANCLUB, we design our apparel explicitly for this burning passion.
                 </p>
               </div>
             </div>

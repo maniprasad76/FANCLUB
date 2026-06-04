@@ -17,7 +17,7 @@ export default function Cart() {
   if (count === 0) {
     return (
       <AnimatedPage>
-        <SEOHead title="Cart | TFICLUB" description="Your shopping cart is empty. Browse our cinema-inspired streetwear collection." noIndex />
+        <SEOHead title="Cart | FANCLUB" description="Your shopping cart is empty. Browse our cinema-inspired streetwear collection." noIndex />
         <div className="cart-empty container" id="cart-page">
           <ShoppingBag size={64} strokeWidth={1} />
           <h2 className="heading-md">Your Cart is Empty</h2>
@@ -30,7 +30,7 @@ export default function Cart() {
 
   return (
     <AnimatedPage>
-      <SEOHead title={`Cart (${count} items) | TFICLUB`} description="Complete your purchase at TFICLUB." noIndex />
+      <SEOHead title={`Cart (${count} items) | FANCLUB`} description="Complete your purchase at FANCLUB." noIndex />
       <div className="cart-page container" id="cart-page">
         <h1 className="heading-lg">Shopping Cart</h1>
 
@@ -65,7 +65,7 @@ export default function Cart() {
 
             {items.map((item) => (
               <div key={item.id} className="cart-item glass-card">
-                <img src={formatImageUrl(item.product.images?.[0]) || 'https://placehold.co/120x150/1a1a2e/8b5cf6?text=TFI'} alt={item.product.name} className="cart-item-image" />
+                <img src={formatImageUrl(item.product.images?.[0]) || 'https://placehold.co/120x150/1a1a2e/8b5cf6?text=FAN'} alt={item.product.name} className="cart-item-image" />
                 <div className="cart-item-info">
                   <Link to={`/product/${item.product.slug}`} className="cart-item-name">{item.product.name}</Link>
                   {item.size && <span className="cart-item-variant">Size: {item.size}</span>}

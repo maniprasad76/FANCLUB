@@ -39,7 +39,7 @@ export default function TopProgressBar() {
       <div
         style={{
           height: "100%",
-          background: "var(--bauhaus-red)",
+          background: "linear-gradient(to right, var(--bauhaus-red), var(--bauhaus-blue), var(--bauhaus-yellow), var(--bauhaus-green))",
           width: `${progress}%`,
           transition: "width 0.3s ease-out",
         }}

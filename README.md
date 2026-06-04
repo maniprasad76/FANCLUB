@@ -1,4 +1,4 @@
-# TFI Club — Full-Stack E-Commerce Platform
+# FAN Club — Full-Stack E-Commerce Platform
 
 <p align="center">
   <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
@@ -9,14 +9,14 @@
   <img src="https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
 </p>
 
-A modern, full-stack e-commerce web application for **TFI Club** — featuring a customer-facing storefront, a powerful admin dashboard, and a robust NestJS REST API backend.
+A modern, full-stack e-commerce web application for **FAN Club** — featuring a customer-facing storefront, a powerful admin dashboard, and a robust NestJS REST API backend.
 
 ---
 
 ## 📁 Project Structure
 
 ```
-TFI/
+FAN/
 ├── frontend/       # Customer-facing storefront (React + Vite)
 ├── admin/          # Admin dashboard (React + Vite)
 └── backend/        # REST API server (NestJS + Prisma + Supabase)
@@ -106,8 +106,8 @@ TFI/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/maniprasad76/TFICLUB.git
-cd TFICLUB
+git clone https://github.com/maniprasad76/FANCLUB.git
+cd FANCLUB
 ```
 
 ---
@@ -292,4 +292,4 @@ This project is private and proprietary. All rights reserved.
 
 ---
 
-<p align="center">Built with ❤️ by the TFI Club team</p>
+<p align="center">Built with ❤️ by the FAN Club team</p>

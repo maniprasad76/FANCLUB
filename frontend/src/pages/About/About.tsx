@@ -9,9 +9,9 @@ export default function About() {
   return (
     <AnimatedPage>
       <SEOHead
-        title="About TFICLUB — Our Story | Cinema-Inspired Streetwear Brand"
-        description="TFICLUB is a passion-driven streetwear brand celebrating cinema, anime, and pop culture. Learn about our journey, values, and vision."
-        keywords="TFICLUB about, streetwear brand India, cinema fashion story, Tollywood merchandise brand"
+        title="About FANCLUB — Our Story | Cinema-Inspired Streetwear Brand"
+        description="FANCLUB is a passion-driven streetwear brand celebrating cinema, anime, and pop culture. Learn about our journey, values, and vision."
+        keywords="FANCLUB about, streetwear brand India, cinema fashion story, Tollywood merchandise brand"
       />
       <div style={{ paddingTop: 'var(--nav-height)', background: 'var(--bg-primary)' }} id="about-page">
         {/* HERO SECTION */}
@@ -23,13 +23,13 @@ export default function About() {
           <div className="container" style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
               <span className="hero-tag" style={{ color: 'var(--bauhaus-black)', fontWeight: 700, letterSpacing: '4px', textTransform: 'uppercase', border: '2px solid var(--bauhaus-black)', padding: '6px 16px', display: 'inline-block', marginBottom: '20px' }}>
-                About TFI
+                About FAN
               </span>
               <h1 className="heading-xl" style={{ fontFamily: 'var(--font-display)', color: 'var(--bauhaus-black)', fontSize: 'clamp(2.5rem, 10vw, 6rem)', lineHeight: 0.9, textTransform: 'uppercase' }}>
                 PASSION & <span style={{ color: 'var(--bauhaus-blue)' }}>VISION</span>
               </h1>
               <p style={{ maxWidth: 700, margin: '30px auto 0', color: 'var(--text-secondary)', fontSize: '1.2rem', lineHeight: 1.8, fontWeight: 400, fontFamily: 'var(--font-body)' }}>
-                TFICLUB is not just a brand—it is a reflection of passion, dedication, and an unwavering belief in dreams. Built with a vision to inspire and create, TFICLUB represents the spirit of perseverance and creativity that drives us forward every day.
+                FANCLUB is not just a brand—it is a reflection of passion, dedication, and an unwavering belief in dreams. Built with a vision to inspire and create, FANCLUB represents the spirit of perseverance and creativity that drives us forward every day.
               </p>
             </motion.div>
           </div>
@@ -39,7 +39,7 @@ export default function About() {
         <section className="section" style={{ background: 'var(--bauhaus-black)', color: 'var(--bauhaus-white)', padding: '100px 0' }}>
           <div className="container" style={{ maxWidth: '800px' }}>
             <div className="section-header" style={{ borderColor: 'var(--bauhaus-white)' }}>
-              <p className="section-subtitle" style={{ color: 'var(--bauhaus-yellow)' }}>About TFI</p>
+              <p className="section-subtitle" style={{ color: 'var(--bauhaus-yellow)' }}>About FAN</p>
               <h2 className="section-title" style={{ color: 'var(--bauhaus-white)' }}>Our Journey</h2>
               <div className="section-divider" style={{ background: 'var(--bauhaus-white)' }} />
             </div>

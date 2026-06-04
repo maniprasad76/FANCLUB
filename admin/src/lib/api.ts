@@ -1,4 +1,5 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 let API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 if (API_URL.includes('localhost') && typeof window !== 'undefined') {
@@ -94,6 +95,20 @@ api.interceptors.response.use(
       localStorage.removeItem('admin_user');
       localStorage.removeItem('admin_refresh_token');
       localStorage.removeItem('admin_access_token');
+    } else if (error.response) {
+      const status = error.response.status;
+      const data = error.response.data;
+      
+      // Global error toasts
+      if (status === 413) {
+        toast.error('File is too large. Please select a smaller file.');
+      } else if (status === 403) {
+        toast.error('You do not have permission to perform this action.');
+      } else if (status === 429) {
+        toast.error('Too many requests. Please try again later.');
+      } else if (status >= 500) {
+        toast.error('An unexpected server error occurred. Please try again later.');
+      }
     }
 
     return Promise.reject(error);

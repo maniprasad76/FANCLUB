@@ -23,7 +23,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
+    const request = ctx.getRequest<Request & { requestId?: string }>();
+    const requestId = request.requestId || '-';
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message: string | string[] = 'Internal server error';
@@ -44,21 +45,26 @@ export class HttpExceptionFilter implements ExceptionFilter {
         error = (resp.error as string) || exception.name;
       }
 
+      // Provide a helpful message for rate-limited requests
+      if (status === HttpStatus.TOO_MANY_REQUESTS) {
+        message = 'Too many requests. Please wait a moment before trying again.';
+      }
+
       // Log client errors (4xx) at warn level, server errors (5xx) at error level
       if (status >= 500) {
         this.logger.error(
-          `[${request.method}] ${request.url} → ${status}: ${JSON.stringify(message)}`,
+          `[${request.method}] ${request.url} → ${status}: ${JSON.stringify(message)} [${requestId}]`,
           exception.stack,
         );
       } else {
         this.logger.warn(
-          `[${request.method}] ${request.url} → ${status}: ${JSON.stringify(message)}`,
+          `[${request.method}] ${request.url} → ${status}: ${JSON.stringify(message)} [${requestId}]`,
         );
       }
     } else if (exception instanceof Error) {
       // Unhandled exception — always log the full details server-side
       this.logger.error(
-        `[${request.method}] ${request.url} → Unhandled: ${exception.message}`,
+        `[${request.method}] ${request.url} → Unhandled: ${exception.message} [${requestId}]`,
         exception.stack,
       );
 
@@ -71,7 +77,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     } else {
       // Non-Error thrown (string, number, etc.) — very unusual
       this.logger.error(
-        `[${request.method}] ${request.url} → Non-Error thrown: ${String(exception)}`,
+        `[${request.method}] ${request.url} → Non-Error thrown: ${String(exception)} [${requestId}]`,
       );
 
       if (this.isProduction) {
@@ -87,6 +93,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       error,
       timestamp: new Date().toISOString(),
       path: request.url,
+      requestId,
     };
 
     // In development, include the stack trace for debugging convenience

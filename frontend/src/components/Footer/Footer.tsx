@@ -49,128 +49,136 @@ export default function Footer() {
 
   return (
     <footer className="footer" id="footer">
+      <div className="bauhaus-color-bar">
+        <div />
+        <div />
+      </div>
       <div className="container footer-container">
         
         {/* Newsletter Drop System */}
-        <div className="footer-newsletter" style={{ backgroundColor: 'var(--bauhaus-yellow)', padding: '40px 20px', marginBottom: '60px', border: '4px solid var(--bauhaus-blue)', boxShadow: '12px 12px 0 0 var(--bauhaus-red)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: '16px' }}>
-          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.5rem, 5vw, 2.5rem)', textTransform: 'uppercase', color: 'var(--bauhaus-black)', letterSpacing: '2px', margin: 0 }}>Join The Drop</h3>
-          <p style={{ color: 'var(--bauhaus-black)', fontWeight: 700, margin: 0, maxWidth: '400px' }}>Get early access to limited releases and underground collections before they sell out.</p>
-          <form onSubmit={handleSubscribe} style={{ display: 'flex', width: '100%', maxWidth: '400px', marginTop: '8px' }}>
+        <div className="footer-newsletter">
+          <div className="newsletter-content">
+            <h3>Join The Drop</h3>
+            <p>Get early access to limited releases, underground collections, and exclusive FAN content before they sell out.</p>
+          </div>
+          <form onSubmit={handleSubscribe} className="newsletter-form">
             <input 
               type="email" 
               placeholder="YOUR EMAIL" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              style={{ flex: 1, padding: '12px 16px', border: '4px solid var(--bauhaus-black)', background: 'white', color: 'black', fontFamily: 'var(--font-accent)', fontWeight: 800, letterSpacing: '1px', outline: 'none' }}
             />
-            <button type="submit" style={{ padding: '0 20px', background: 'var(--bauhaus-red)', color: 'var(--bauhaus-yellow)', border: '4px solid var(--bauhaus-black)', borderLeft: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+            <button type="submit" className="newsletter-btn">
               {subscribed ? <Check size={24} /> : <ArrowRight size={24} />}
             </button>
+            {subscribed && <span className="newsletter-success">You're on the list.</span>}
           </form>
-          {subscribed && <span style={{ color: 'var(--bauhaus-red)', fontWeight: 800, textTransform: 'uppercase', fontSize: '0.9rem', letterSpacing: '1px' }}>You're on the list.</span>}
         </div>
 
-        <div className="footer-top">
-          <Link to="/" className="footer-logo-wrap" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '16px', textDecoration: 'none' }}>
-            <span className="logo-box" style={{ fontSize: '2.5rem', height: '64px', padding: '0 20px' }}>TFI</span>
-            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 900, fontSize: '1.2rem', letterSpacing: '3px', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
-              <span style={{ color: 'var(--bauhaus-red)' }}>TELUGU</span>{' '}
-              <span style={{ color: 'var(--bauhaus-yellow)' }}>FILM</span>{' '}
-              <span style={{ color: 'var(--bauhaus-blue)' }}>INDUSTRY</span>
-            </span>
-          </Link>
-          <div className="footer-socials">
-            <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><IconInstagram /></a>
-            <a href={SOCIAL_LINKS.whatsapp} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><IconWhatsapp /></a>
-            <a href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook"><IconFacebook /></a>
-            <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube"><IconYoutube /></a>
-            <a href={SOCIAL_LINKS.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter"><IconTwitter /></a>
-            <a href={SOCIAL_LINKS.pinterest} target="_blank" rel="noopener noreferrer" aria-label="Pinterest"><IconPinterest /></a>
+        <div className="footer-main-grid">
+          
+          {/* Brand & Socials Column */}
+          <div className="footer-brand-column">
+            <Link to="/" className="footer-logo">
+              <span className="logo-box">FAN</span>
+              <div className="logo-text">
+                <span className="text-red">TELUGU</span>
+                <span className="text-yellow">FILM</span>
+                <span className="text-blue">INDUSTRY</span>
+              </div>
+            </Link>
+            <p className="footer-brand-desc">
+              Premium streetwear inspired by the legacy of Telugu Cinema. 
+              We blend cinematic storytelling with modern design for the true fans.
+            </p>
+            <div className="footer-socials">
+              <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><IconInstagram /></a>
+              <a href={SOCIAL_LINKS.whatsapp} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><IconWhatsapp /></a>
+              <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube"><IconYoutube /></a>
+              <a href={SOCIAL_LINKS.twitter} target="_blank" rel="noopener noreferrer" aria-label="Twitter"><IconTwitter /></a>
+            </div>
+          </div>
+
+          <div className="footer-links-grid">
+            <div className="footer-links-group">
+              <button className="footer-dropdown-btn" onClick={() => toggleDropdown('shop')}>
+                <span className="footer-links-title">Shop</span>
+                <ChevronDown size={18} className={`dropdown-icon ${openDropdown === 'shop' ? 'open' : ''}`} />
+              </button>
+              <div className={`footer-dropdown-content ${openDropdown === 'shop' ? 'show' : ''}`}>
+                <div className="footer-dropdown-inner">
+                  <Link to="/shop">All Products</Link>
+                  <Link to="/shop?gender=MEN">Men's Collection</Link>
+                  <Link to="/shop?gender=WOMEN">Women's Collection</Link>
+                  <Link to="/shop?category=jeans">Denim</Link>
+                  <Link to="/shop?category=shirts">Shirts</Link>
+                  <Link to="/shop?category=hoodies">Hoodies & Sweats</Link>
+                </div>
+              </div>
+            </div>
+
+            <div className="footer-links-group">
+              <button className="footer-dropdown-btn" onClick={() => toggleDropdown('support')}>
+                <span className="footer-links-title">Support</span>
+                <ChevronDown size={18} className={`dropdown-icon ${openDropdown === 'support' ? 'open' : ''}`} />
+              </button>
+              <div className={`footer-dropdown-content ${openDropdown === 'support' ? 'show' : ''}`}>
+                <div className="footer-dropdown-inner">
+                  <Link to="/contact">Help Center</Link>
+                  <Link to="/faq">FAQs</Link>
+                  <Link to="/returns">Returns & Exchanges</Link>
+                  <Link to="/shipping">Shipping Information</Link>
+                  <Link to="/track-order">Track Order</Link>
+                </div>
+              </div>
+            </div>
+
+            <div className="footer-links-group">
+              <button className="footer-dropdown-btn" onClick={() => toggleDropdown('company')}>
+                <span className="footer-links-title">Company</span>
+                <ChevronDown size={18} className={`dropdown-icon ${openDropdown === 'company' ? 'open' : ''}`} />
+              </button>
+              <div className={`footer-dropdown-content ${openDropdown === 'company' ? 'show' : ''}`}>
+                <div className="footer-dropdown-inner">
+                  <Link to="/about">Our Story</Link>
+                  <Link to="/cinema">The Lounge</Link>
+                  <Link to="/contact">Contact Us</Link>
+                  <Link to="/privacy">Privacy Policy</Link>
+                  <Link to="/terms">Terms of Service</Link>
+                </div>
+              </div>
+            </div>
+            
+            <div className="footer-links-group">
+              <button className="footer-dropdown-btn" onClick={() => toggleDropdown('contact')}>
+                <span className="footer-links-title">Contact</span>
+                <ChevronDown size={18} className={`dropdown-icon ${openDropdown === 'contact' ? 'open' : ''}`} />
+              </button>
+              <div className={`footer-dropdown-content ${openDropdown === 'contact' ? 'show' : ''}`}>
+                <div className="footer-dropdown-inner contact-info">
+                  <p><strong>Email:</strong><br/><a href="mailto:support@fanclub.com">support@fanclub.com</a></p>
+                  <p><strong>Phone:</strong><br/><a href="tel:7569428709">+91 75694 28709</a></p>
+                  <p><strong>Hours:</strong><br/>Mon-Sat, 9AM - 8PM IST</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="footer-grid">
-          <div className="footer-links-group">
-            <button className="footer-dropdown-btn" onClick={() => toggleDropdown('shop')}>
-              <span className="footer-links-title">Shop</span>
-              <ChevronDown size={18} className={`dropdown-icon ${openDropdown === 'shop' ? 'open' : ''}`} />
-            </button>
-            <div className={`footer-dropdown-content ${openDropdown === 'shop' ? 'show' : ''}`}>
-              <div className="footer-dropdown-inner">
-                <Link to="/shop">All Products</Link>
-                <Link to="/shop?gender=MEN">Men</Link>
-                <Link to="/shop?gender=WOMEN">Women</Link>
-                <Link to="/shop?category=jeans">Jeans</Link>
-                <Link to="/shop?category=shirts">Shirts</Link>
-                <Link to="/shop?category=t-shirts">T-Shirts</Link>
-                <Link to="/shop?category=hoodies">Hoodies</Link>
-              </div>
-            </div>
+        <div className="footer-bottom">
+          <p className="footer-copyright">© {new Date().getFullYear()} FANCLUB. All rights reserved.</p>
+          <div className="footer-badges">
+            <span className="payment-badge">Secure Payments</span>
+            <span className="shipping-badge">Worldwide Shipping</span>
           </div>
-
-          <div className="footer-links-group">
-            <button className="footer-dropdown-btn" onClick={() => toggleDropdown('support')}>
-              <span className="footer-links-title">Support</span>
-              <ChevronDown size={18} className={`dropdown-icon ${openDropdown === 'support' ? 'open' : ''}`} />
-            </button>
-            <div className={`footer-dropdown-content ${openDropdown === 'support' ? 'show' : ''}`}>
-              <div className="footer-dropdown-inner">
-                <Link to="/contact">Help Center</Link>
-                <Link to="/faq">FAQs</Link>
-                <Link to="/returns">Returns & Exchanges</Link>
-                <Link to="/privacy">Privacy Policy</Link>
-                <Link to="/terms">Terms & Conditions</Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="footer-links-group">
-            <button className="footer-dropdown-btn" onClick={() => toggleDropdown('customersupport')}>
-              <span className="footer-links-title">Customer Support</span>
-              <ChevronDown size={18} className={`dropdown-icon ${openDropdown === 'customersupport' ? 'open' : ''}`} />
-            </button>
-            <div className={`footer-dropdown-content ${openDropdown === 'customersupport' ? 'show' : ''}`}>
-              <div className="footer-dropdown-inner">
-                <a href="tel:7569428709">Phone Call: 7569428709</a>
-                <a href={SOCIAL_LINKS.whatsapp} target="_blank" rel="noopener noreferrer">WhatsApp Support</a>
-                <a href="mailto:contact@tficlub.com">Gmail</a>
-                <span style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.5))', fontSize: '0.95rem' }}>24/7 Available</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="footer-links-group">
-            <button className="footer-dropdown-btn" onClick={() => toggleDropdown('company')}>
-              <span className="footer-links-title">Company</span>
-              <ChevronDown size={18} className={`dropdown-icon ${openDropdown === 'company' ? 'open' : ''}`} />
-            </button>
-            <div className={`footer-dropdown-content ${openDropdown === 'company' ? 'show' : ''}`}>
-              <div className="footer-dropdown-inner">
-                <Link to="/about">About TFI</Link>
-                <Link to="/cinema">The Lounge</Link>
-                <Link to="/contact">Contact</Link>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="footer-bottom" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '16px', width: '100%' }}>
-          <p className="footer-copyright" style={{ margin: 0 }}>© {new Date().getFullYear()} TFICLUB. All rights reserved.</p>
-          <p className="footer-founder" style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            Founder of TFICLUB{' '}
+          <p className="footer-founder">
+            Crafted by{' '}
             <a 
               href="https://instagram.com/___mani___76" 
               target="_blank" 
               rel="noopener noreferrer" 
-              style={{ 
-                color: 'var(--bauhaus-red)', 
-                backgroundColor: 'var(--bauhaus-yellow)',
-                padding: '2px 8px',
-                textDecoration: 'none', 
-                fontWeight: 800, 
-                letterSpacing: '1px' 
-              }}
+              className="founder-link"
             >
               @___mani___76
             </a>
@@ -180,3 +188,4 @@ export default function Footer() {
     </footer>
   );
 }
+

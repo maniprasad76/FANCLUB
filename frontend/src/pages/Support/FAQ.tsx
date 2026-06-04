@@ -12,16 +12,16 @@ export default function FAQ() {
       a: 'Currently, we support secure prepaid orders via Razorpay (UPI, Credit/Debit Cards, NetBanking). COD is coming soon!'
     },
     {
-      q: 'How do I care for my TFICLUB apparel?',
+      q: 'How do I care for my FANCLUB apparel?',
       a: 'To preserve the premium prints and fabric, wash inside out in cold water. Do not iron directly on the print, and avoid tumble drying.'
     },
     {
       q: 'How can I track my order?',
-      a: 'Once your order is shipped, you will receive a tracking link via email and SMS. You can also view live tracking from your TFICLUB Profile dashboard.'
+      a: 'Once your order is shipped, you will receive a tracking link via email and SMS. You can also view live tracking from your FANCLUB Profile dashboard.'
     },
     {
       q: 'Do you ship internationally?',
-      a: 'At the moment, TFICLUB exclusively ships within India. We plan to expand globally in the near future!'
+      a: 'At the moment, FANCLUB exclusively ships within India. We plan to expand globally in the near future!'
     }
   ];
 
@@ -29,9 +29,9 @@ export default function FAQ() {
     <AnimatedPage>
       {/* AEO: FAQPage schema — critical for voice search and answer boxes */}
       <SEOHead
-        title="FAQ — TFICLUB | Frequently Asked Questions"
-        description="Find answers to common questions about TFICLUB: shipping, returns, payment methods, order tracking, and more."
-        keywords="TFICLUB FAQ, shipping India, COD, order tracking, returns policy, garment care"
+        title="FAQ — FANCLUB | Frequently Asked Questions"
+        description="Find answers to common questions about FANCLUB: shipping, returns, payment methods, order tracking, and more."
+        keywords="FANCLUB FAQ, shipping India, COD, order tracking, returns policy, garment care"
         jsonLd={buildFAQSchema(faqs.map(f => ({ question: f.q, answer: f.a })))}
       />
       <div style={{ paddingTop: 'calc(var(--nav-height) + 20px)', paddingBottom: '80px', minHeight: '100vh' }}>

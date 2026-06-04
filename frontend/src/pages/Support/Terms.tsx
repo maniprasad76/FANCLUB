@@ -5,9 +5,9 @@ export default function Terms() {
   return (
     <AnimatedPage>
       <SEOHead
-        title="Terms of Service — TFICLUB"
-        description="TFICLUB Terms of Service: user conduct, intellectual property, payment terms, liability, and dispute resolution for tficlub.com."
-        keywords="terms of service, terms and conditions, TFICLUB legal"
+        title="Terms of Service — FANCLUB"
+        description="FANCLUB Terms of Service: user conduct, intellectual property, payment terms, liability, and dispute resolution for fanclub.com."
+        keywords="terms of service, terms and conditions, FANCLUB legal"
       />
       <div style={{ paddingTop: 'calc(var(--nav-height) + 40px)', paddingBottom: '80px', minHeight: '100vh', background: 'var(--bg-primary)' }}>
         <div className="container" style={{ maxWidth: '800px' }}>
@@ -31,7 +31,7 @@ export default function Terms() {
             <section style={{ marginBottom: '32px' }}>
               <h2 style={{ fontFamily: 'var(--font-accent)', textTransform: 'uppercase', marginBottom: '16px', fontSize: '1.2rem', color: 'var(--bauhaus-black)' }}>1. Agreement to Terms</h2>
               <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8 }}>
-                By accessing or using the TFICLUB website, you agree to be bound by these Terms and Conditions. If you disagree with any part of the terms, then you do not have permission to access the service. These terms apply to all visitors, users, and others who wish to access or use the platform.
+                By accessing or using the FANCLUB website, you agree to be bound by these Terms and Conditions. If you disagree with any part of the terms, then you do not have permission to access the service. These terms apply to all visitors, users, and others who wish to access or use the platform.
               </p>
             </section>
 
@@ -45,7 +45,7 @@ export default function Terms() {
             <section style={{ marginBottom: '32px' }}>
               <h2 style={{ fontFamily: 'var(--font-accent)', textTransform: 'uppercase', marginBottom: '16px', fontSize: '1.2rem', color: 'var(--bauhaus-black)' }}>3. User Conduct</h2>
               <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, marginBottom: '12px' }}>
-                By using TFICLUB, you agree not to:
+                By using FANCLUB, you agree not to:
               </p>
               <ul style={{ listStyleType: 'square', paddingLeft: '20px', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
                 <li>Use the site for any unlawful purpose or to solicit others to perform unlawful acts.</li>
@@ -66,14 +66,14 @@ export default function Terms() {
             <section style={{ marginBottom: '32px' }}>
               <h2 style={{ fontFamily: 'var(--font-accent)', textTransform: 'uppercase', marginBottom: '16px', fontSize: '1.2rem', color: 'var(--bauhaus-black)' }}>5. Intellectual Property</h2>
               <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8 }}>
-                The Service and its original content (excluding content provided by users), features, and functionality are and will remain the exclusive property of TFICLUB and its licensors. The Service is protected by copyright, trademark, and other laws. Our trademarks and trade dress may not be used in connection with any product or service without the prior written consent of TFICLUB.
+                The Service and its original content (excluding content provided by users), features, and functionality are and will remain the exclusive property of FANCLUB and its licensors. The Service is protected by copyright, trademark, and other laws. Our trademarks and trade dress may not be used in connection with any product or service without the prior written consent of FANCLUB.
               </p>
             </section>
 
             <section style={{ marginBottom: '32px' }}>
               <h2 style={{ fontFamily: 'var(--font-accent)', textTransform: 'uppercase', marginBottom: '16px', fontSize: '1.2rem', color: 'var(--bauhaus-black)' }}>6. Limitation of Liability</h2>
               <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8 }}>
-                In no event shall TFICLUB, its directors, employees, partners, agents, suppliers, or affiliates be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of (or inability to access or use) the Service.
+                In no event shall FANCLUB, its directors, employees, partners, agents, suppliers, or affiliates be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from your access to or use of (or inability to access or use) the Service.
               </p>
             </section>
 
@@ -87,7 +87,7 @@ export default function Terms() {
             <section>
               <h2 style={{ fontFamily: 'var(--font-accent)', textTransform: 'uppercase', marginBottom: '16px', fontSize: '1.2rem', color: 'var(--bauhaus-black)' }}>8. Contact Information</h2>
               <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, margin: 0 }}>
-                If you have any questions about these Terms, please contact us at <strong>legal@tficlub.com</strong>.
+                If you have any questions about these Terms, please contact us at <strong>legal@fanclub.com</strong>.
               </p>
             </section>
           </div>

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion, useMotionTemplate, useScroll, useTransform } from 'framer-motion';
-import { Search, ShoppingBag, Heart, User, Menu, X, Loader2 } from 'lucide-react';
+import { Search, ShoppingBag, Heart, User, Menu, X, Loader2, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import { useTheme } from '../../context/ThemeContext';
 import { Magnetic } from '../Magnetic';
 import api from '../../lib/api';
 import CartDrawer from '../CartDrawer/CartDrawer';
@@ -27,6 +28,7 @@ export default function TopNav() {
   const navBorder = useMotionTemplate`rgba(18, 18, 18, ${navBorderOpacity})`;
   const { user, logout } = useAuth();
   const { count } = useCart();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -83,7 +85,7 @@ export default function TopNav() {
         <div className="topnav-inner container">
           <div className="topnav-left">
             <Link to="/" className="topnav-logo" id="nav-logo">
-              <span className="logo-box">TFI</span>
+              <span className="logo-box">FAN</span>
               <span className="logo-text-out">CLUB</span>
             </Link>
           </div>
@@ -92,7 +94,7 @@ export default function TopNav() {
             {[
               { name: 'Shop', path: '/shop' },
               { name: 'Cinema', path: '/cinema' },
-              { name: 'About TFICLUB', path: '/about' },
+              { name: 'About FANCLUB', path: '/about' },
               { name: 'Contact Us', path: '/contact' }
             ].map((item, index) => (
               <Magnetic key={item.name}>
@@ -120,6 +122,11 @@ export default function TopNav() {
           </div>
 
           <div className="topnav-right">
+            <Magnetic>
+              <button className="btn-icon nav-icon-btn interactive" onClick={toggleTheme} id="nav-theme-btn">
+                {theme === 'dark' ? <Sun size={22} /> : <Moon size={22} />}
+              </button>
+            </Magnetic>
             <Magnetic>
               <button className="btn-icon nav-icon-btn interactive" onClick={() => setSearchOpen(!searchOpen)} id="nav-search-btn">
                 <Search size={22} />
@@ -244,7 +251,7 @@ export default function TopNav() {
             <div className="mobile-menu-links">
               <Link to="/shop" onClick={() => setMenuOpen(false)}>Shop</Link>
               <Link to="/cinema" onClick={() => setMenuOpen(false)}>Cinema</Link>
-              <Link to="/about" onClick={() => setMenuOpen(false)}>About TFICLUB</Link>
+              <Link to="/about" onClick={() => setMenuOpen(false)}>About FANCLUB</Link>
               <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact Us</Link>
               {user ? (
                 <>

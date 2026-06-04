@@ -39,7 +39,7 @@ import { buildProductSchema } from '../components/SEOHead';
 
 // Usage on ProductDetail page:
 <SEOHead
-  title={`${product.name} - TFICLUB`}
+  title={`${product.name} - FANCLUB`}
   description={product.description.substring(0, 160)}
   ogImage={product.images[0]}
   ogType="product"
@@ -48,7 +48,7 @@ import { buildProductSchema } from '../components/SEOHead';
 ```
 
 The `buildProductSchema` generates rich Product markup including:
-- Brand (TFICLUB)
+- Brand (FANCLUB)
 - Price + currency (INR)
 - Availability (InStock/OutOfStock based on `stock`)
 - Shipping details (free over ₹999, else ₹99)
@@ -61,10 +61,10 @@ The `buildProductSchema` generates rich Product markup including:
 import { buildFAQSchema } from '../components/SEOHead';
 
 <SEOHead
-  title="FAQ - TFICLUB"
-  description="Frequently asked questions about TFICLUB orders, shipping, and returns."
+  title="FAQ - FANCLUB"
+  description="Frequently asked questions about FANCLUB orders, shipping, and returns."
   jsonLd={buildFAQSchema([
-    { question: 'What is TFI Club?', answer: '...' },
+    { question: 'What is FAN Club?', answer: '...' },
     { question: 'How do returns work?', answer: '...' },
   ])}
 />
@@ -75,13 +75,13 @@ import { buildFAQSchema } from '../components/SEOHead';
 import { buildBreadcrumbSchema } from '../components/SEOHead';
 
 <SEOHead
-  title="T-Shirts - TFICLUB"
+  title="T-Shirts - FANCLUB"
   description="..."
   jsonLd={[
     buildBreadcrumbSchema([
-      { name: 'Home', url: 'https://tficlub.com/' },
-      { name: 'Shop', url: 'https://tficlub.com/shop' },
-      { name: 'T-Shirts', url: 'https://tficlub.com/shop?category=t-shirts' },
+      { name: 'Home', url: 'https://fanclub.com/' },
+      { name: 'Shop', url: 'https://fanclub.com/shop' },
+      { name: 'T-Shirts', url: 'https://fanclub.com/shop?category=t-shirts' },
     ]),
     buildCollectionSchema('T-Shirts', 'Cinema-inspired t-shirts'),
   ]}
@@ -94,7 +94,7 @@ import { buildCollectionSchema } from '../components/SEOHead';
 
 // For category/shop listing pages:
 <SEOHead
-  title="Shop All - TFICLUB"
+  title="Shop All - FANCLUB"
   description="..."
   jsonLd={buildCollectionSchema('Shop All', 'Browse our full collection...')}
 />
@@ -107,13 +107,13 @@ Every page automatically includes this brand entity schema:
 {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "TFICLUB",
+  "name": "FANCLUB",
   "description": "Cinema-inspired streetwear celebrating Telugu Film Industry culture. Premium t-shirts, hoodies, and accessories.",
   "sameAs": [
-    "https://instagram.com/tficlub",
-    "https://youtube.com/@tficlub",
-    "https://twitter.com/tficlub",
-    "https://pinterest.com/tficlub"
+    "https://instagram.com/fanclub",
+    "https://youtube.com/@fanclub",
+    "https://twitter.com/fanclub",
+    "https://pinterest.com/fanclub"
   ],
   "contactPoint": {
     "@type": "ContactPoint",

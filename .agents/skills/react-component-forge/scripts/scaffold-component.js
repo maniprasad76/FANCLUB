@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * TFI Component Scaffolder
+ * FAN Component Scaffolder
  * 
  * Usage: node scaffold-component.js PageName
  * 

@@ -90,7 +90,7 @@ export class RazorpayService implements PaymentGatewayProvider {
     const order = await this.razorpay.orders.create({
       amount: Math.round(amount * 100), // Convert ₹ to paise
       currency,
-      receipt: metadata.receipt || `tfi_${Date.now()}`,
+      receipt: metadata.receipt || `fan_${Date.now()}`,
       notes: metadata.notes || {},
     });
 
@@ -124,7 +124,12 @@ export class RazorpayService implements PaymentGatewayProvider {
       .update(`${razorpayOrderId}|${razorpayPaymentId}`)
       .digest('hex');
 
-    const verified = expectedSignature === signature;
+    // Timing-safe comparison prevents side-channel attacks on HMAC signatures
+    const expectedBuf = Buffer.from(expectedSignature, 'hex');
+    const receivedBuf = Buffer.from(signature, 'hex');
+    const verified =
+      expectedBuf.length === receivedBuf.length &&
+      crypto.timingSafeEqual(expectedBuf, receivedBuf);
 
     return {
       verified,
@@ -205,6 +210,16 @@ export class RazorpayService implements PaymentGatewayProvider {
       .update(rawBody)
       .digest('hex');
 
-    return expectedSignature === signature;
+    // Timing-safe comparison prevents side-channel attacks
+    try {
+      const expectedBuf = Buffer.from(expectedSignature, 'hex');
+      const receivedBuf = Buffer.from(signature, 'hex');
+      return (
+        expectedBuf.length === receivedBuf.length &&
+        crypto.timingSafeEqual(expectedBuf, receivedBuf)
+      );
+    } catch {
+      return false;
+    }
   }
 }

@@ -1,8 +1,8 @@
 export const SOCIAL_LINKS = {
-  instagram: "https://instagram.com/tficlub",
+  instagram: "https://instagram.com/fanclub",
   whatsapp: "https://wa.me/917569428709",
-  facebook: "https://facebook.com/tficlub",
-  youtube: "https://youtube.com/@tficlub",
-  twitter: "https://twitter.com/tficlub",
-  pinterest: "https://pinterest.com/tficlub",
+  facebook: "https://facebook.com/fanclub",
+  youtube: "https://youtube.com/@fanclub",
+  twitter: "https://twitter.com/fanclub",
+  pinterest: "https://pinterest.com/fanclub",
 };

@@ -8,7 +8,7 @@ export default function TextMarquee() {
             <span className="marquee-shape">✦</span>
             <span>CINEMA DROPS</span>
             <span className="marquee-shape">✦</span>
-            <span>TFICLUB</span>
+            <span>FANCLUB</span>
             <span className="marquee-shape">✦</span>
             <span>FEEL THE DESIGNS</span>
             <span className="marquee-shape">✦</span>

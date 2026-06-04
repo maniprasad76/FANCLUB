@@ -185,28 +185,48 @@
 .mobile-menu-links a,
 .mobile-menu-links button {
   display: block;
-  padding: 16px 0;
+  padding: 20px 24px;
+  margin-bottom: 12px;
   font-family: var(--font-display);
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 900;
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--bauhaus-black);
-  border-bottom: 2px solid var(--bauhaus-black);
-  transition: color var(--transition-fast), padding-left var(--transition-fast);
+  background: var(--bauhaus-white);
+  border: 3px solid var(--bauhaus-black);
+  box-shadow: 5px 5px 0 0 var(--bauhaus-black);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
   text-align: left;
-  background: none;
-  border-top: none;
-  border-left: none;
-  border-right: none;
   width: 100%;
   cursor: pointer;
 }
 
 .mobile-menu-links a:hover,
 .mobile-menu-links button:hover {
-  color: var(--bauhaus-red);
-  padding-left: 12px;
+  transform: translate(3px, 3px);
+  box-shadow: none;
+}
+
+.mobile-menu-links a:nth-child(4n+1):hover,
+.mobile-menu-links button:nth-child(4n+1):hover {
+  background: var(--bauhaus-red);
+  color: white;
+}
+.mobile-menu-links a:nth-child(4n+2):hover,
+.mobile-menu-links button:nth-child(4n+2):hover {
+  background: var(--bauhaus-blue);
+  color: white;
+}
+.mobile-menu-links a:nth-child(4n+3):hover,
+.mobile-menu-links button:nth-child(4n+3):hover {
+  background: var(--bauhaus-yellow);
+  color: var(--bauhaus-black);
+}
+.mobile-menu-links a:nth-child(4n+4):hover,
+.mobile-menu-links button:nth-child(4n+4):hover {
+  background: var(--bauhaus-green);
+  color: white;
 }
 
 /* Smart Search Results */

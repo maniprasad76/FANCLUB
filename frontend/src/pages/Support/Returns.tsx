@@ -20,7 +20,7 @@ export default function Returns() {
           }}>
             <h2 style={{ fontFamily: 'var(--font-accent)', textTransform: 'uppercase', marginBottom: '20px', color: 'var(--bauhaus-black)' }}>7-Day Return Policy</h2>
             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, marginBottom: '30px' }}>
-              At TFICLUB, we take pride in the quality of our clothing. If you are not entirely satisfied with your purchase, we offer a hassle-free return and exchange policy within <strong>7 days</strong> of the delivery date.
+              At FANCLUB, we take pride in the quality of our clothing. If you are not entirely satisfied with your purchase, we offer a hassle-free return and exchange policy within <strong>7 days</strong> of the delivery date.
             </p>
 
             <h3 style={{ fontFamily: 'var(--font-accent)', textTransform: 'uppercase', marginBottom: '16px', fontSize: '1.1rem' }}>Eligibility Conditions</h3>
@@ -32,13 +32,13 @@ export default function Returns() {
 
             <h3 style={{ fontFamily: 'var(--font-accent)', textTransform: 'uppercase', marginBottom: '16px', fontSize: '1.1rem' }}>Damaged or Defective Items</h3>
             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, marginBottom: '30px' }}>
-              We double-check every product before shipping. However, if you receive a damaged or incorrect item, please contact us at <strong>support@tficlub.com</strong> within 48 hours of delivery along with photograph proof. We will replace the item at no extra cost.
+              We double-check every product before shipping. However, if you receive a damaged or incorrect item, please contact us at <strong>support@fanclub.com</strong> within 48 hours of delivery along with photograph proof. We will replace the item at no extra cost.
             </p>
 
             <div style={{ borderTop: '2px dashed var(--border-subtle)', paddingTop: '30px', marginTop: '10px' }}>
               <h3 style={{ fontFamily: 'var(--font-accent)', textTransform: 'uppercase', marginBottom: '16px', fontSize: '1.1rem', color: 'var(--bauhaus-blue)' }}>How to initiate a return?</h3>
               <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, margin: 0 }}>
-                Please email us at <strong>returns@tficlub.com</strong> with your Order ID. Our logistics partner will pick up the item from your delivery address within 2-3 business days. Refunds are processed back to the original payment source within 5-7 working days after the warehouse inspection.
+                Please email us at <strong>returns@fanclub.com</strong> with your Order ID. Our logistics partner will pick up the item from your delivery address within 2-3 business days. Refunds are processed back to the original payment source within 5-7 working days after the warehouse inspection.
               </p>
             </div>
           </div>

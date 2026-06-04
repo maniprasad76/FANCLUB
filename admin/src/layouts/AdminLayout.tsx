@@ -43,10 +43,14 @@ export default function AdminLayout() {
 
   return (
     <div className="admin-layout">
+      <div className="bauhaus-color-bar" style={{ position: 'fixed', top: 0, left: 0, zIndex: 99999 }}>
+        <div />
+        <div />
+      </div>
       {/* Mobile Header (Visible only on mobile) */}
       <div className="mobile-admin-header">
         <div className="sidebar-brand">
-          <span className="brand-logo">TFI</span>
+          <span className="brand-logo">FAN</span>
         </div>
         <button className="hamburger-btn" onClick={toggleSidebar}>
           <svg
@@ -99,7 +103,7 @@ export default function AdminLayout() {
               height: "32px",
             }}
           >
-            TFI
+            FAN
           </span>
           <span className="sidebar-brand-text">
             <span className="text-gradient">Admin</span>

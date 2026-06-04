@@ -1,16 +1,16 @@
 ---
 name: payment-gateway-debug
-description: "Razorpay and Stripe payment integration for TFI Club. ACTIVATE when: debugging payment issues, implementing payment flows, handling webhooks, verifying payment signatures, processing refunds, troubleshooting checkout errors, working with Razorpay/Stripe APIs, fixing payment status mismatches, debugging webhook delivery, or implementing new payment features. Triggers: Razorpay, Stripe, payment, webhook, checkout, refund, gateway, PaymentGateway, razorpay_order_id, stripe_session, signature verification."
+description: "Razorpay and Stripe payment integration for FAN Club. ACTIVATE when: debugging payment issues, implementing payment flows, handling webhooks, verifying payment signatures, processing refunds, troubleshooting checkout errors, working with Razorpay/Stripe APIs, fixing payment status mismatches, debugging webhook delivery, or implementing new payment features. Triggers: Razorpay, Stripe, payment, webhook, checkout, refund, gateway, PaymentGateway, razorpay_order_id, stripe_session, signature verification."
 metadata:
-  author: tfi-team
+  author: fan-team
   version: "1.0.0"
 ---
 
-# Payment Gateway Debug — TFI Club
+# Payment Gateway Debug — FAN Club
 
 ## Architecture Overview
 
-TFI Club uses a **dual payment gateway** architecture:
+FAN Club uses a **dual payment gateway** architecture:
 - **Razorpay** — For Indian customers (INR)
 - **Stripe** — For international customers (multi-currency)
 - **COD** — Cash on Delivery (no gateway)

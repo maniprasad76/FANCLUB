@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Magnetic } from '../Magnetic';
-import { minimalStagger, minimalItem } from '../AnimatedPage';
+import { cinematicStagger, cinematicItem } from '../AnimatedPage';
 import { formatImageUrl } from '../../lib/utils';
 
 interface Product {
@@ -32,13 +32,13 @@ export default function ShowcaseSection({ featured }: ShowcaseSectionProps) {
           initial="initial"
           whileInView="animate"
           viewport={{ once: true, amount: 0.3 }}
-          variants={minimalStagger}
+          variants={cinematicStagger}
         >
-          <motion.p className="section-subtitle" variants={minimalItem}>Curated</motion.p>
-          <motion.h2 className="section-title" variants={minimalItem}>
+          <motion.p className="section-subtitle" variants={cinematicItem}>Curated</motion.p>
+          <motion.h2 className="section-title" variants={cinematicItem}>
             THE <span className="text-gradient">COLLECTION</span>
           </motion.h2>
-          <motion.div className="section-divider" variants={minimalItem} />
+          <motion.div className="section-divider" variants={cinematicItem} />
         </motion.div>
 
         <div className="showcase-grid">
@@ -58,7 +58,7 @@ export default function ShowcaseSection({ featured }: ShowcaseSectionProps) {
                 <Link to={`/product/${product.slug}`} className="showcase-link">
                   <div className="showcase-image-wrap">
                     <img
-                      src={formatImageUrl(product.images?.[0]) || 'https://placehold.co/600x800/F0F0F0/121212?text=TFI'}
+                      src={formatImageUrl(product.images?.[0]) || 'https://placehold.co/600x800/F0F0F0/121212?text=FAN'}
                       alt={product.name}
                       className="showcase-image"
                       loading="lazy"
@@ -100,3 +100,4 @@ export default function ShowcaseSection({ featured }: ShowcaseSectionProps) {
     </section>
   );
 }
+

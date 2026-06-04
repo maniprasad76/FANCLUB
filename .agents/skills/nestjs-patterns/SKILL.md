@@ -1,12 +1,12 @@
 ---
 name: nestjs-patterns
-description: "NestJS backend development patterns for TFI Club. ACTIVATE when: creating new NestJS modules/controllers/services, writing DTOs with class-validator, adding API endpoints, setting up guards or decorators, configuring Swagger/OpenAPI annotations, injecting PrismaService, handling errors/exceptions, adding rate limiting, working with NestJS interceptors/filters/pipes, or debugging backend TypeScript issues."
+description: "NestJS backend development patterns for FAN Club. ACTIVATE when: creating new NestJS modules/controllers/services, writing DTOs with class-validator, adding API endpoints, setting up guards or decorators, configuring Swagger/OpenAPI annotations, injecting PrismaService, handling errors/exceptions, adding rate limiting, working with NestJS interceptors/filters/pipes, or debugging backend TypeScript issues."
 metadata:
-  author: tfi-team
+  author: fan-team
   version: "1.0.0"
 ---
 
-# NestJS Patterns — TFI Club Backend
+# NestJS Patterns — FAN Club Backend
 
 ## Module Creation Checklist
 
