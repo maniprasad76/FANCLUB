@@ -149,12 +149,12 @@ export default function Checkout() {
         } else {
           toast.error('Could not determine location details.');
         }
-      } catch (error) {
+      } catch {
         toast.error('Failed to fetch location details.');
       } finally {
         setFetchingLocation(false);
       }
-    }, (error) => {
+    }, () => {
       setFetchingLocation(false);
       toast.error('Location access denied or failed.');
     });

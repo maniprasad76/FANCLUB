@@ -86,7 +86,10 @@ export class PaymentsController {
    */
   @UseGuards(JwtAuthGuard)
   @Get('stripe/verify')
-  verifyStripe(@Query('session_id') sessionId: string, @CurrentUser() user: any) {
+  verifyStripe(
+    @Query('session_id') sessionId: string,
+    @CurrentUser() user: any,
+  ) {
     if (!sessionId) throw new BadRequestException('Missing session_id');
     return this.paymentsService.verifyStripePayment(sessionId, user);
   }

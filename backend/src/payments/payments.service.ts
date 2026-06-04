@@ -247,7 +247,11 @@ export class PaymentsService {
     });
 
     if (payment) {
-      if (actor && actor.role !== 'ADMIN' && payment.order.userId !== actor.id) {
+      if (
+        actor &&
+        actor.role !== 'ADMIN' &&
+        payment.order.userId !== actor.id
+      ) {
         throw new NotFoundException('Payment not found');
       }
 
@@ -278,7 +282,10 @@ export class PaymentsService {
         select: { userId: true },
       });
 
-      if (!order || (actor && actor.role !== 'ADMIN' && order.userId !== actor.id)) {
+      if (
+        !order ||
+        (actor && actor.role !== 'ADMIN' && order.userId !== actor.id)
+      ) {
         throw new NotFoundException('Payment not found');
       }
 

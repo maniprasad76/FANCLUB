@@ -43,7 +43,7 @@ export function validateEnv(): void {
 
   // Check CORS vars — at least one must be set
   const hasCorsOrigin = corsVars.some(
-    (key) => process.env[key] && process.env[key]!.length > 0,
+    (key) => process.env[key] && process.env[key].length > 0,
   );
   if (!hasCorsOrigin) {
     missing.push(`At least one of: ${corsVars.join(', ')}`);
@@ -53,8 +53,8 @@ export function validateEnv(): void {
   for (const key of recommended) {
     if (
       !process.env[key] ||
-      process.env[key]!.startsWith('your-') ||
-      process.env[key]!.startsWith('sk_test_your_')
+      process.env[key].startsWith('your-') ||
+      process.env[key].startsWith('sk_test_your_')
     ) {
       warnings.push(key);
     }

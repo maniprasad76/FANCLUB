@@ -47,7 +47,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
       // Provide a helpful message for rate-limited requests
       if (status === HttpStatus.TOO_MANY_REQUESTS) {
-        message = 'Too many requests. Please wait a moment before trying again.';
+        message =
+          'Too many requests. Please wait a moment before trying again.';
       }
 
       // Log client errors (4xx) at warn level, server errors (5xx) at error level

@@ -116,7 +116,6 @@ api.interceptors.response.use(
       sessionStorage.removeItem('access_token');
     } else if (error.response) {
       const status = error.response.status;
-      const data = error.response.data;
       
       // Global error toasts
       if (status === 413) {

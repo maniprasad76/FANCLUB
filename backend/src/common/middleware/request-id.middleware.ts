@@ -12,9 +12,12 @@ import type { Request, Response, NextFunction } from 'express';
  */
 @Injectable()
 export class RequestIdMiddleware implements NestMiddleware {
-  use(req: Request & { requestId?: string }, res: Response, next: NextFunction): void {
-    const requestId =
-      (req.headers['x-request-id'] as string) || randomUUID();
+  use(
+    req: Request & { requestId?: string },
+    res: Response,
+    next: NextFunction,
+  ): void {
+    const requestId = (req.headers['x-request-id'] as string) || randomUUID();
 
     // Attach to the request object for downstream usage
     req.requestId = requestId;

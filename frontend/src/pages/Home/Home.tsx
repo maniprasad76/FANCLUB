@@ -8,10 +8,8 @@ import {
   RotateCcw,
   Headphones,
   Square,
-  Bell,
   Users,
   Star,
-  Zap,
 } from "lucide-react";
 import { Magnetic } from "../../components/Magnetic";
 import AnimatedPage, {

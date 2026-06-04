@@ -97,7 +97,6 @@ api.interceptors.response.use(
       localStorage.removeItem('admin_access_token');
     } else if (error.response) {
       const status = error.response.status;
-      const data = error.response.data;
       
       // Global error toasts
       if (status === 413) {

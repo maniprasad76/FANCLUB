@@ -83,7 +83,10 @@ async function bootstrap() {
   const allowedOrigins = [
     process.env.FRONTEND_URL,
     process.env.ADMIN_URL,
-  ].filter((origin): origin is string => typeof origin === 'string' && origin.length > 0);
+  ].filter(
+    (origin): origin is string =>
+      typeof origin === 'string' && origin.length > 0,
+  );
   // Deduplicate
   const uniqueOrigins = [...new Set(allowedOrigins)];
 

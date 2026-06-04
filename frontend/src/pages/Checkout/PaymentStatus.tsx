@@ -310,7 +310,7 @@ export default function PaymentStatus() {
             {status === 'pending' && (
               <button
                 className="btn btn-secondary btn-sm"
-                onClick={checkPaymentStatus}
+                onClick={() => checkPaymentStatus()}
                 style={{ marginTop: 8 }}
               >
                 <RefreshCw size={14} /> Refresh Status

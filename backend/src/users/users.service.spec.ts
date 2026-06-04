@@ -23,7 +23,10 @@ describe('UsersService', () => {
   it('updates only addresses owned by the current user', async () => {
     prisma.user.findUnique.mockResolvedValue({ id: 'user-1' });
     prisma.address.updateMany.mockResolvedValue({ count: 1 });
-    prisma.address.findUnique.mockResolvedValue({ id: 'addr-1', userId: 'user-1' });
+    prisma.address.findUnique.mockResolvedValue({
+      id: 'addr-1',
+      userId: 'user-1',
+    });
 
     await service.updateAddress('auth-1', 'addr-1', { city: 'Mumbai' });
 
