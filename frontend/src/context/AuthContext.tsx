@@ -4,6 +4,7 @@ import {
   useState,
   useEffect,
   useCallback,
+  useRef,
   ReactNode,
 } from "react";
 import api from "../lib/api";
@@ -188,6 +189,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // Server may be unreachable — still clear local state
     }
+    // Also sign out of Supabase to fully invalidate the session
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // Supabase may be unreachable — still clear local state
+    }
     sessionStorage.removeItem("user");
     sessionStorage.removeItem("refresh_token");
     sessionStorage.removeItem("access_token");
@@ -210,6 +217,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
     });
   };
+
+  // ── Session inactivity timer (30 min) ──
+  // Auto-logout after 30 minutes of no user interaction to prevent
+  // stale sessions on shared/public computers.
+  const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+  const inactivityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const resetInactivityTimer = useCallback(() => {
+    if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    if (user) {
+      inactivityTimerRef.current = setTimeout(() => {
+        toast.error("Session timed out due to inactivity.");
+        logout();
+      }, INACTIVITY_TIMEOUT);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const events = ["mousedown", "keydown", "touchstart", "scroll"];
+    const handler = () => resetInactivityTimer();
+
+    events.forEach((e) => window.addEventListener(e, handler, { passive: true }));
+    resetInactivityTimer(); // Start the timer
+
+    return () => {
+      events.forEach((e) => window.removeEventListener(e, handler));
+      if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+    };
+  }, [user, resetInactivityTimer]);
 
   return (
     <AuthContext.Provider

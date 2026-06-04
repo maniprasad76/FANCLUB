@@ -1,13 +1,19 @@
 import { Controller, Get } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
+import { PrismaService } from '../prisma/prisma.service';
 
 /**
- * Lightweight health check endpoint — used by keep-alive pings
- * and uptime monitoring services. No DB calls, no auth required.
+ * Health check endpoints — used by monitoring services and deployment platforms.
+ *
+ * GET /api/health       — Lightweight liveness probe (no DB call)
+ * GET /api/health/ready — Readiness probe with database connectivity check
  */
 @SkipThrottle()
 @Controller('health')
 export class HealthController {
+  constructor(private readonly prisma: PrismaService) {}
+
+  /** Liveness — is the process alive? */
   @Get()
   check() {
     return {
@@ -15,5 +21,27 @@ export class HealthController {
       timestamp: new Date().toISOString(),
       uptime: Math.round(process.uptime()),
     };
+  }
+
+  /** Readiness — is the app ready to serve traffic (including DB)? */
+  @Get('ready')
+  async ready() {
+    try {
+      await this.prisma.$queryRaw`SELECT 1`;
+      return {
+        status: 'ok',
+        database: 'connected',
+        timestamp: new Date().toISOString(),
+        uptime: Math.round(process.uptime()),
+      };
+    } catch (error: any) {
+      return {
+        status: 'degraded',
+        database: 'disconnected',
+        error: error.message,
+        timestamp: new Date().toISOString(),
+        uptime: Math.round(process.uptime()),
+      };
+    }
   }
 }

@@ -67,6 +67,19 @@ export function validateEnv(): void {
     );
   }
 
+  // Enforce webhook secret for live Razorpay keys (critical for payment security)
+  const razorpayKeyId = process.env.RAZORPAY_KEY_ID || '';
+  if (
+    razorpayKeyId.startsWith('rzp_live_') &&
+    (!process.env.RAZORPAY_WEBHOOK_SECRET ||
+      process.env.RAZORPAY_WEBHOOK_SECRET.length === 0)
+  ) {
+    logger.warn(
+      '⚠️  RAZORPAY_WEBHOOK_SECRET is not set but live Razorpay keys are in use. ' +
+        'Webhook signature verification will fall back to key_secret, but a dedicated webhook secret is strongly recommended.',
+    );
+  }
+
   // Report missing (fatal)
   if (missing.length > 0) {
     const msg = `🚫 FATAL: Missing required environment variables:\n${missing.map((v) => `   • ${v}`).join('\n')}\n\nSet these in your .env file or deployment environment.`;

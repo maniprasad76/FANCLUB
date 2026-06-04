@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { join } from 'path';
+import { join } from 'node:path';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { validateEnv } from './common/validators/validate-env';
@@ -118,10 +118,11 @@ async function bootstrap() {
   });
 
   const port = process.env.PORT || 5000;
-  const host = process.env.NODE_ENV === 'production' || process.env.RENDER ? '0.0.0.0' : 'localhost';
+  const host =
+    process.env.NODE_ENV === 'production' || process.env.RENDER
+      ? '0.0.0.0'
+      : 'localhost';
   await app.listen(port, host);
-  console.log(
-    `🎬 FAN Backend running on http://${host}:${port}`,
-  );
+  console.log(`🎬 FAN Backend running on http://${host}:${port}`);
 }
 bootstrap();

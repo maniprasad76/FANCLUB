@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { AnimatePresence } from "framer-motion";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { PageSkeleton } from "./components/SkeletonLoader";
@@ -48,14 +48,32 @@ function AppShell() {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
+  // Route-change announcer for screen readers
+  const [routeAnnouncement, setRouteAnnouncement] = useState('');
+  const prevPathRef = useRef(location.pathname);
+
+  useEffect(() => {
+    if (prevPathRef.current !== location.pathname) {
+      const pageName = location.pathname === '/' ? 'Home' : location.pathname.replace(/^\//,'').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      setRouteAnnouncement(`Navigated to ${pageName}`);
+      prevPathRef.current = location.pathname;
+    }
+  }, [location.pathname]);
+
   return (
     <>
+      {/* Skip-to-content link — first focusable element for keyboard users */}
+      <a href="#main-content" className="skip-link">Skip to Main Content</a>
+      {/* Aria-live region — announces route changes to screen readers */}
+      <div aria-live="polite" aria-atomic="true" className="route-announcer" role="status">
+        {routeAnnouncement}
+      </div>
       <div className="bauhaus-color-bar" style={{ position: 'relative', zIndex: 99999 }}>
         <div />
         <div />
       </div>
       <TopNav />
-      <main className="app-main">
+      <main className="app-main" id="main-content">
         <AnimatePresence mode="wait" initial={false}>
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<Home />} />

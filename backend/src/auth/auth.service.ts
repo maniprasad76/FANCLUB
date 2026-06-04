@@ -9,6 +9,14 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { SupabaseService } from '../supabase/supabase.service.js';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  UserProfile,
+  AuthResult,
+  SignUpResult,
+  OAuthSyncResult,
+  ForgotPasswordResult,
+  LogoutResult,
+} from './auth.types';
 
 @Injectable()
 export class AuthService {
@@ -26,10 +34,7 @@ export class AuthService {
     email: string,
     password: string,
     name: string,
-  ): Promise<{
-    user: any;
-    session: { access_token: string; refresh_token: string } | null;
-  }> {
+  ): Promise<SignUpResult> {
     const client = this.supabaseService.getClient();
     const normalizedEmail = email.toLowerCase();
 
@@ -164,10 +169,7 @@ export class AuthService {
   async signIn(
     email: string,
     password: string,
-  ): Promise<{
-    user: any;
-    session: { access_token: string; refresh_token: string };
-  }> {
+  ): Promise<AuthResult> {
     const client = this.supabaseService.getClient();
 
     try {
@@ -252,7 +254,7 @@ export class AuthService {
   async forgotPassword(
     email: string,
     redirectTo?: string,
-  ): Promise<{ message: string }> {
+  ): Promise<ForgotPasswordResult> {
     const client = this.supabaseService.getClient();
 
     try {
@@ -287,10 +289,7 @@ export class AuthService {
 
   // ─── REFRESH TOKEN ──────────────────────────────────────────
 
-  async refreshToken(refreshToken: string): Promise<{
-    user: any;
-    session: { access_token: string; refresh_token: string };
-  }> {
+  async refreshToken(refreshToken: string): Promise<AuthResult> {
     const client = this.supabaseService.getClient();
 
     try {
@@ -336,7 +335,7 @@ export class AuthService {
 
   // ─── LOGOUT ─────────────────────────────────────────────────
 
-  async logout(accessToken: string): Promise<{ success: boolean }> {
+  async logout(accessToken: string): Promise<LogoutResult> {
     const client = this.supabaseService.getClient();
 
     try {
@@ -360,7 +359,7 @@ export class AuthService {
 
   // ─── GET PROFILE ────────────────────────────────────────────
 
-  async getProfile(authId: string): Promise<any> {
+  async getProfile(authId: string): Promise<UserProfile> {
     try {
       const user = await this.prisma.user.findUnique({
         where: { authId },
@@ -393,10 +392,7 @@ export class AuthService {
    * The frontend sends the Supabase access_token, we validate it
    * and upsert the user in our local Prisma DB.
    */
-  async syncOAuthUser(accessToken: string): Promise<{
-    user: any;
-    session: { access_token: string } | null;
-  }> {
+  async syncOAuthUser(accessToken: string): Promise<OAuthSyncResult> {
     const client = this.supabaseService.getClient();
 
     try {
