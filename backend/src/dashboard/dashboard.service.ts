@@ -41,7 +41,7 @@ export class DashboardService {
     const monthlyRevenue = monthlyOrders.reduce(
       (acc, order) => {
         const month = order.createdAt.toISOString().slice(0, 7);
-        acc[month] = (acc[month] || 0) + order.totalAmount;
+        acc[month] = (acc[month] || 0) + Number(order.totalAmount);
         return acc;
       },
       {} as Record<string, number>,

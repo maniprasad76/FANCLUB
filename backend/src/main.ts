@@ -12,7 +12,7 @@ async function bootstrap() {
   validateEnv();
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    rawBody: true, // Needed for Razorpay + Stripe webhook signature verification
+    rawBody: true, // Needed for Razorpay webhook signature verification
   });
 
   app.setGlobalPrefix('api');
@@ -40,7 +40,6 @@ async function bootstrap() {
             "'self'",
             "'unsafe-inline'",
             'https://checkout.razorpay.com',
-            'https://js.stripe.com', // Stripe.js
           ],
           styleSrc: [
             "'self'",
@@ -55,14 +54,11 @@ async function bootstrap() {
             'https://*.supabase.co',
             'https://api.razorpay.com',
             'https://lux-cdn.razorpay.com',
-            'https://api.stripe.com', // Stripe API
           ],
           frameSrc: [
             "'self'",
             'https://checkout.razorpay.com',
             'https://*.supabase.co',
-            'https://js.stripe.com', // Stripe iframe
-            'https://hooks.stripe.com', // Stripe 3D Secure
           ],
         },
       },

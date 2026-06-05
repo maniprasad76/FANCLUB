@@ -9,7 +9,7 @@ export class CreatePaymentDto {
   @IsString()
   orderId: string;
 
-  /** Optional: RAZORPAY, STRIPE, or COD. Auto-routed from country if omitted. */
+  /** Optional: RAZORPAY or COD. Auto-routed if omitted. */
   @IsOptional()
   @IsString()
   gateway?: string;

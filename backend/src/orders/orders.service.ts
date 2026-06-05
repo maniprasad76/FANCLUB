@@ -206,8 +206,6 @@ export class OrdersService {
         payment: gatewayResult,
         razorpayOrderId: gatewayResult.razorpayOrderId || undefined,
         razorpayKey: gatewayResult.razorpayKey || undefined,
-        stripeSessionId: gatewayResult.stripeSessionId || undefined,
-        checkoutUrl: gatewayResult.checkoutUrl || undefined,
         gateway: gatewayResult.gateway,
         totalAmount,
       };

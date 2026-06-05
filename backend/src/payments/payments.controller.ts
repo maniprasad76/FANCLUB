@@ -50,7 +50,6 @@ export class PaymentsController {
 
   /**
    * Create a payment order — called from checkout page.
-   * Auto-routes to Razorpay or Stripe based on country.
    */
   @UseGuards(JwtAuthGuard)
   @Post('create-order')

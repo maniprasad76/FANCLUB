@@ -4,7 +4,7 @@
  */
 
 export interface GatewayOrder {
-  gatewayOrderId: string; // razorpay_order_id or stripe_session_id
+  gatewayOrderId: string; // razorpay_order_id
   amount: number;
   currency: string;
   status: string;

@@ -101,7 +101,7 @@ export class PaymentsService {
       data: {
         orderId,
         gateway: resolvedGateway as any,
-        amount: order.totalAmount,
+        amount: Number(order.totalAmount),
         currency,
         status: 'PENDING',
         idempotencyKey,
@@ -117,7 +117,7 @@ export class PaymentsService {
       data: {
         paymentId: payment.id,
         type: 'CHARGE',
-        amount: order.totalAmount,
+        amount: Number(order.totalAmount),
         currency,
         status: 'INITIATED',
       },
@@ -127,7 +127,7 @@ export class PaymentsService {
     let gatewayResult;
 
     gatewayResult = await this.razorpayService.createOrder(
-      order.totalAmount,
+      Number(order.totalAmount),
       currency,
       {
         receipt: `fan_${order.orderNumber}`,

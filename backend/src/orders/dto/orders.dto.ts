@@ -16,10 +16,9 @@ export enum PaymentMethodEnum {
   ONLINE = 'ONLINE',
 }
 
-/** Strict enum — only recognised gateways accepted. */
+/** Strict enum — only Razorpay gateway accepted. */
 export enum GatewayEnum {
   RAZORPAY = 'RAZORPAY',
-  STRIPE = 'STRIPE',
 }
 
 /** Allowlisted currencies. Prevents gateway confusion for unsupported currencies. */
@@ -59,7 +58,7 @@ export class CreateOrderDto {
   @IsEnum(PaymentMethodEnum)
   paymentMethod?: PaymentMethodEnum;
 
-  /** Payment gateway — RAZORPAY or STRIPE only. */
+  /** Payment gateway — RAZORPAY only. */
   @IsOptional()
   @IsEnum(GatewayEnum)
   gateway?: GatewayEnum;
