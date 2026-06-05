@@ -48,12 +48,7 @@ const NetBankingIcon = () => (
   <Building2 size={20} />
 );
 
-const StripeIcon = () => (
-  <svg viewBox="0 0 24 24" width="22" height="22" fill="none">
-    <rect x="1" y="1" width="22" height="22" rx="4" fill="#635BFF"/>
-    <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.918 3.757 7.083c0 3.629 2.822 5.229 5.556 6.285 1.966.76 2.882 1.37 2.882 2.329 0 .996-.832 1.524-2.291 1.524-1.957 0-4.858-.925-6.756-2.136l-.907 5.56C4.022 21.576 6.853 22.5 10.079 22.5c2.633 0 4.776-.652 6.288-1.883 1.647-1.343 2.488-3.265 2.488-5.715 0-3.736-2.868-5.356-4.88-6.252z" fill="#fff" transform="scale(0.52) translate(10, 8)"/>
-  </svg>
-);
+
 
 const CardIcon = () => (
   <CreditCard size={20} />
@@ -69,14 +64,13 @@ const RAZORPAY_METHODS = [
 ];
 
 export default function Checkout() {
-  const { items, total, fetchCart } = useCart();
+  const { items, total, fetchCart, loading: cartLoading } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const [addresses, setAddresses] = useState<any[]>([]);
   const [selectedAddress, setSelectedAddress] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('COD');
-  const [gateway, setGateway] = useState<'RAZORPAY' | 'STRIPE'>('RAZORPAY');
   const [onlineSubMethod, setOnlineSubMethod] = useState('gpay');
   const [loading, setLoading] = useState(false);
   const [savingAddr, setSavingAddr] = useState(false);
@@ -88,7 +82,34 @@ export default function Checkout() {
   /* redirect guests to login (with return path), empty-cart users to cart */
   useEffect(() => {
     if (!user) { navigate('/login?redirect=/checkout'); return; }
-    if (items.length === 0) { navigate('/cart'); return; }
+    // BUGFIX: Only redirect to /cart after the cart has finished loading.
+    // Without this guard, the check fires while fetchCart() is still in flight
+    // and bounces authenticated users who have items.
+    if (!cartLoading && items.length === 0) { navigate('/cart'); return; }
+
+    // Merge any guest cart items into the server cart after login
+    const guestCart = (() => {
+      try { return JSON.parse(localStorage.getItem('fan_guest_cart') || '[]'); }
+      catch { return []; }
+    })();
+
+    if (guestCart.length > 0) {
+      // Merge each guest cart item into server cart, then clear guest cart
+      Promise.all(
+        guestCart.map((item: any) =>
+          api.post('/cart', {
+            productId: item.productId,
+            quantity: item.quantity,
+            size: item.size,
+            color: item.color,
+          }).catch(() => {}) // Ignore individual merge failures (e.g. inactive product)
+        )
+      ).then(() => {
+        localStorage.removeItem('fan_guest_cart');
+        fetchCart();
+      });
+    }
+
     api.get('/users/me/profile').then(r => {
       const addrs = r.data.addresses || [];
       setAddresses(addrs);
@@ -103,17 +124,11 @@ export default function Checkout() {
         navigate('/login?redirect=/checkout');
       }
     });
-  }, [user]);
+  }, [user, cartLoading, items.length]);
 
   /* Auto-route gateway when address changes */
   const updateGatewayFromCountry = (country: string) => {
     setCustomerCountry(country);
-    const c = country.toLowerCase().trim();
-    if (c === 'india' || c === 'in' || c === 'ind') {
-      setGateway('RAZORPAY');
-    } else {
-      setGateway('STRIPE');
-    }
   };
 
   const handleAddressSelect = (addr: any) => {
@@ -215,13 +230,13 @@ export default function Checkout() {
         items: items.map(item => ({ productId: item.productId, quantity: item.quantity, size: item.size, color: item.color })),
         addressId: selectedAddress,
         paymentMethod,
-        gateway: paymentMethod === 'ONLINE' ? gateway : undefined,
+        gateway: paymentMethod === 'ONLINE' ? 'RAZORPAY' : undefined,
         country: customerCountry,
       };
       const { data } = await api.post('/orders', orderData);
 
       if (paymentMethod === 'ONLINE') {
-        const paymentGateway = data.gateway || gateway;
+        const paymentGateway = data.gateway || 'RAZORPAY';
 
         if (paymentGateway === 'RAZORPAY' && data.razorpayOrderId) {
           try {
@@ -234,11 +249,6 @@ export default function Checkout() {
             await fetchCart();
             navigate('/payment-status/' + data.id + '?status=cancelled');
           }
-        } else if (paymentGateway === 'STRIPE' && data.checkoutUrl) {
-          // Redirect to Stripe hosted checkout
-          await fetchCart();
-          window.location.href = data.checkoutUrl;
-          return; // Don't setLoading(false) — we're navigating away
         } else {
           // Fallback — show payment status page
           await fetchCart();
@@ -366,7 +376,7 @@ export default function Checkout() {
                 <div className="payment-icon online-icon"><Smartphone size={20} /></div>
                 <div className="payment-info">
                   <span className="payment-label">Online Payment</span>
-                  <span className="payment-desc">{isIndia ? 'UPI, Cards, Net Banking & more' : 'International Cards via Stripe'}</span>
+                  <span className="payment-desc">UPI, Cards, Net Banking & more</span>
                 </div>
                 <ChevronDown size={18} className={`payment-chevron ${paymentMethod === 'ONLINE' ? 'open' : ''}`} />
               </label>
@@ -376,73 +386,28 @@ export default function Checkout() {
                 {paymentMethod === 'ONLINE' && (
                   <motion.div className="online-payment-expanded" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.3 }}>
 
-                    {/* Gateway toggle — show if user might want to switch */}
-                    <div className="gateway-selector">
-                      <span className="gateway-label font-mono">PAYMENT GATEWAY</span>
-                      <div className="gateway-toggle-group">
-                        <button
-                          className={`gateway-toggle-btn ${gateway === 'RAZORPAY' ? 'active' : ''}`}
-                          onClick={() => setGateway('RAZORPAY')}
-                          type="button"
-                        >
-                          <svg viewBox="0 0 24 24" width="14" height="14"><rect width="24" height="24" rx="4" fill="#1040C0"/><text x="12" y="16" textAnchor="middle" fill="white" fontSize="7" fontWeight="900" fontFamily="Arial">R</text></svg>
-                          Razorpay
-                          {isIndia && <span className="gateway-auto-tag">Auto</span>}
-                        </button>
-                        <button
-                          className={`gateway-toggle-btn ${gateway === 'STRIPE' ? 'active' : ''}`}
-                          onClick={() => setGateway('STRIPE')}
-                          type="button"
-                        >
-                          <StripeIcon />
-                          Stripe
-                          {!isIndia && <span className="gateway-auto-tag">Auto</span>}
-                        </button>
-                      </div>
-                    </div>
-
                     {/* Razorpay sub-methods */}
-                    {gateway === 'RAZORPAY' && (
-                      <motion.div className="online-methods-grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
-                        {RAZORPAY_METHODS.map(({ id, label, desc, gradient, Icon }) => (
-                          <motion.label
-                            key={id}
-                            className={`online-method-card ${onlineSubMethod === id ? 'active' : ''}`}
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.2 }}
-                            whileHover={{ scale: 1.03 }}
-                            whileTap={{ scale: 0.97 }}
-                          >
-                            <input type="radio" name="onlineMethod" checked={onlineSubMethod === id} onChange={() => setOnlineSubMethod(id)} />
-                            <div className="method-icon" style={{ background: gradient }}><Icon /></div>
-                            <div className="method-info">
-                              <span className="method-label">{label}</span>
-                              <span className="method-desc">{desc}</span>
-                            </div>
-                            {onlineSubMethod === id && <CheckCircle2 size={16} className="method-check" />}
-                          </motion.label>
-                        ))}
-                      </motion.div>
-                    )}
-
-                    {/* Stripe info */}
-                    {gateway === 'STRIPE' && (
-                      <motion.div className="stripe-info-card" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
-                        <div className="stripe-info-icon">
-                          <StripeIcon />
-                        </div>
-                        <div className="stripe-info-text">
-                          <strong>Stripe Secure Checkout</strong>
-                          <p>You'll be redirected to Stripe's secure payment page to complete your purchase with an international card.</p>
-                          <div className="stripe-features">
-                            <span>🔒 256-bit SSL encryption</span>
-                            <span>🌍 Multi-currency support</span>
-                            <span>💳 All major cards accepted</span>
+                    <motion.div className="online-methods-grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+                      {RAZORPAY_METHODS.map(({ id, label, desc, gradient, Icon }) => (
+                        <motion.label
+                          key={id}
+                          className={`online-method-card ${onlineSubMethod === id ? 'active' : ''}`}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.2 }}
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
+                        >
+                          <input type="radio" name="onlineMethod" checked={onlineSubMethod === id} onChange={() => setOnlineSubMethod(id)} />
+                          <div className="method-icon" style={{ background: gradient }}><Icon /></div>
+                          <div className="method-info">
+                            <span className="method-label">{label}</span>
+                            <span className="method-desc">{desc}</span>
                           </div>
-                        </div>
-                      </motion.div>
-                    )}
+                          {onlineSubMethod === id && <CheckCircle2 size={16} className="method-check" />}
+                        </motion.label>
+                      ))}
+                    </motion.div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -467,18 +432,14 @@ export default function Checkout() {
             <div className="selected-payment-preview">
               {paymentMethod === 'COD'
                 ? <span><Truck size={14} /> Cash on Delivery</span>
-                : gateway === 'RAZORPAY'
-                  ? <span><Smartphone size={14} /> {RAZORPAY_METHODS.find(m => m.id === onlineSubMethod)?.label || 'Razorpay'}</span>
-                  : <span><Globe size={14} /> Stripe International</span>}
+                : <span><Smartphone size={14} /> {RAZORPAY_METHODS.find(m => m.id === onlineSubMethod)?.label || 'Razorpay'}</span>}
             </div>
 
             <button className="btn btn-primary btn-lg" style={{ width: '100%' }} onClick={handlePlaceOrder} disabled={loading} id="place-order-btn" aria-busy={loading}>
               {loading
                 ? <><Loader2 size={18} className="spin" /> Processing...</>
                 : paymentMethod === 'ONLINE'
-                  ? gateway === 'STRIPE'
-                    ? `Pay ₹${(total + shipping).toLocaleString('en-IN')} via Stripe`
-                    : `Pay ₹${(total + shipping).toLocaleString('en-IN')}`
+                  ? `Pay ₹${(total + shipping).toLocaleString('en-IN')}`
                   : 'Place Order'}
             </button>
 

@@ -1,107 +1,130 @@
-# FAN Club — Full-Stack E-Commerce Platform
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=200&section=header&text=FAN%20Club&fontSize=60&fontAlignY=35&animation=twinkling&fontColor=ffffff" alt="FAN Club Banner" />
 
-<p align="center">
-  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
-  <img src="https://img.shields.io/badge/NestJS-11-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" />
-  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white" />
-  <img src="https://img.shields.io/badge/Prisma-7-2D3748?style=for-the-badge&logo=prisma&logoColor=white" />
-  <img src="https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" />
-  <img src="https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
-</p>
+  <h3 align="center">Next-Generation Full-Stack E-Commerce Platform</h3>
+  
+  <p align="center">
+    A premium shopping experience powered by a robust, scalable backend.
+    <br />
+    <a href="#-features"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="#-customer-storefront-frontend">Storefront</a>
+    ·
+    <a href="#-admin-dashboard-admin">Admin Panel</a>
+    ·
+    <a href="#-backend-api-backend">REST API</a>
+  </p>
 
-A modern, full-stack e-commerce web application for **FAN Club** — featuring a customer-facing storefront, a powerful admin dashboard, and a robust NestJS REST API backend.
+  <p align="center">
+    <img src="https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+    <img src="https://img.shields.io/badge/NestJS_11-E0234E?style=for-the-badge&logo=nestjs&logoColor=white" alt="NestJS" />
+    <img src="https://img.shields.io/badge/TypeScript_5-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/Prisma_7-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma" />
+    <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
+    <img src="https://img.shields.io/badge/Vite_8-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E" alt="Vite" />
+  </p>
+</div>
 
 ---
 
-## 📁 Project Structure
+## 📖 Table of Contents
+- [About The Project](#-about-the-project)
+- [Project Architecture](#-project-architecture)
+- [Stunning Features](#-stunning-features)
+- [Tech Stack](#-tech-stack)
+- [Getting Started](#-getting-started)
+- [API Reference](#-api-reference)
+- [Deployment](#-deployment)
+- [Contributing](#-contributing)
+- [License](#-license)
 
-```
+---
+
+## 🚀 About The Project
+
+**FAN Club** is not just an e-commerce platform; it's a meticulously crafted digital ecosystem. Designed with modern aesthetics and performance in mind, it provides a seamless shopping journey for customers and a powerful command center for administrators, all backed by a high-performance RESTful API.
+
+---
+
+## 🏗️ Project Architecture
+
+A clean, monorepo-style structure separates concerns for maximum scalability.
+
+```text
 FAN/
-├── frontend/       # Customer-facing storefront (React + Vite)
-├── admin/          # Admin dashboard (React + Vite)
-└── backend/        # REST API server (NestJS + Prisma + Supabase)
+├── 🛍️ frontend/       # Customer-facing storefront (React + Vite)
+├── 📊 admin/          # Admin dashboard (React + Vite)
+└── ⚙️ backend/        # REST API server (NestJS + Prisma + Supabase)
 ```
 
 ---
 
-## ✨ Features
+## ✨ Stunning Features
 
 ### 🛍️ Customer Storefront (`/frontend`)
-- **Home page** with brand intro animation, particle effects, and social proof toasts
-- **Shop** — browse and filter products by category
-- **Product Detail** — rich product pages with image gallery and reviews
-- **Cart & Wishlist** — full cart management with quantity controls
-- **Checkout** — Razorpay (India) & Stripe (International) payment integration
-- **Order Tracking** — view order status and payment history in profile
-- **Authentication** — JWT-based login, registration, forgot/reset password
-- **Cinema page** — brand media experience
-- **Responsive design** — mobile bottom nav, smooth page transitions with Framer Motion
-- **Support pages** — FAQ, Privacy Policy, Returns, Terms & Conditions
+> A captivating, responsive experience built for conversion.
 
-### 🔧 Admin Dashboard (`/admin`)
-- **Dashboard** — sales analytics and KPI cards
-- **Products** — full CRUD with image upload (Supabase Storage)
-- **Orders** — view and manage all customer orders
-- **Payments** — Razorpay & Stripe payment tracking
-- **Customers** — user management
-- **Categories** — product category management
-- **Reviews** — moderate product reviews
-- **Newsletter** — subscriber management
-- **Contacts** — customer enquiry inbox
-- **Settings** — store configuration
+* **Immersive Landing Page:** Brand intro animations, particle effects, and dynamic social proof toasts.
+* **Seamless Discovery:** Rich product pages, intuitive category filters, and high-quality image galleries.
+* **Frictionless Checkout:** Integrated Razorpay (India) & Stripe (Global) with cart & wishlist management.
+* **Customer Hub:** Secure JWT authentication, order tracking, and profile management.
+* **Fluid UX:** Smooth page transitions powered by Framer Motion and a responsive mobile-first design.
+
+### 📊 Admin Dashboard (`/admin`)
+> Total control over your business operations.
+
+* **Command Center:** Real-time sales analytics and KPI tracking.
+* **Catalog Management:** Full product CRUD with seamless Supabase Storage image uploads.
+* **Order & Payment Tracking:** Comprehensive oversight of customer orders and Razorpay/Stripe transactions.
+* **CRM Tools:** Customer management, newsletter subscriptions, and contact inquiries.
+* **Moderation:** Review moderation and dynamic store configuration settings.
 
 ### ⚙️ Backend API (`/backend`)
-- **NestJS** modular architecture with TypeScript
-- **Prisma ORM** with PostgreSQL (Supabase)
-- **Supabase Auth** integration with JWT verification
-- **Payments** — Razorpay + Stripe with webhook handling
-- **File Upload** — Supabase Storage via signed URLs
-- **Email** — Nodemailer for transactional emails
-- **SMS** — Twilio integration
-- **Rate Limiting** — `@nestjs/throttler`
-- **Security** — Helmet, bcrypt password hashing
-- **Swagger API Docs** — auto-generated at `/api`
-- **Health checks** — `/health` endpoint
+> A robust, secure, and blazing-fast foundation.
+
+* **Enterprise Architecture:** Modular NestJS design with strict TypeScript typing.
+* **Data Layer:** Prisma ORM connected to Supabase PostgreSQL.
+* **Fortified Security:** Supabase Auth, bcrypt, Helmet, and `@nestjs/throttler` rate limiting.
+* **Integrated Services:** Nodemailer (Emails), Twilio (SMS), and Supabase Storage (Files).
+* **Developer Ready:** Auto-generated Swagger API documentation and comprehensive health checks.
 
 ---
 
-## 🛠️ Tech Stack
+## 💻 Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend Framework | React 19 + TypeScript |
-| Admin Framework | React 19 + TypeScript |
-| Build Tool | Vite 8 |
-| Routing | React Router DOM v7 |
-| Animations | Framer Motion |
-| Icons | Lucide React |
-| HTTP Client | Axios |
-| Toast Notifications | React Hot Toast |
-| Backend Framework | NestJS 11 |
-| ORM | Prisma 7 |
-| Database | PostgreSQL (Supabase) |
-| Auth | Supabase Auth + JWT (Passport) |
-| Payments | Razorpay + Stripe |
-| File Storage | Supabase Storage |
-| Email | Nodemailer |
-| SMS | Twilio |
-| API Docs | Swagger / OpenAPI |
-| Deployment (Frontend) | Vercel |
-| Deployment (Backend) | Cloud Run / Node.js |
+<details>
+<summary>Click to expand full technology stack</summary>
+
+| Category | Technology |
+|:---|:---|
+| **Frontend UI** | React 19, TypeScript, React Router DOM v7 |
+| **Admin UI** | React 19, TypeScript, React Router DOM v7 |
+| **Styling & Motion** | Framer Motion, Lucide React, CSS/Tailwind |
+| **State & Fetching** | Axios, React Hot Toast |
+| **Build Tool** | Vite 8 |
+| **Backend Core** | NestJS 11, TypeScript |
+| **Database & ORM** | PostgreSQL (Supabase), Prisma 7 |
+| **Auth & Storage** | Supabase Auth, Passport, Supabase Storage |
+| **Payments** | Razorpay, Stripe |
+| **Communications**| Nodemailer, Twilio |
+| **Documentation** | Swagger / OpenAPI |
+| **Deployment** | Vercel (Frontend/Admin), Cloud Run / Node.js (Backend) |
+
+</details>
 
 ---
 
-## 🚀 Getting Started
+## 🛠️ Getting Started
+
+Follow these steps to set up the project locally.
 
 ### Prerequisites
 
-- **Node.js** v18+
-- **npm** v9+
-- A **Supabase** project (PostgreSQL database + Auth + Storage)
-- **Razorpay** account (for Indian payments)
-- **Stripe** account (for international payments)
-
----
+Ensure you have the following installed and configured:
+- **Node.js** v18+ & **npm** v9+
+- A **Supabase** Project (PostgreSQL + Auth + Storage)
+- **Razorpay** & **Stripe** Accounts
 
 ### 1. Clone the repository
 
@@ -110,186 +133,98 @@ git clone https://github.com/maniprasad76/FANCLUB.git
 cd FANCLUB
 ```
 
----
-
 ### 2. Backend Setup
+
+<details>
+<summary>Expand for backend configuration steps</summary>
 
 ```bash
 cd backend
 npm install
 ```
 
-#### Configure environment variables
-
+**Configure Environment:**
 ```bash
 cp .env.example .env
 ```
+*Populate `.env` with your Supabase, Razorpay, and Stripe credentials.*
 
-Edit `.env` with your credentials:
-
-```env
-# Database (Supabase PostgreSQL — Session Mode Pooler)
-DATABASE_URL="postgresql://postgres.<ref>:<password>@aws-1-ap-south-1.pooler.supabase.com:5432/postgres"
-DIRECT_URL="postgresql://postgres:<password>@db.<ref>.supabase.co:5432/postgres"
-
-# Supabase
-SUPABASE_URL="https://<ref>.supabase.co"
-SUPABASE_ANON_KEY="your-supabase-anon-key"
-SUPABASE_SERVICE_ROLE_KEY="your-supabase-service-role-key"
-SUPABASE_JWT_SECRET="your-supabase-jwt-secret"
-
-# Razorpay
-RAZORPAY_KEY_ID="rzp_test_xxx"
-RAZORPAY_KEY_SECRET="your-razorpay-secret"
-RAZORPAY_WEBHOOK_SECRET=""
-
-# Stripe (International Payments)
-STRIPE_SECRET_KEY="sk_test_your_stripe_secret_key"
-STRIPE_PUBLISHABLE_KEY="pk_test_your_stripe_publishable_key"
-STRIPE_WEBHOOK_SECRET="whsec_your_webhook_secret"
-
-# Admin Credentials (used by seeder)
-ADMIN_EMAIL="admin@example.com"
-ADMIN_PASSWORD="change-me"
-
-# Server
-PORT=3001
-FRONTEND_URL="http://localhost:5173"
-ADMIN_URL="http://localhost:5174"
-```
-
-#### Run database migrations
-
+**Database Migration & Run:**
 ```bash
 npx prisma migrate deploy
-```
-
-#### Start the backend server
-
-```bash
-# Development (watch mode)
 npm run dev
-
-# Production
-npm run start:prod
 ```
+*API running at `http://localhost:3001` | Swagger docs at `http://localhost:3001/api`*
 
-The API will be available at `http://localhost:3001`  
-Swagger docs: `http://localhost:3001/api`
+</details>
 
----
+### 3. Frontend & Admin Setup
 
-### 3. Frontend (Storefront) Setup
+<details>
+<summary>Expand for frontend/admin configuration steps</summary>
 
+**Storefront:**
 ```bash
 cd frontend
 npm install
-```
-
-Create `.env` in `frontend/`:
-
-```env
-VITE_API_URL=http://localhost:3001
-VITE_SUPABASE_URL=https://<ref>.supabase.co
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-```
-
-```bash
+# Create .env with VITE_API_URL, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY
 npm run dev
 ```
+*Storefront running at `http://localhost:5173`*
 
-The storefront will be available at `http://localhost:5173`
-
----
-
-### 4. Admin Dashboard Setup
-
+**Admin Dashboard:**
 ```bash
 cd admin
 npm install
-```
-
-Create `.env` in `admin/`:
-
-```env
-VITE_API_URL=http://localhost:3001
-VITE_SUPABASE_URL=https://<ref>.supabase.co
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-```
-
-```bash
+# Create .env with VITE_API_URL, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY
 npm run dev
 ```
+*Admin panel running at `http://localhost:5174`*
 
-The admin panel will be available at `http://localhost:5174`
-
----
-
-## 📦 API Endpoints Overview
-
-| Module | Prefix | Description |
-|--------|--------|-------------|
-| Auth | `/auth` | Login, register, password reset |
-| Users | `/users` | User profile management |
-| Products | `/products` | Product CRUD |
-| Categories | `/categories` | Category management |
-| Cart | `/cart` | Shopping cart |
-| Wishlist | `/wishlist` | Wishlist management |
-| Orders | `/orders` | Order management |
-| Payments | `/payments` | Razorpay & Stripe |
-| Reviews | `/reviews` | Product reviews |
-| Upload | `/upload` | File upload (Supabase Storage) |
-| Newsletter | `/newsletter` | Email subscriptions |
-| Contact | `/contact` | Contact form submissions |
-| Dashboard | `/dashboard` | Admin analytics |
-| Settings | `/settings` | Store settings |
-| Health | `/health` | Health check |
-
-> Full API documentation available at `/api` (Swagger UI) when the backend is running.
+</details>
 
 ---
 
-## 🚢 Deployment
+## 📦 API Reference
 
-### Frontend & Admin — Vercel
+The backend provides a comprehensive REST API. Once running, visit `http://localhost:3001/api` for the interactive Swagger documentation.
 
-Both `frontend` and `admin` include a `vercel.json` for seamless Vercel deployments. Connect your GitHub repo to Vercel and set the environment variables in the Vercel dashboard.
-
-### Backend — Cloud Run / VPS
-
-```bash
-cd backend
-npm run build
-npm run start:prod
-```
-
-Or deploy as a Docker container / Cloud Run service. Set all environment variables in your hosting provider's dashboard.
+**Core Endpoints:**
+* `🔑 /auth` - Authentication & Password Management
+* `👤 /users` - Profile Management
+* `🛍️ /products` - Product Catalog CRUD
+* `🛒 /cart` & `❤️ /wishlist` - Shopping Utilities
+* `💳 /payments` - Razorpay & Stripe Webhooks
+* `📊 /dashboard` - Analytics Data
 
 ---
 
-## 🔐 Security Notes
+## ☁️ Deployment
 
-- Never commit `.env` files — they are gitignored
-- Use the `.env.example` file as a reference template
-- Rotate all secrets before going to production
-- The admin dashboard should be deployed on a separate, restricted domain
+* **Frontend & Admin:** Optimized for **Vercel**. Connect your repository and add environment variables.
+* **Backend:** Deployable as a Docker container on **Google Cloud Run** or any VPS via Node.js.
 
 ---
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create your feature branch: `git checkout -b feature/your-feature`
-3. Commit your changes: `git commit -m 'feat: add your feature'`
-4. Push to the branch: `git push origin feature/your-feature`
+We welcome contributions! Please follow these steps:
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
 ---
 
-## 📄 License
+## 🛡️ License & Security
 
-This project is private and proprietary. All rights reserved.
+* **Security:** Never commit `.env` files. Rotate secrets before production.
+* **License:** This project is private and proprietary. All rights reserved.
 
 ---
 
-<p align="center">Built with ❤️ by the FAN Club team</p>
+<div align="center">
+  <p>Built with ❤️ by the FAN Club team</p>
+  <img src="https://capsule-render.vercel.app/api?type=transparent&color=gradient&height=50&section=footer&text=&fontSize=60" />
+</div>

@@ -9,12 +9,10 @@ import { toast } from 'react-hot-toast';
 import './PaymentStatus.css';
 
 /**
- * PaymentStatus page — handles post-payment redirects from Stripe and
- * provides real-time payment status tracking with retry capability.
+ * PaymentStatus page — provides real-time payment status tracking
+ * with retry capability.
  *
  * URL patterns:
- *   /payment-status/:orderId?session_id=xxx&status=success  ← Stripe redirect
- *   /payment-status/:orderId?status=cancelled               ← Stripe cancel
  *   /payment-status/:orderId                                ← Direct navigation
  */
 export default function PaymentStatus() {
@@ -53,8 +51,6 @@ export default function PaymentStatus() {
     if (!isPolling) setStatus('loading');
 
     try {
-      // Check if this is a Stripe redirect
-      const sessionId = searchParams.get('session_id');
       const urlStatus = searchParams.get('status');
 
       if (urlStatus === 'cancelled') {
@@ -63,23 +59,6 @@ export default function PaymentStatus() {
         const { data: orderData } = await api.get(`/orders/${orderId}`);
         setOrder(orderData);
         return;
-      }
-
-      if (sessionId) {
-        // Verify the Stripe session server-side
-        try {
-          const { data: verifyResult } = await api.get('/payments/stripe/verify', {
-            params: { session_id: sessionId },
-          });
-
-          if (verifyResult.verified) {
-            setStatus('success');
-          } else {
-            setStatus('pending');
-          }
-        } catch {
-          setStatus('pending');
-        }
       }
 
       // Fetch order with payment details
@@ -92,16 +71,14 @@ export default function PaymentStatus() {
       }
 
       // Determine final status from order
-      if (!sessionId) {
-        if (orderData.status === 'CONFIRMED' || orderData.status === 'PROCESSING' || orderData.status === 'SHIPPED' || orderData.status === 'DELIVERED') {
-          setStatus('success');
-        } else if (orderData.payments?.some((p: any) => p.status === 'FAILED')) {
-          setStatus('failed');
-        } else if (orderData.status === 'CANCELLED') {
-          setStatus('cancelled');
-        } else {
-          setStatus('pending');
-        }
+      if (orderData.status === 'CONFIRMED' || orderData.status === 'PROCESSING' || orderData.status === 'SHIPPED' || orderData.status === 'DELIVERED') {
+        setStatus('success');
+      } else if (orderData.payments?.some((p: any) => p.status === 'FAILED')) {
+        setStatus('failed');
+      } else if (orderData.status === 'CANCELLED') {
+        setStatus('cancelled');
+      } else {
+        setStatus('pending');
       }
     } catch (err: any) {
       toast.error('Failed to fetch payment status');
@@ -143,8 +120,6 @@ export default function PaymentStatus() {
         };
         const rzp = new (window as any).Razorpay(options);
         rzp.open();
-      } else if (data.gateway === 'STRIPE' && data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
       } else {
         toast.error('Unable to create payment retry');
       }

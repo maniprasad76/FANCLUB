@@ -5,12 +5,17 @@ import { Logger } from '@nestjs/common';
  * before the application boots. Fails fast with a clear error listing
  * exactly which variables are missing.
  *
+ * In production (NODE_ENV=production), gateway credentials are REQUIRED.
+ * Missing or placeholder gateway credentials in production are fatal —
+ * stub-mode must never run in production as it accepts fake payments.
+ *
  * Call this from main.ts BEFORE NestFactory.create().
  */
 export function validateEnv(): void {
   const logger = new Logger('EnvValidation');
+  const isProduction = process.env.NODE_ENV === 'production';
 
-  // Required for the application to function
+  // Required for the application to function in all environments
   const required: string[] = [
     'DATABASE_URL',
     'SUPABASE_URL',
@@ -21,8 +26,9 @@ export function validateEnv(): void {
   // Required for CORS — at least one must be set
   const corsVars = ['FRONTEND_URL', 'ADMIN_URL'];
 
-  // Optional but logged if missing
-  const recommended: string[] = [
+  // In production: gateway credentials are REQUIRED to prevent stub-mode.
+  // In development: these are optional (stub mode is acceptable).
+  const gatewayVars = [
     'RAZORPAY_KEY_ID',
     'RAZORPAY_KEY_SECRET',
     'RAZORPAY_WEBHOOK_SECRET',
@@ -43,51 +49,66 @@ export function validateEnv(): void {
 
   // Check CORS vars — at least one must be set
   const hasCorsOrigin = corsVars.some(
-    (key) => process.env[key] && process.env[key].length > 0,
+    (key) => process.env[key] && process.env[key]!.length > 0,
   );
   if (!hasCorsOrigin) {
     missing.push(`At least one of: ${corsVars.join(', ')}`);
   }
 
-  // Check recommended vars
-  for (const key of recommended) {
-    if (
-      !process.env[key] ||
-      process.env[key].startsWith('your-') ||
-      process.env[key].startsWith('sk_test_your_')
-    ) {
-      warnings.push(key);
+  // Gateway credential checks
+  const placeholderPrefixes = ['your-', 'sk_test_your_', 'whsec_your_'];
+  const isPlaceholder = (val: string | undefined) =>
+    !val || placeholderPrefixes.some((prefix) => val.startsWith(prefix));
+
+  for (const key of gatewayVars) {
+    if (isPlaceholder(process.env[key])) {
+      if (isProduction) {
+        // In production, missing gateway creds are FATAL
+        missing.push(
+          `${key} (required in production — stub mode is not allowed)`,
+        );
+      } else {
+        warnings.push(key);
+      }
     }
   }
 
-  // Report warnings (non-fatal)
+  // Report warnings (non-fatal in development)
   if (warnings.length > 0) {
     logger.warn(
-      `⚠️  Optional env vars not configured (features will be stubbed): ${warnings.join(', ')}`,
+      `⚠️  Gateway env vars not configured (stub mode active for development): ${warnings.join(', ')}`,
     );
   }
 
-  // Enforce webhook secret for live Razorpay keys (critical for payment security)
-  const razorpayKeyId = process.env.RAZORPAY_KEY_ID || '';
-  if (
-    razorpayKeyId.startsWith('rzp_live_') &&
-    (!process.env.RAZORPAY_WEBHOOK_SECRET ||
-      process.env.RAZORPAY_WEBHOOK_SECRET.length === 0)
-  ) {
-    logger.warn(
-      '⚠️  RAZORPAY_WEBHOOK_SECRET is not set but live Razorpay keys are in use. ' +
-        'Webhook signature verification will fall back to key_secret, but a dedicated webhook secret is strongly recommended.',
-    );
+  // Additional production checks
+  if (isProduction) {
+    // Admin seeder credentials should not be present in production (security hygiene)
+    if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
+      logger.warn(
+        '⚠️  ADMIN_EMAIL and ADMIN_PASSWORD are set in production. ' +
+          'These should only be used for initial setup. Remove them once the admin account is created.',
+      );
+    }
+
+    // Ensure JWT secret is set
+    if (!process.env.SUPABASE_JWT_SECRET) {
+      missing.push('SUPABASE_JWT_SECRET (required in production)');
+    }
   }
 
   // Report missing (fatal)
   if (missing.length > 0) {
-    const msg = `🚫 FATAL: Missing required environment variables:\n${missing.map((v) => `   • ${v}`).join('\n')}\n\nSet these in your .env file or deployment environment.`;
+    const msg =
+      `🚫 FATAL: Missing required environment variables:\n` +
+      `${missing.map((v) => `   • ${v}`).join('\n')}\n\n` +
+      `Set these in your .env file or deployment environment.`;
     logger.error(msg);
     throw new Error(
       `Missing required environment variables: ${missing.join(', ')}`,
     );
   }
 
-  logger.log('✅ Environment validation passed');
+  logger.log(
+    `✅ Environment validation passed${isProduction ? ' (production mode)' : ' (development mode)'}`,
+  );
 }

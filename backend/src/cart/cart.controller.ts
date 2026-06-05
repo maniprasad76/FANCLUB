@@ -28,14 +28,28 @@ export class CartController {
     return this.cartService.addToCart(authId, dto);
   }
 
+  /**
+   * SECURITY: passes the authenticated user's DB id to the service so the
+   * ownership check in updateItem can verify the item belongs to this user.
+   */
   @Put(':itemId')
-  updateItem(@Param('itemId') itemId: string, @Body() dto: UpdateCartItemDto) {
-    return this.cartService.updateItem(itemId, dto);
+  updateItem(
+    @Param('itemId') itemId: string,
+    @CurrentUser('id') userId: string,
+    @Body() dto: UpdateCartItemDto,
+  ) {
+    return this.cartService.updateItem(itemId, userId, dto);
   }
 
+  /**
+   * SECURITY: same ownership check as updateItem.
+   */
   @Delete(':itemId')
-  removeItem(@Param('itemId') itemId: string) {
-    return this.cartService.removeItem(itemId);
+  removeItem(
+    @Param('itemId') itemId: string,
+    @CurrentUser('id') userId: string,
+  ) {
+    return this.cartService.removeItem(itemId, userId);
   }
 
   @Delete()

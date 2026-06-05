@@ -13,6 +13,7 @@ export default function Products() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const fetchProducts = () => {
     api.get('/products/admin/all', { params: { page, limit: 20, search: search || undefined } })
@@ -26,6 +27,23 @@ export default function Products() {
     if (!confirm('Delete this product?')) return;
     await api.delete(`/products/${id}`);
     fetchProducts();
+  };
+
+  const handleBulkDelete = async () => {
+    if (!selectedIds.length || !confirm(`Delete ${selectedIds.length} selected products?`)) return;
+    await api.post('/products/bulk-delete', { ids: selectedIds });
+    setSelectedIds([]);
+    fetchProducts();
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === products.length) setSelectedIds([]);
+    else setSelectedIds(products.map(p => p.id));
+  };
+
+  const toggleSelect = (id: string) => {
+    if (selectedIds.includes(id)) setSelectedIds(selectedIds.filter(i => i !== id));
+    else setSelectedIds([...selectedIds, id]);
   };
 
   const totalPages = Math.ceil(total / 20);
@@ -43,19 +61,35 @@ export default function Products() {
         <Link to="/products/new" className="btn btn-primary"><Plus size={16} /> Add Product</Link>
       </div>
 
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ position: 'relative', maxWidth: 360 }}>
+      <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ position: 'relative', maxWidth: 360, flex: 1 }}>
           <Search size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <input className="input" placeholder="Search products..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} style={{ paddingLeft: 40 }} />
         </div>
+        {selectedIds.length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{selectedIds.length} selected</span>
+            <button className="btn btn-danger btn-sm" onClick={handleBulkDelete}>
+              <Trash2 size={16} /> Delete Selected
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="glass" style={{ overflow: 'auto', padding: 0 }}>
         <table className="data-table">
-          <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
+          <thead><tr>
+            <th style={{ width: 40 }}>
+              <input type="checkbox" checked={products.length > 0 && selectedIds.length === products.length} onChange={toggleSelectAll} style={{ accentColor: 'var(--bauhaus-red)', width: 16, height: 16 }} />
+            </th>
+            <th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th>
+          </tr></thead>
           <tbody>
             {products.map(p => (
               <tr key={p.id}>
+                <td>
+                  <input type="checkbox" checked={selectedIds.includes(p.id)} onChange={() => toggleSelect(p.id)} style={{ accentColor: 'var(--bauhaus-red)', width: 16, height: 16 }} />
+                </td>
                 <td>
                   <img src={p.images?.[0] ? (p.images[0].startsWith('/') ? baseUrl + p.images[0] : p.images[0]) : 'https://placehold.co/48x48/F0F0F0/121212?text=FAN'} alt="" style={{ width: 48, height: 48, objectFit: 'cover', border: '2px solid var(--bauhaus-black)' }} />
                 </td>
@@ -77,7 +111,7 @@ export default function Products() {
               </tr>
             ))}
             {products.length === 0 && (
-              <tr><td colSpan={7} style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>No products found</td></tr>
+              <tr><td colSpan={8} style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>No products found</td></tr>
             )}
           </tbody>
         </table>

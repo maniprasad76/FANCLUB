@@ -117,7 +117,7 @@ export default function Payments() {
   ];
 
   const statuses = ['', 'PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'REFUNDED', 'CANCELLED'];
-  const gateways = ['', 'RAZORPAY', 'STRIPE', 'COD'];
+  const gateways = ['', 'RAZORPAY', 'COD'];
   const totalPages = Math.ceil(total / 20);
 
   return (
@@ -127,7 +127,7 @@ export default function Payments() {
           <CreditCard size={28} style={{ color: 'var(--bauhaus-red)' }} />
           <h1 className="page-title">Payments</h1>
         </div>
-        <p className="page-subtitle">Payment gateway dashboard — Razorpay + Stripe</p>
+        <p className="page-subtitle">Payment gateway dashboard — Razorpay</p>
         <div style={{ display: 'flex', gap: 0, marginTop: 12, height: 4, maxWidth: 200 }}>
           <div style={{ flex: 1, background: 'var(--bauhaus-red)' }} />
           <div style={{ flex: 1, background: 'var(--bauhaus-blue)' }} />
@@ -164,10 +164,10 @@ export default function Payments() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 border: '2px solid var(--bauhaus-black)',
-                background: g.gateway === 'RAZORPAY' ? '#E3F2FD' : g.gateway === 'STRIPE' ? '#F3E5F5' : '#FFF8E1',
+                background: g.gateway === 'RAZORPAY' ? '#E3F2FD' : '#FFF8E1',
                 boxShadow: '2px 2px 0px 0px var(--bauhaus-black)',
               }}>
-                {g.gateway === 'STRIPE' ? <Globe size={18} /> : <CreditCard size={18} />}
+                <CreditCard size={18} />
               </div>
               <div>
                 <div style={{ fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.8rem' }}>{g.gateway}</div>
@@ -224,7 +224,7 @@ export default function Payments() {
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{p.order?.user?.email}</div>
                 </td>
                 <td>
-                  <span className={`badge ${p.gateway === 'RAZORPAY' ? 'badge-info' : p.gateway === 'STRIPE' ? 'badge-primary' : 'badge-warning'}`}>
+                  <span className={`badge ${p.gateway === 'RAZORPAY' ? 'badge-info' : 'badge-warning'}`}>
                     {p.gateway}
                   </span>
                 </td>

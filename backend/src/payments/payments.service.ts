@@ -7,18 +7,16 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RazorpayService } from './razorpay.service';
-import { StripeService } from './stripe.service';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
  * PaymentsService — Gateway Orchestrator
  *
  * This service is the single entry point for all payment operations.
- * It delegates to the appropriate gateway service (Razorpay or Stripe)
- * based on the customer's country or explicit gateway selection.
+ * It delegates to the Razorpay gateway service.
  *
  * Responsibilities:
- *   • Gateway routing (India → Razorpay, International → Stripe)
+ *   • Gateway routing (Razorpay for all)
  *   • Payment record lifecycle management
  *   • Transaction logging
  *   • Idempotency enforcement
@@ -33,7 +31,6 @@ export class PaymentsService {
   constructor(
     private prisma: PrismaService,
     private razorpayService: RazorpayService,
-    private stripeService: StripeService,
   ) {}
 
   // ─────────────────────────────────────────────────────────
@@ -41,21 +38,14 @@ export class PaymentsService {
   // ─────────────────────────────────────────────────────────
 
   /**
-   * Determine the payment gateway based on country.
-   * India → RAZORPAY, everything else → STRIPE.
+   * Determine the payment gateway.
+   * Everything → RAZORPAY.
    */
   private resolveGateway(
     country?: string,
     explicitGateway?: string,
-  ): 'RAZORPAY' | 'STRIPE' {
-    if (explicitGateway) {
-      const g = explicitGateway.toUpperCase();
-      if (g === 'RAZORPAY' || g === 'STRIPE') return g;
-    }
-    // Auto-route: India → Razorpay, else → Stripe
-    const c = (country || 'India').toLowerCase().trim();
-    if (c === 'india' || c === 'in' || c === 'ind') return 'RAZORPAY';
-    return 'STRIPE';
+  ): 'RAZORPAY' {
+    return 'RAZORPAY';
   }
 
   // ─────────────────────────────────────────────────────────
@@ -87,7 +77,9 @@ export class PaymentsService {
     const resolvedGateway = this.resolveGateway(country, gateway);
 
     // Idempotency: check if a PENDING payment already exists for this order + gateway
-    const idempotencyKey = `${orderId}_${resolvedGateway}`;
+    // NOTE: idempotencyKey uses a UUID suffix so that retryPayment (which cancels old
+    // PENDING payments) can create a new one without hitting the unique constraint.
+    const idempotencyKey = `${orderId}_${resolvedGateway}_${uuidv4()}`;
     const existingPayment = await this.prisma.payment.findFirst({
       where: {
         orderId,
@@ -134,45 +126,23 @@ export class PaymentsService {
     // Create the gateway-specific order/session
     let gatewayResult;
 
-    if (resolvedGateway === 'RAZORPAY') {
-      gatewayResult = await this.razorpayService.createOrder(
-        order.totalAmount,
-        currency,
-        {
-          receipt: `fan_${order.orderNumber}`,
-          notes: { orderId, paymentId: payment.id },
-        },
-      );
+    gatewayResult = await this.razorpayService.createOrder(
+      order.totalAmount,
+      currency,
+      {
+        receipt: `fan_${order.orderNumber}`,
+        notes: { orderId, paymentId: payment.id },
+      },
+    );
 
-      // Update order with Razorpay order ID
-      await this.prisma.order.update({
-        where: { id: orderId },
-        data: {
-          razorpayOrderId: gatewayResult.gatewayOrderId,
-          paymentMethod: 'ONLINE',
-        },
-      });
-    } else {
-      gatewayResult = await this.stripeService.createOrder(
-        order.totalAmount,
-        currency,
-        {
-          orderId,
-          orderNumber: order.orderNumber,
-          orderDescription: `FANCLUB Order #${order.orderNumber}`,
-          customerEmail: order.user?.email,
-        },
-      );
-
-      // Update order with Stripe session ID
-      await this.prisma.order.update({
-        where: { id: orderId },
-        data: {
-          stripeSessionId: gatewayResult.gatewayOrderId,
-          paymentMethod: 'ONLINE',
-        },
-      });
-    }
+    // Update order with Razorpay order ID
+    await this.prisma.order.update({
+      where: { id: orderId },
+      data: {
+        razorpayOrderId: gatewayResult.gatewayOrderId,
+        paymentMethod: 'ONLINE',
+      },
+    });
 
     // Update payment with gateway order ID
     await this.prisma.payment.update({
@@ -200,22 +170,12 @@ export class PaymentsService {
       status: payment.status,
     };
 
-    if (gateway === 'RAZORPAY') {
-      return {
-        ...base,
-        razorpayOrderId:
-          gatewayResult?.gatewayOrderId || payment.gatewayOrderId,
-        razorpayKey: this.razorpayService.getPublishableKey(),
-      };
-    } else {
-      return {
-        ...base,
-        stripeSessionId:
-          gatewayResult?.gatewayOrderId || payment.gatewayOrderId,
-        stripePublishableKey: this.stripeService.getPublishableKey(),
-        checkoutUrl: gatewayResult?.metadata?.checkoutUrl,
-      };
-    }
+    return {
+      ...base,
+      razorpayOrderId:
+        gatewayResult?.gatewayOrderId || payment.gatewayOrderId,
+      razorpayKey: this.razorpayService.getPublishableKey(),
+    };
   }
 
   // ─────────────────────────────────────────────────────────
@@ -303,55 +263,6 @@ export class PaymentsService {
     };
   }
 
-  // ─────────────────────────────────────────────────────────
-  // VERIFY PAYMENT — Stripe session check
-  // ─────────────────────────────────────────────────────────
-
-  async verifyStripePayment(
-    sessionId: string,
-    actor?: { id: string; role: string },
-  ) {
-    const result = await this.stripeService.verifyPayment({ sessionId });
-
-    if (!result.verified) {
-      return { verified: false, status: 'unpaid' };
-    }
-
-    // Find payment record
-    const payment = await this.prisma.payment.findFirst({
-      where: { gatewayOrderId: sessionId },
-      include: { order: { select: { userId: true } } },
-    });
-
-    if (!payment) throw new NotFoundException('Payment not found');
-    if (actor && actor.role !== 'ADMIN' && payment.order.userId !== actor.id) {
-      throw new NotFoundException('Payment not found');
-    }
-
-    if (payment && payment.status !== 'COMPLETED') {
-      await this.prisma.payment.update({
-        where: { id: payment.id },
-        data: {
-          status: 'COMPLETED',
-          gatewayPaymentId: result.gatewayPaymentId,
-          method: result.method || 'card',
-          paidAt: new Date(),
-        },
-      });
-
-      await this.prisma.transaction.updateMany({
-        where: { paymentId: payment.id, type: 'CHARGE' },
-        data: { status: 'COMPLETED', gatewayRef: result.gatewayPaymentId },
-      });
-
-      await this.prisma.order.update({
-        where: { id: payment.orderId },
-        data: { paymentId: result.gatewayPaymentId, status: 'CONFIRMED' },
-      });
-    }
-
-    return { verified: true, paymentId: result.gatewayPaymentId, sessionId };
-  }
 
   // ─────────────────────────────────────────────────────────
   // WEBHOOKS
@@ -368,14 +279,27 @@ export class PaymentsService {
       signature,
     );
 
-    // Log the webhook
-    await this.prisma.webhookLog.create({
+    // Idempotency: reject replays of already-processed webhook events
+    if (signature) {
+      const alreadyProcessed = await this.prisma.webhookLog.findFirst({
+        where: { gateway: 'RAZORPAY', signature, processed: true },
+      });
+      if (alreadyProcessed) {
+        this.logger.log(
+          `Razorpay webhook already processed (sig=${signature.slice(0, 16)}…) — skipping`,
+        );
+        return { status: 'ok' };
+      }
+    }
+
+    // Log the webhook — capture the ID for targeted update later
+    const webhookLog = await this.prisma.webhookLog.create({
       data: {
         gateway: 'RAZORPAY',
         eventType: body.event || 'unknown',
         payload: body,
         signature,
-        processed: isValid,
+        processed: false,
         error: isValid ? null : 'Invalid signature',
       },
     });
@@ -384,7 +308,7 @@ export class PaymentsService {
       throw new BadRequestException('Invalid webhook signature');
     }
 
-    // Process events
+    // Process events — re-throw on error so Razorpay will retry delivery
     try {
       if (body.event === 'payment.captured') {
         const payment = body.payload?.payment?.entity;
@@ -403,85 +327,31 @@ export class PaymentsService {
         }
       } else if (body.event === 'refund.processed') {
         const refund = body.payload?.refund?.entity;
-        if (refund?.payment_id) {
+        if (refund?.id) {
           await this.handleGatewayRefundUpdate(refund.id, 'COMPLETED');
         }
       }
 
-      // Mark webhook as processed
-      await this.prisma.webhookLog.updateMany({
-        where: { gateway: 'RAZORPAY', eventType: body.event, processed: false },
+      // Mark this specific webhook log as processed (by ID, not by broad match)
+      await this.prisma.webhookLog.update({
+        where: { id: webhookLog.id },
         data: { processed: true },
       });
     } catch (err: any) {
       this.logger.error(`Razorpay webhook processing error: ${err.message}`);
+      // Update log with error detail
+      await this.prisma.webhookLog.update({
+        where: { id: webhookLog.id },
+        data: { error: err.message },
+      }).catch(() => {});
+      // Re-throw so Razorpay knows to retry
+      throw err;
     }
 
     return { status: 'ok' };
   }
 
-  /**
-   * Handle a Stripe webhook event.
-   */
-  async handleStripeWebhook(rawBody: Buffer | string, signature: string) {
-    const event = this.stripeService.verifyWebhookSignature(rawBody, signature);
 
-    // Log the webhook
-    await this.prisma.webhookLog.create({
-      data: {
-        gateway: 'STRIPE',
-        eventType: event?.type || 'unknown',
-        payload: event || { raw: 'verification_failed' },
-        signature,
-        processed: !!event,
-        error: event ? null : 'Invalid signature',
-      },
-    });
-
-    if (!event) {
-      throw new BadRequestException('Invalid webhook signature');
-    }
-
-    try {
-      switch (event.type) {
-        case 'checkout.session.completed': {
-          const session = event.data.object;
-          if (session.payment_status === 'paid') {
-            await this.confirmPaymentByGatewayOrder(
-              'STRIPE',
-              session.id,
-              session.payment_intent,
-              'card',
-            );
-          }
-          break;
-        }
-        case 'payment_intent.payment_failed': {
-          const intent = event.data.object;
-          // Find payment by gateway payment ID
-          const payment = await this.prisma.payment.findFirst({
-            where: { gatewayPaymentId: intent.id },
-          });
-          if (payment) {
-            await this.failPaymentByGatewayOrder(payment.gatewayOrderId || '');
-          }
-          break;
-        }
-        case 'charge.refunded': {
-          const charge = event.data.object;
-          if (charge.refunds?.data?.length) {
-            const refund = charge.refunds.data[0];
-            await this.handleGatewayRefundUpdate(refund.id, 'COMPLETED');
-          }
-          break;
-        }
-      }
-    } catch (err: any) {
-      this.logger.error(`Stripe webhook processing error: ${err.message}`);
-    }
-
-    return { received: true };
-  }
 
   // ─────────────────────────────────────────────────────────
   // WEBHOOK HELPERS
@@ -568,94 +438,100 @@ export class PaymentsService {
    * Supports partial refunds via the amount parameter.
    */
   async processRefund(paymentId: string, amount?: number, reason?: string) {
-    const payment = await this.prisma.payment.findUnique({
-      where: { id: paymentId },
-      include: { refunds: true },
-    });
+    // SECURITY: Run entire refund in a serializable transaction to prevent
+    // concurrent requests from both passing the refund-limit check.
+    return this.prisma.$transaction(
+      async (tx) => {
+        // Re-read payment with FOR UPDATE semantics inside transaction
+        const payment = await tx.payment.findUnique({
+          where: { id: paymentId },
+          include: { refunds: true },
+        });
 
-    if (!payment) throw new NotFoundException('Payment not found');
-    if (payment.status !== 'COMPLETED') {
-      throw new BadRequestException('Can only refund completed payments');
-    }
-    if (!payment.gatewayPaymentId) {
-      throw new BadRequestException(
-        'No gateway payment ID found — cannot refund',
-      );
-    }
+        if (!payment) throw new NotFoundException('Payment not found');
+        if (payment.status !== 'COMPLETED') {
+          throw new BadRequestException('Can only refund completed payments');
+        }
+        if (!payment.gatewayPaymentId) {
+          throw new BadRequestException(
+            'No gateway payment ID found — cannot refund',
+          );
+        }
 
-    // Calculate refundable amount
-    const alreadyRefunded = payment.refunds
-      .filter((r) => r.status === 'COMPLETED' || r.status === 'PROCESSING')
-      .reduce((sum, r) => sum + r.amount, 0);
+        // Calculate refundable amount (re-read inside transaction prevents races)
+        const alreadyRefunded = payment.refunds
+          .filter((r) => r.status === 'COMPLETED' || r.status === 'PROCESSING')
+          .reduce((sum, r) => sum + Number(r.amount), 0);
 
-    const refundAmount = amount || payment.amount - alreadyRefunded;
-    if (refundAmount <= 0) throw new BadRequestException('Nothing to refund');
-    if (refundAmount > payment.amount - alreadyRefunded) {
-      throw new BadRequestException(
-        `Maximum refundable amount is ₹${(payment.amount - alreadyRefunded).toFixed(2)}`,
-      );
-    }
+        const refundAmount = amount || Number(payment.amount) - alreadyRefunded;
+        if (refundAmount <= 0) throw new BadRequestException('Nothing to refund');
+        if (refundAmount > Number(payment.amount) - alreadyRefunded) {
+          throw new BadRequestException(
+            `Maximum refundable amount is ₹${(Number(payment.amount) - alreadyRefunded).toFixed(2)}`,
+          );
+        }
 
-    // Process via gateway
-    const gateway =
-      payment.gateway === 'RAZORPAY'
-        ? this.razorpayService
-        : this.stripeService;
-    const result = await gateway.processRefund(
-      payment.gatewayPaymentId,
-      refundAmount,
-    );
+        // Process via gateway (outside the transaction lock is fine —
+        // the DB record is our source of truth; gateway is idempotent)
+        const gatewayService = this.razorpayService;
+        const result = await gatewayService.processRefund(
+          payment.gatewayPaymentId,
+          refundAmount,
+        );
 
-    // Create refund record
-    const refund = await this.prisma.refund.create({
-      data: {
-        paymentId: payment.id,
-        amount: refundAmount,
-        reason: reason || 'Customer request',
-        status:
+        const refundStatus =
           result.status === 'processed' || result.status === 'succeeded'
             ? 'COMPLETED'
-            : 'PROCESSING',
-        gatewayRefundId: result.gatewayRefundId,
-        processedAt:
-          result.status === 'processed' || result.status === 'succeeded'
-            ? new Date()
-            : null,
+            : 'PROCESSING';
+
+        // Create refund record
+        const refund = await tx.refund.create({
+          data: {
+            paymentId: payment.id,
+            amount: refundAmount,
+            reason: reason || 'Customer request',
+            status: refundStatus,
+            gatewayRefundId: result.gatewayRefundId,
+            processedAt: refundStatus === 'COMPLETED' ? new Date() : null,
+          },
+        });
+
+        // Create REFUND transaction record
+        await tx.transaction.create({
+          data: {
+            paymentId: payment.id,
+            type: 'REFUND',
+            amount: refundAmount,
+            currency: payment.currency,
+            status: refund.status,
+            gatewayRef: result.gatewayRefundId,
+          },
+        });
+
+        // Update payment status
+        const totalRefunded = alreadyRefunded + refundAmount;
+        const isFullRefund = totalRefunded >= Number(payment.amount);
+
+        await tx.payment.update({
+          where: { id: payment.id },
+          data: {
+            status: isFullRefund ? 'REFUNDED' : 'PARTIALLY_REFUNDED',
+          },
+        });
+
+        // Only mark order as REFUNDED when the gateway has confirmed it
+        // (i.e. refundStatus === COMPLETED). If PROCESSING, wait for webhook.
+        if (isFullRefund && refundStatus === 'COMPLETED') {
+          await tx.order.update({
+            where: { id: payment.orderId },
+            data: { status: 'REFUNDED' },
+          });
+        }
+
+        return refund;
       },
-    });
-
-    // Create REFUND transaction
-    await this.prisma.transaction.create({
-      data: {
-        paymentId: payment.id,
-        type: 'REFUND',
-        amount: refundAmount,
-        currency: payment.currency,
-        status: refund.status,
-        gatewayRef: result.gatewayRefundId,
-      },
-    });
-
-    // Update payment status if fully refunded
-    const totalRefunded = alreadyRefunded + refundAmount;
-    const isFullRefund = totalRefunded >= payment.amount;
-
-    await this.prisma.payment.update({
-      where: { id: payment.id },
-      data: {
-        status: isFullRefund ? 'REFUNDED' : 'PARTIALLY_REFUNDED',
-      },
-    });
-
-    // Update order status if fully refunded
-    if (isFullRefund) {
-      await this.prisma.order.update({
-        where: { id: payment.orderId },
-        data: { status: 'REFUNDED' },
-      });
-    }
-
-    return refund;
+      { isolationLevel: 'Serializable' },
+    );
   }
 
   // ─────────────────────────────────────────────────────────

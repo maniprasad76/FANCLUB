@@ -166,10 +166,7 @@ export class AuthService {
 
   // ─── SIGN IN ────────────────────────────────────────────────
 
-  async signIn(
-    email: string,
-    password: string,
-  ): Promise<AuthResult> {
+  async signIn(email: string, password: string): Promise<AuthResult> {
     const client = this.supabaseService.getClient();
 
     try {
@@ -181,25 +178,12 @@ export class AuthService {
 
       if (error) {
         this.logger.warn(`Sign-in failed for ${email}: ${error.message}`);
-
-        if (error.message.includes('Invalid login credentials')) {
-          // Check if the account exists at all
-          const existingUser = await this.prisma.user.findUnique({
-            where: { email: email.toLowerCase() },
-          });
-
-          if (!existingUser) {
-            throw new UnauthorizedException(
-              'No account found with this email. Please sign up first.',
-            );
-          }
-
-          throw new UnauthorizedException(
-            'Incorrect password. Please try again or reset your password.',
-          );
-        }
-
-        throw new UnauthorizedException(error.message);
+        // SECURITY: Return the same error for both wrong email and wrong password.
+        // Differentiating them (e.g. 'No account found' vs 'Wrong password') allows
+        // attackers to enumerate which email addresses have accounts.
+        throw new UnauthorizedException(
+          'Invalid email or password. Please try again.',
+        );
       }
 
       if (!data.session || !data.user) {

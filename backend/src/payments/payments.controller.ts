@@ -27,12 +27,10 @@ import {
  *
  * Public endpoints (no auth):
  *   POST /payments/webhook/razorpay — Razorpay server-to-server callback
- *   POST /payments/webhook/stripe   — Stripe server-to-server callback
  *
  * Authenticated endpoints:
  *   POST /payments/create-order     — Create a payment order for checkout
  *   POST /payments/verify           — Verify Razorpay payment callback
- *   GET  /payments/stripe/verify    — Verify Stripe session after redirect
  *   POST /payments/retry/:orderId   — Retry a failed payment
  *   GET  /payments/:paymentId/status — Get payment status
  *   GET  /payments/order/:orderId   — Get all payments for an order
@@ -81,18 +79,7 @@ export class PaymentsController {
     );
   }
 
-  /**
-   * Verify a Stripe session — called when customer returns from Stripe Checkout.
-   */
-  @UseGuards(JwtAuthGuard)
-  @Get('stripe/verify')
-  verifyStripe(
-    @Query('session_id') sessionId: string,
-    @CurrentUser() user: any,
-  ) {
-    if (!sessionId) throw new BadRequestException('Missing session_id');
-    return this.paymentsService.verifyStripePayment(sessionId, user);
-  }
+
 
   /**
    * Retry a failed/pending payment with a new attempt.
@@ -150,19 +137,6 @@ export class PaymentsController {
     return this.paymentsService.handleRazorpayWebhook(rawBody, signature, body);
   }
 
-  /**
-   * Stripe webhook — server-to-server callback.
-   * Authenticated via Stripe's constructEvent with webhook secret.
-   */
-  @SkipThrottle()
-  @Post('webhook/stripe')
-  async webhookStripe(
-    @Req() req: any,
-    @Headers('stripe-signature') signature: string,
-  ) {
-    const rawBody = req.rawBody || Buffer.from(JSON.stringify(req.body));
-    return this.paymentsService.handleStripeWebhook(rawBody, signature);
-  }
 
   // ─────────────────────────────────────────────────────────
   // ADMIN ENDPOINTS

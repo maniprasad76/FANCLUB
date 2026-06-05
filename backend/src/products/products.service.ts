@@ -137,6 +137,10 @@ export class ProductsService {
     return this.prisma.product.delete({ where: { id } });
   }
 
+  async bulkDelete(ids: string[]) {
+    return this.prisma.product.deleteMany({ where: { id: { in: ids } } });
+  }
+
   // Admin: all products including inactive
   async adminFindAll(page = 1, limit = 20, search?: string) {
     const skip = (page - 1) * limit;

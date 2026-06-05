@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AddToCartDto, UpdateCartItemDto } from './dto/cart.dto';
 
@@ -29,7 +33,7 @@ export class CartService {
     });
 
     const total = items.reduce(
-      (sum, item) => sum + item.product.price * item.quantity,
+      (sum, item) => sum + Number(item.product.price) * item.quantity,
       0,
     );
     return { items, total, count: items.length };
@@ -62,7 +66,18 @@ export class CartService {
     });
   }
 
-  async updateItem(itemId: string, dto: UpdateCartItemDto) {
+  /**
+   * Update a cart item quantity.
+   * SECURITY: userId is passed from the authenticated session and included
+   * in the WHERE clause — users can only update their own cart items.
+   */
+  async updateItem(itemId: string, userId: string, dto: UpdateCartItemDto) {
+    // First verify ownership
+    const item = await this.prisma.cartItem.findFirst({
+      where: { id: itemId, userId },
+    });
+    if (!item) throw new NotFoundException('Cart item not found');
+
     return this.prisma.cartItem.update({
       where: { id: itemId },
       data: { quantity: dto.quantity },
@@ -70,7 +85,17 @@ export class CartService {
     });
   }
 
-  async removeItem(itemId: string) {
+  /**
+   * Remove a cart item.
+   * SECURITY: userId is passed from the authenticated session — users can
+   * only remove their own cart items.
+   */
+  async removeItem(itemId: string, userId: string) {
+    const item = await this.prisma.cartItem.findFirst({
+      where: { id: itemId, userId },
+    });
+    if (!item) throw new NotFoundException('Cart item not found');
+
     return this.prisma.cartItem.delete({ where: { id: itemId } });
   }
 

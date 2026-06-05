@@ -61,23 +61,16 @@ export class AdminSeederService implements OnModuleInit {
     );
 
     if (supabaseUser) {
-      // User exists — update password to match env in case it changed
-      const { data: updated, error: updateErr } =
-        await this.supabaseAdmin.auth.admin.updateUserById(supabaseUser.id, {
-          password,
-          email_confirm: true,
-        });
-
-      if (updateErr) {
-        this.logger.error(
-          `Failed to update admin password: ${updateErr.message}`,
-        );
-      } else {
-        supabaseUser = updated.user;
-        this.logger.log(`Admin password updated for ${email}`);
-      }
+      // SECURITY: Admin already exists — do NOT update the password.
+      // Resetting the password on every startup is dangerous:
+      //   1. A restart with stale/wrong env vars resets the admin account.
+      //   2. ADMIN_PASSWORD env var becomes an attack surface if leaked.
+      // Password changes must be done deliberately via the Supabase dashboard.
+      this.logger.log(
+        `Admin already exists in Supabase Auth: ${email} — skipping password update`,
+      );
     } else {
-      // User doesn't exist — create in Supabase Auth
+      // Admin doesn't exist — create in Supabase Auth
       const { data: created, error: createErr } =
         await this.supabaseAdmin.auth.admin.createUser({
           email,

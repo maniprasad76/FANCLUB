@@ -8,12 +8,13 @@
 
 :root {
   /* Core palette — Bauhaus Canvas */
-  --bg-primary: #f0f0f0;
-  --bg-secondary: #e0e0e0;
+  --bg-primary: #f6fafc; /* surface */
+  --bg-secondary: #c0e9fc; /* secondary_container */
   --bg-tertiary: #d0d0d0;
   --bg-card: #ffffff;
-  --bg-glass: rgba(0, 0, 0, 0.03);
-  --bg-glass-hover: rgba(0, 0, 0, 0.06);
+  --bg-glass: rgba(255, 255, 255, 0.8);
+  --bg-glass-hover: rgba(255, 255, 255, 0.9);
+  --glass-blur: blur(24px);
 
   /* Bauhaus Primaries */
   --bauhaus-red: #d02020;

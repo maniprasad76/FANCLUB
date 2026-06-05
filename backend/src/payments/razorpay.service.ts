@@ -1,4 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import {
@@ -12,6 +16,10 @@ import {
 /**
  * RazorpayService — handles all Razorpay-specific payment operations.
  * Implements the PaymentGatewayProvider interface for gateway-agnostic orchestration.
+ *
+ * SECURITY: In production (NODE_ENV=production), stub mode is disabled.
+ * Missing credentials in production throw ServiceUnavailableException.
+ * Stub mode is only available in development for local testing.
  *
  * Razorpay flow:
  *   1. Backend creates an "order" with Razorpay API
@@ -27,8 +35,10 @@ export class RazorpayService implements PaymentGatewayProvider {
   private readonly keyId: string;
   private readonly keySecret: string;
   private readonly webhookSecret: string;
+  private readonly isProduction: boolean;
 
   constructor(private configService: ConfigService) {
+    this.isProduction = configService.get<string>('NODE_ENV') === 'production';
     this.keyId = this.configService.get<string>('RAZORPAY_KEY_ID') || '';
     this.keySecret =
       this.configService.get<string>('RAZORPAY_KEY_SECRET') || '';
@@ -36,8 +46,13 @@ export class RazorpayService implements PaymentGatewayProvider {
       this.configService.get<string>('RAZORPAY_WEBHOOK_SECRET') ||
       this.keySecret;
 
-    // Only initialize Razorpay if real keys are configured
-    if (this.keyId && this.keySecret && !this.keyId.startsWith('your-')) {
+    const hasRealKeys =
+      this.keyId &&
+      this.keySecret &&
+      !this.keyId.startsWith('your-') &&
+      !this.keySecret.startsWith('your-');
+
+    if (hasRealKeys) {
       try {
         const Razorpay = require('razorpay');
         this.razorpay = new Razorpay({
@@ -51,9 +66,16 @@ export class RazorpayService implements PaymentGatewayProvider {
         );
       }
     } else {
-      this.logger.warn(
-        '⚠️ Razorpay keys not configured. Indian payments will be stubbed.',
-      );
+      if (this.isProduction) {
+        // validateEnv should have caught this first, but defence in depth
+        this.logger.error(
+          '🚫 Razorpay keys not configured in production. Startup should have failed.',
+        );
+      } else {
+        this.logger.warn(
+          '⚠️ Razorpay keys not configured. Stub mode active (development only).',
+        );
+      }
     }
   }
 
@@ -68,6 +90,22 @@ export class RazorpayService implements PaymentGatewayProvider {
   }
 
   /**
+   * Throws ServiceUnavailableException in production when SDK is not initialised.
+   * In development, returns a stub response for local testing.
+   */
+  private assertAvailableOrStub<T>(stubFn: () => T): T {
+    if (!this.razorpay) {
+      if (this.isProduction) {
+        throw new ServiceUnavailableException(
+          'Razorpay payment gateway is not configured. Please contact support.',
+        );
+      }
+      return stubFn();
+    }
+    return null as any; // Signal that real implementation should run
+  }
+
+  /**
    * Create a Razorpay order for the given amount.
    * Amount is passed in the base currency unit (e.g. ₹) and converted to paise internally.
    */
@@ -77,7 +115,12 @@ export class RazorpayService implements PaymentGatewayProvider {
     metadata: Record<string, any>,
   ): Promise<GatewayOrder> {
     if (!this.razorpay) {
-      // Stub mode — return a fake order for development
+      if (this.isProduction) {
+        throw new ServiceUnavailableException(
+          'Razorpay payment gateway is not configured.',
+        );
+      }
+      // Stub mode — development only
       return {
         gatewayOrderId: `order_stub_${Date.now()}`,
         amount,
@@ -106,12 +149,19 @@ export class RazorpayService implements PaymentGatewayProvider {
   /**
    * Verify a Razorpay payment signature using HMAC-SHA256.
    * data should contain: { razorpayOrderId, razorpayPaymentId, signature }
+   *
+   * SECURITY: In production, missing key secret throws — no auto-pass.
    */
   async verifyPayment(data: Record<string, any>): Promise<VerificationResult> {
     const { razorpayOrderId, razorpayPaymentId, signature } = data;
 
     if (!this.keySecret || this.keySecret.startsWith('your-')) {
-      // Stub mode — accept all payments in development
+      if (this.isProduction) {
+        throw new ServiceUnavailableException(
+          'Razorpay is not configured for payment verification.',
+        );
+      }
+      // Stub mode — development only
       return {
         verified: true,
         gatewayPaymentId: razorpayPaymentId,
@@ -126,7 +176,17 @@ export class RazorpayService implements PaymentGatewayProvider {
 
     // Timing-safe comparison prevents side-channel attacks on HMAC signatures
     const expectedBuf = Buffer.from(expectedSignature, 'hex');
-    const receivedBuf = Buffer.from(signature, 'hex');
+    let receivedBuf: Buffer;
+    try {
+      receivedBuf = Buffer.from(signature, 'hex');
+    } catch {
+      return {
+        verified: false,
+        gatewayPaymentId: razorpayPaymentId,
+        gatewayOrderId: razorpayOrderId,
+      };
+    }
+
     const verified =
       expectedBuf.length === receivedBuf.length &&
       crypto.timingSafeEqual(expectedBuf, receivedBuf);
@@ -140,12 +200,20 @@ export class RazorpayService implements PaymentGatewayProvider {
 
   /**
    * Process a refund via Razorpay Refunds API.
+   *
+   * SECURITY: In production, no stub refunds — missing SDK throws.
    */
   async processRefund(
     gatewayPaymentId: string,
     amount: number,
   ): Promise<RefundResult> {
     if (!this.razorpay) {
+      if (this.isProduction) {
+        throw new ServiceUnavailableException(
+          'Razorpay is not configured for refund processing.',
+        );
+      }
+      // Stub mode — development only
       return {
         gatewayRefundId: `refund_stub_${Date.now()}`,
         amount,
@@ -170,6 +238,11 @@ export class RazorpayService implements PaymentGatewayProvider {
    */
   async getPaymentDetails(gatewayPaymentId: string): Promise<PaymentDetails> {
     if (!this.razorpay) {
+      if (this.isProduction) {
+        throw new ServiceUnavailableException(
+          'Razorpay is not configured.',
+        );
+      }
       return {
         gatewayPaymentId,
         amount: 0,
@@ -199,10 +272,20 @@ export class RazorpayService implements PaymentGatewayProvider {
   /**
    * Verify a Razorpay webhook signature.
    * Uses the webhook secret (or key secret as fallback).
+   *
+   * SECURITY: In production, returns false (not true) when secret is missing.
    */
   verifyWebhookSignature(rawBody: string, signature: string): boolean {
     if (!this.webhookSecret || this.webhookSecret.startsWith('your-')) {
-      return true; // Stub mode
+      if (this.isProduction) {
+        // Fail closed in production — reject unverifiable webhooks
+        this.logger.error(
+          'Razorpay webhook received but RAZORPAY_WEBHOOK_SECRET is not configured. Rejecting.',
+        );
+        return false;
+      }
+      // Stub mode — accept in development
+      return true;
     }
 
     const expectedSignature = crypto

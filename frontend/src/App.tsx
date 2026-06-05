@@ -35,7 +35,6 @@ import Returns from "./pages/Support/Returns";
 import Terms from "./pages/Support/Terms";
 import LaunchChecklist from "./pages/LaunchChecklist/LaunchChecklist";
 import NotFound from "./pages/NotFound";
-import SocialProofToast from "./components/SocialProofToast";
 import { Toaster } from "react-hot-toast";
 import "./App.css";
 import BrandIntro from "./components/BrandIntro/BrandIntro";
@@ -147,8 +146,6 @@ function AppShell() {
       <FooterVideo />
       <Footer />
       <MobileBottomNav />
-      {/* Social Proof — live purchase notifications */}
-      <SocialProofToast />
       <FloatingSocials />
       {/* Global UX Components */}
       <Toaster
@@ -192,13 +189,25 @@ function AppShell() {
 }
 
 function App() {
-  const [showIntro, setShowIntro] = useState(true);
+  // Show BrandIntro only once per browser session.
+  // Returning visitors / page refreshes within the same session skip the 2.8s intro.
+  const [showIntro, setShowIntro] = useState(() => {
+    try {
+      return !sessionStorage.getItem('fan_intro_shown');
+    } catch {
+      return true; // sessionStorage unavailable (e.g. private mode edge case)
+    }
+  });
 
   useEffect(() => {
-    // Show intro for 2.8 seconds on initial load
-    const timer = setTimeout(() => setShowIntro(false), 2800);
-    return () => clearTimeout(timer);
-  }, []);
+    if (showIntro) {
+      const timer = setTimeout(() => {
+        setShowIntro(false);
+        try { sessionStorage.setItem('fan_intro_shown', '1'); } catch {}
+      }, 2800);
+      return () => clearTimeout(timer);
+    }
+  }, [showIntro]);
 
   return (
     <BrowserRouter>

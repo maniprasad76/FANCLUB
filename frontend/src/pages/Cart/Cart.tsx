@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Truck, AlertTriangle, Clock } from 'lucide-react';
 import AnimatedPage from '../../components/AnimatedPage';
 import SEOHead from '../../components/SEOHead';
@@ -63,32 +64,41 @@ export default function Cart() {
               )}
             </div>
 
-            {items.map((item) => (
-              <div key={item.id} className="cart-item glass-card">
-                <img src={formatImageUrl(item.product.images?.[0]) || 'https://placehold.co/120x150/1a1a2e/8b5cf6?text=FAN'} alt={item.product.name} className="cart-item-image" />
-                <div className="cart-item-info">
-                  <Link to={`/product/${item.product.slug}`} className="cart-item-name">{item.product.name}</Link>
-                  {item.size && <span className="cart-item-variant">Size: {item.size}</span>}
-                  {item.color && <span className="cart-item-variant">Color: {item.color}</span>}
-                  <div className="cart-item-price">₹{item.product.price.toLocaleString('en-IN')}</div>
-                  {/* Loss Aversion: Per-item scarcity */}
-                  {(item.product as any).stock && (item.product as any).stock < 20 && (
-                    <div className="cart-item-scarcity">
-                      <AlertTriangle size={12} /> Selling fast — only {(item.product as any).stock} left!
-                    </div>
-                  )}
-                </div>
-                <div className="cart-item-actions">
-                  <div className="cart-qty">
-                    <button onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}><Minus size={14} /></button>
-                    <span>{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.id, item.quantity + 1)}><Plus size={14} /></button>
+            <AnimatePresence>
+              {items.map((item) => (
+                <motion.div 
+                  key={item.id} 
+                  className="cart-item glass-card"
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                >
+                  <img src={formatImageUrl(item.product.images?.[0]) || 'https://placehold.co/120x150/1a1a2e/8b5cf6?text=FAN'} alt={item.product.name} className="cart-item-image" />
+                  <div className="cart-item-info">
+                    <Link to={`/product/${item.product.slug}`} className="cart-item-name">{item.product.name}</Link>
+                    {item.size && <span className="cart-item-variant">Size: {item.size}</span>}
+                    {item.color && <span className="cart-item-variant">Color: {item.color}</span>}
+                    <div className="cart-item-price">₹{item.product.price.toLocaleString('en-IN')}</div>
+                    {/* Loss Aversion: Per-item scarcity */}
+                    {(item.product as any).stock && (item.product as any).stock < 20 && (
+                      <div className="cart-item-scarcity">
+                        <AlertTriangle size={12} /> Selling fast — only {(item.product as any).stock} left!
+                      </div>
+                    )}
                   </div>
-                  <div className="cart-item-total">₹{(item.product.price * item.quantity).toLocaleString('en-IN')}</div>
-                  <button className="cart-remove" onClick={() => removeItem(item.id)}><Trash2 size={16} /></button>
-                </div>
-              </div>
-            ))}
+                  <div className="cart-item-actions">
+                    <div className="cart-qty">
+                      <button onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}><Minus size={14} /></button>
+                      <span>{item.quantity}</span>
+                      <button onClick={() => updateQuantity(item.id, item.quantity + 1)}><Plus size={14} /></button>
+                    </div>
+                    <div className="cart-item-total">₹{(item.product.price * item.quantity).toLocaleString('en-IN')}</div>
+                    <button className="cart-remove" onClick={() => removeItem(item.id)}><Trash2 size={16} /></button>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
 
             {/* Loss Aversion: Items not reserved warning */}
             <div className="cart-not-reserved">

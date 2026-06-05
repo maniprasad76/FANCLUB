@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@vitejs/plugin-react-swc": "^4.3.1",
     "autoprefixer": "^10.5.0",
     "postcss": "^8.5.15",

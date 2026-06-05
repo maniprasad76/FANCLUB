@@ -14,7 +14,6 @@ import {
   RotateCcw,
   Edit3,
   X,
-  Eye,
   ChevronDown,
   Flame,
   CheckCircle2,
@@ -61,7 +60,6 @@ export default function ProductDetail() {
   const [openFeatureAccordion, setOpenFeatureAccordion] = useState<
     string | null
   >(null);
-  const [viewingCount] = useState(Math.floor(Math.random() * 15) + 5);
   const [sizeChartOpen, setSizeChartOpen] = useState(false);
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -327,12 +325,17 @@ export default function ProductDetail() {
                   </div>
                 )}
 
-                <div className="scarcity-container">
-                  <div className="scarcity-header">
-                    <span className="pulse-dot"></span>
-                    <span className="scarcity-text">High Demand</span>
-                    <span className="view-count">
-                      <Eye
+                {/* Real stock warning — shows when stock is actually low (< 15 from DB) */}
+                {product.stock && product.stock < 15 ? (
+                  <div className="stock-warning">
+                    <div className="stock-bar">
+                      <div
+                        className="stock-fill"
+                        style={{ width: `${(product.stock / 50) * 100}%` }}
+                      ></div>
+                    </div>
+                    <div className="stock-text">
+                      <Flame
                         size={14}
                         style={{
                           display: "inline",
@@ -340,31 +343,10 @@ export default function ProductDetail() {
                           verticalAlign: "text-bottom",
                         }}
                       />{" "}
-                      {viewingCount} people viewing now
-                    </span>
-                  </div>
-                  {product.stock && product.stock < 15 ? (
-                    <div className="stock-warning">
-                      <div className="stock-bar">
-                        <div
-                          className="stock-fill"
-                          style={{ width: `${(product.stock / 50) * 100}%` }}
-                        ></div>
-                      </div>
-                      <div className="stock-text">
-                        <Flame
-                          size={14}
-                          style={{
-                            display: "inline",
-                            marginRight: "4px",
-                            verticalAlign: "text-bottom",
-                          }}
-                        />{" "}
-                        Only {product.stock} pieces left worldwide
-                      </div>
+                      Only {product.stock} pieces left
                     </div>
-                  ) : null}
-                </div>
+                  </div>
+                ) : null}
 
                 {product.sizes?.length > 0 && (
                   <div className="pdp-option-group">
