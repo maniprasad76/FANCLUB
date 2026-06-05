@@ -8,7 +8,6 @@ import {
   Clock,
   DollarSign,
   ArrowUpRight,
-  Globe,
   Loader2,
   AlertTriangle,
 } from 'lucide-react';

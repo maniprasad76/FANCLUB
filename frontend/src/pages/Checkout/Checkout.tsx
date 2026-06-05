@@ -270,7 +270,6 @@ export default function Checkout() {
   };
 
   const shipping = total >= 999 ? 0 : 99;
-  const isIndia = customerCountry.toLowerCase().trim() === 'india' || customerCountry.toLowerCase().trim() === 'in';
 
   return (
     <AnimatedPage>
