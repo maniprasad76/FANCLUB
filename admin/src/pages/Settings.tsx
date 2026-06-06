@@ -593,7 +593,7 @@ export default function AdminSettings() {
                 {(() => {
                   let base =
                     import.meta.env.VITE_API_URL?.replace("/api", "") ||
-                    "http://localhost:5000";
+                    "https://fanclub-backend.onrender.com";
                   if (
                     base.includes("localhost") &&
                     typeof window !== "undefined"
@@ -804,7 +804,7 @@ export default function AdminSettings() {
                     (() => {
                       let base =
                         import.meta.env.VITE_API_URL?.replace("/api", "") ||
-                        "http://localhost:5000";
+                        "https://fanclub-backend.onrender.com";
                       if (
                         base.includes("localhost") &&
                         typeof window !== "undefined"

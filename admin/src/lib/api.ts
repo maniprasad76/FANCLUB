@@ -1,7 +1,7 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-let API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+let API_URL = import.meta.env.VITE_API_URL || 'https://fanclub-backend.onrender.com/api';
 if (API_URL.includes('localhost') && typeof window !== 'undefined') {
   API_URL = API_URL.replace('localhost', window.location.hostname);
 }
