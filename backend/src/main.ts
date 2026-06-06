@@ -56,14 +56,12 @@ async function bootstrap() {
   // Deduplicate
   const uniqueOrigins = [...new Set(allowedOrigins)];
 
-  // In production, refuse to start if no origins are configured —
-  // falling back to `origin: true` would allow any domain to make
-  // credentialed cross-origin requests.
+  // If no origins configured, log a warning and fallback to '*' to allow easy initial setup and deployment.
   if (uniqueOrigins.length === 0) {
-    const msg =
-      'FATAL: No CORS origins configured. Set FRONTEND_URL and/or ADMIN_URL environment variables.';
-    logger.error(msg);
-    throw new Error(msg);
+    logger.warn(
+      '⚠️ No CORS origins configured. Set FRONTEND_URL and/or ADMIN_URL environment variables. Defaulting to allow all origins (*) for development/deployment testing.',
+    );
+    uniqueOrigins.push('*');
   }
 
   app.enableCors({

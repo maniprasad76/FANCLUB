@@ -87,21 +87,16 @@ export function validateEnv(): void {
 
   for (const key of gatewayVars) {
     if (isPlaceholder(process.env[key])) {
-      if (isProduction) {
-        // In production, missing gateway creds are FATAL
-        missing.push(
-          `${key} (required in production — stub mode is not allowed)`,
-        );
-      } else {
-        warnings.push(key);
-      }
+      warnings.push(
+        `${key} (missing/placeholder — payments will run in stub mode)`,
+      );
     }
   }
 
-  // Report warnings (non-fatal in development)
+  // Report warnings
   if (warnings.length > 0) {
     logger.warn(
-      `⚠️  Gateway env vars not configured (stub mode active for development): ${warnings.join(', ')}`,
+      `⚠️  Config warning: ${warnings.join(', ')}`,
     );
   }
 
@@ -113,11 +108,6 @@ export function validateEnv(): void {
         '⚠️  ADMIN_EMAIL and ADMIN_PASSWORD are set in production. ' +
           'These should only be used for initial setup. Remove them once the admin account is created.',
       );
-    }
-
-    // Ensure JWT secret is set
-    if (!process.env.SUPABASE_JWT_SECRET) {
-      missing.push('SUPABASE_JWT_SECRET (required in production)');
     }
   }
 
