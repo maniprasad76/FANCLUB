@@ -10,6 +10,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
+
 import type { Request } from 'express';
 import { AuthService } from './auth.service.js';
 import { SignInDto } from './dto/signin.dto.js';
@@ -25,8 +26,8 @@ export class AuthController {
 
   // ─── POST /auth/signup ─────────────────────────────────────
 
+  @Throttle({ strict: { limit: 5, ttl: 60000 } })
   @Post('signup')
-  @Throttle({ default: { ttl: 60000, limit: 10 } })
   @HttpCode(HttpStatus.CREATED)
   async signUp(@Body() dto: SignUpDto) {
     return this.authService.signUp(dto.email, dto.password, dto.name);
@@ -34,8 +35,8 @@ export class AuthController {
 
   // ─── POST /auth/signin ────────────────────────────────────
 
+  @Throttle({ strict: { limit: 5, ttl: 60000 } })
   @Post('signin')
-  @Throttle({ default: { ttl: 60000, limit: 10 } })
   @HttpCode(HttpStatus.OK)
   async signIn(@Body() dto: SignInDto) {
     return this.authService.signIn(dto.email, dto.password);
@@ -43,8 +44,8 @@ export class AuthController {
 
   // ─── POST /auth/admin/signin ──────────────────────────────
 
+  @Throttle({ strict: { limit: 5, ttl: 60000 } })
   @Post('admin/signin')
-  @Throttle({ default: { ttl: 60000, limit: 10 } })
   @HttpCode(HttpStatus.OK)
   async adminSignIn(@Body() dto: SignInDto) {
     const result = await this.authService.signIn(dto.email, dto.password);
@@ -56,8 +57,8 @@ export class AuthController {
 
   // ─── POST /auth/forgot-password ───────────────────────────
 
+  @Throttle({ strict: { limit: 5, ttl: 60000 } })
   @Post('forgot-password')
-  @Throttle({ default: { ttl: 60000, limit: 5 } })
   @HttpCode(HttpStatus.OK)
   async forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.authService.forgotPassword(dto.email, dto.redirectTo);
@@ -65,8 +66,8 @@ export class AuthController {
 
   // ─── POST /auth/refresh ───────────────────────────────────
 
+  @Throttle({ strict: { limit: 10, ttl: 60000 } })
   @Post('refresh')
-  @Throttle({ default: { ttl: 60000, limit: 20 } })
   @HttpCode(HttpStatus.OK)
   async refreshToken(@Body() dto: RefreshTokenDto) {
     return this.authService.refreshToken(dto.refresh_token);
@@ -92,7 +93,7 @@ export class AuthController {
   // ─── POST /auth/user/oauth/sync ──────────────────────────
 
   @Post('user/oauth/sync')
-  @Throttle({ default: { ttl: 60000, limit: 10 } })
+
   @HttpCode(HttpStatus.OK)
   async syncOAuthUser(@Body() body: { access_token: string }) {
     return this.authService.syncOAuthUser(body.access_token);
@@ -101,7 +102,7 @@ export class AuthController {
   // ─── POST /auth/admin/oauth/sync ──────────────────────────
 
   @Post('admin/oauth/sync')
-  @Throttle({ default: { ttl: 60000, limit: 10 } })
+
   @HttpCode(HttpStatus.OK)
   async syncAdminOAuthUser(@Body() body: { access_token: string }) {
     const result = await this.authService.syncOAuthUser(body.access_token);

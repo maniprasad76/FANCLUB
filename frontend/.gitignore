@@ -31,3 +31,7 @@ dist-ssr
 .env.production
 .env.staging
 !.env.example
+
+# Playwright
+playwright-report/
+test-results/

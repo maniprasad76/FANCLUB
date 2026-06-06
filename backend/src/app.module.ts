@@ -1,8 +1,11 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
-import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+
+import appConfig from './common/config/app.config';
+import { THROTTLE_CONFIG } from './common/config/throttle.config';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { SupabaseModule } from './supabase/supabase.module.js';
@@ -27,17 +30,28 @@ import { SanitizePipe } from './common/pipes/sanitize.pipe';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    CacheModule.register({ isGlobal: true, ttl: 60000 }), // Global cache with 1 minute default TTL
+    // ── Configuration ──
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [appConfig],
+    }),
 
-    // Global rate limiting — 100 requests per minute per IP
-    ThrottlerModule.forRoot([
-      {
-        ttl: 60000, // 60 seconds window
-        limit: 100, // max 100 requests per window
-      },
-    ]),
+    // ── In-Memory Cache ──
+    // 5 minute default TTL, max 500 entries to prevent memory leaks.
+    // Individual routes override TTL with @CacheTTL().
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 300000,  // 5 minutes (ms)
+      max: 500,     // Max cached entries before LRU eviction
+    }),
 
+    // ── Rate Limiting ──
+    // Default tier: 100 req / 60s per IP.
+    // Controllers override with @Throttle() for stricter or looser limits.
+    // @SkipThrottle() exempts health checks and webhooks.
+    ThrottlerModule.forRoot(THROTTLE_CONFIG),
+
+    // ── Feature Modules ──
     SupabaseModule,
     PrismaModule,
     AuthModule,
@@ -57,6 +71,7 @@ import { SanitizePipe } from './common/pipes/sanitize.pipe';
     HealthModule,
   ],
   providers: [
+    // Global rate-limit guard — applies the 'default' tier to all routes
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

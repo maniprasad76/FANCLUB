@@ -18,7 +18,7 @@ interface CheckSection {
   tag: string;
   icon: string;
   color: string;
-  stripe: "stripe-red" | "stripe-blue" | "stripe-yellow" | "stripe-black" | "stripe-mixed";
+  stripe: "stripe-red" | "stripe-blue" | "stripe-yellow" | "stripe-black" | "stripe-green" | "stripe-mixed";
   items: CheckItem[];
 }
 
@@ -205,8 +205,8 @@ const SECTIONS: CheckSection[] = [
     name: "Legal",
     tag: "Compliance",
     icon: "⚖️",
-    color: "var(--bauhaus-red)",
-    stripe: "stripe-mixed",
+    color: "var(--bauhaus-green)",
+    stripe: "stripe-green",
     items: [
       {
         id: "leg-privacy",

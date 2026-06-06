@@ -10,7 +10,7 @@
 | `OrderStatus` | `PENDING`, `CONFIRMED`, `PROCESSING`, `SHIPPED`, `DELIVERED`, `CANCELLED`, `REFUNDED` |
 | `Gender` | `MEN`, `WOMEN`, `UNISEX` |
 | `PaymentStatus` | `PENDING`, `PROCESSING`, `COMPLETED`, `FAILED`, `REFUNDED`, `PARTIALLY_REFUNDED`, `CANCELLED` |
-| `PaymentGateway` | `RAZORPAY`, `STRIPE`, `COD` |
+| `PaymentGateway` | `RAZORPAY`, `COD` |
 | `RefundStatus` | `PENDING`, `PROCESSING`, `COMPLETED`, `FAILED` |
 
 ## Models Summary
@@ -22,7 +22,7 @@
 | `Category` | `categories` | name (unique), slug (unique), description, image | → Product[] |
 | `Product` | `products` | name, slug (unique), description, price, comparePrice, images[], sizes[], colors[], stock, featured, bestseller, newArrival, rating, reviewCount, tags[], gender, isActive | → Category, → CartItem[], OrderItem[], Review[], Wishlist[] |
 | `CartItem` | `cart_items` | quantity, size, color | → User, → Product. Unique: [userId, productId, size, color] |
-| `Order` | `orders` | orderNumber (unique), totalAmount, shippingAmount, discountAmount, paymentMethod, paymentId, razorpayOrderId, stripeSessionId, status, trackingId, notes | → User, → Address?, → OrderItem[], Payment[] |
+| `Order` | `orders` | orderNumber (unique), totalAmount, shippingAmount, discountAmount, paymentMethod, paymentId, razorpayOrderId, status, trackingId, notes | → User, → Address?, → OrderItem[], Payment[] |
 | `OrderItem` | `order_items` | quantity, size, color, price, name, image | → Order (cascade), → Product |
 | `Payment` | `payments` | gateway, gatewayPaymentId, gatewayOrderId, amount, currency, status, method, **idempotencyKey** (unique), metadata (Json), paidAt | → Order, → Transaction[], Refund[] |
 | `Transaction` | `transactions` | type (CHARGE/REFUND/SETTLEMENT), amount, currency, status, gatewayRef | → Payment |

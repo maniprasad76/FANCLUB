@@ -20,9 +20,9 @@ FAN Club is a **full-stack e-commerce platform** with three applications:
 
 **Database:** PostgreSQL via Supabase (Session Mode Pooler)
 **Auth:** Supabase Auth with JWT (Bearer token in Authorization header)
-**Payments:** Razorpay (India) + Stripe (International)
+**Payments:** Razorpay (India)
 **Storage:** Supabase Storage (product images, avatars)
-**Email:** Nodemailer  |  **SMS:** Twilio
+
 
 ---
 
@@ -112,7 +112,7 @@ FAN/
 │
 ├── backend/                  # NestJS REST API
 │   ├── src/
-│   │   ├── main.ts           # Bootstrap: Helmet, CORS, ValidationPipe, global prefix '/api'
+│   │   ├── main.ts           # Bootstrap: CORS, ValidationPipe, global prefix '/api'
 │   │   ├── app.module.ts     # Root module: imports all feature modules + global providers
 │   │   ├── prisma/           # PrismaService (singleton, extends PrismaClient)
 │   │   ├── supabase/         # SupabaseService (Auth + Storage client)
@@ -127,11 +127,11 @@ FAN/
 │   │   ├── categories/       # Category management
 │   │   ├── cart/             # Shopping cart operations
 │   │   ├── orders/           # Order lifecycle management
-│   │   ├── payments/         # DUAL GATEWAY: Razorpay + Stripe
+│   │   ├── payments/         # Razorpay Gateway
 │   │   │   ├── payments.controller.ts  # Unified payment endpoints
 │   │   │   ├── payments.service.ts     # Payment orchestration logic
 │   │   │   ├── razorpay.service.ts     # Razorpay-specific operations
-│   │   │   ├── stripe.service.ts       # Stripe-specific operations
+
 │   │   │   ├── dto/                    # Payment DTOs
 │   │   │   └── interfaces/            # Payment type definitions
 │   │   ├── reviews/          # Product review CRUD
@@ -183,7 +183,7 @@ Standalone: Newsletter, Contact, WebhookLog
 ### Key Enums
 - `Role`: `USER`, `ADMIN`
 - `OrderStatus`: `PENDING → CONFIRMED → PROCESSING → SHIPPED → DELIVERED` (also `CANCELLED`, `REFUNDED`)
-- `PaymentGateway`: `RAZORPAY`, `STRIPE`, `COD`
+- `PaymentGateway`: `RAZORPAY`, `COD`
 - `PaymentStatus`: `PENDING → PROCESSING → COMPLETED` (also `FAILED`, `REFUNDED`, `PARTIALLY_REFUNDED`, `CANCELLED`)
 - `RefundStatus`: `PENDING → PROCESSING → COMPLETED` (also `FAILED`)
 - `Gender`: `MEN`, `WOMEN`, `UNISEX`
@@ -202,13 +202,13 @@ Standalone: Newsletter, Contact, WebhookLog
 ### Global Configuration (main.ts)
 - **Global prefix:** All routes prefixed with `/api` (e.g., `/api/products`)
 - **rawBody:** Enabled for webhook signature verification
-- **Helmet:** Full CSP configured (Razorpay checkout, Stripe.js, Supabase, Google Fonts)
+
 - **CORS:** Only `FRONTEND_URL` and `ADMIN_URL` + hardcoded Vercel domains
 - **ValidationPipe:** `whitelist: true`, `forbidNonWhitelisted: true`, `transform: true`
 - **Static assets:** `public/` directory served at `/public`
 
 ### Global Providers (app.module.ts)
-- `ThrottlerGuard` — 100 requests/60s per IP
+
 - `HttpExceptionFilter` — Global exception formatting
 - `LoggingInterceptor` — Request logging
 
@@ -333,9 +333,7 @@ Redirects to `/login` if not authenticated.
 | `RAZORPAY_KEY_ID` | Razorpay key ID |
 | `RAZORPAY_KEY_SECRET` | Razorpay secret |
 | `RAZORPAY_WEBHOOK_SECRET` | Webhook signature verification |
-| `STRIPE_SECRET_KEY` | Stripe server-side key |
-| `STRIPE_PUBLISHABLE_KEY` | Stripe client-side key |
-| `STRIPE_WEBHOOK_SECRET` | Stripe webhook verification |
+
 | `ADMIN_EMAIL` | Default admin email (seeder) |
 | `ADMIN_PASSWORD` | Default admin password (seeder) |
 | `PORT` | Server port (default: 3001) |
@@ -359,14 +357,14 @@ Redirects to `/login` if not authenticated.
 - Orders can be `REFUNDED` only after `DELIVERED`
 
 ### Payment Flow
-1. Customer selects payment gateway (Razorpay for INR, Stripe for international)
+1. Customer selects payment gateway (Razorpay for online payments)
 2. Backend creates a gateway-specific order/session
 3. Frontend handles gateway checkout UI
 4. Gateway webhook confirms payment → backend updates Payment + Order status
 5. Idempotency keys prevent duplicate charges
 
 ### Dual Gateway Architecture
-- `PaymentGateway` enum routes to `RazorpayService` or `StripeService`
+- `PaymentGateway` enum routes to `RazorpayService`
 - Both services implement the same interface pattern
 - `WebhookLog` model records all webhook events for debugging
 - `Transaction` model tracks individual charge/refund/settlement events
@@ -385,7 +383,7 @@ Redirects to `/login` if not authenticated.
 8. **Use `api.ts` Axios instance** for all API calls — it handles auth token injection and refresh
 9. **Use `@CurrentUser()` decorator** instead of `@Req() req` for accessing authenticated user
 10. **Use `.js` extension** in `app.module.ts` imports for ESM compatibility
-11. **Use `@SkipThrottle()`** on webhook endpoints — webhooks must bypass rate limiting
+
 
 ---
 

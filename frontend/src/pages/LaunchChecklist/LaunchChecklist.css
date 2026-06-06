@@ -316,15 +316,18 @@
 .stripe-blue   { background: var(--bauhaus-blue); }
 .stripe-yellow { background: var(--bauhaus-yellow); }
 .stripe-black  { background: var(--bauhaus-black); }
+.stripe-green  { background: var(--bauhaus-green); }
 .stripe-mixed  {
   background: linear-gradient(
     90deg,
-    var(--bauhaus-red)    0%,   var(--bauhaus-red)    25%,
-    var(--bauhaus-blue)   25%,  var(--bauhaus-blue)   50%,
-    var(--bauhaus-yellow) 50%,  var(--bauhaus-yellow) 75%,
-    var(--bauhaus-black)  75%
+    var(--bauhaus-red)    0%,   var(--bauhaus-red)    20%,
+    var(--bauhaus-blue)   20%,  var(--bauhaus-blue)   40%,
+    var(--bauhaus-yellow) 40%,  var(--bauhaus-yellow) 60%,
+    var(--bauhaus-green)  60%,  var(--bauhaus-green)  80%,
+    var(--bauhaus-black)  80%
   );
 }
+
 
 /* Section Header */
 .section-head {

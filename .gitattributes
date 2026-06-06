@@ -1,0 +1,2 @@
+# Exclude all HTML files from GitHub language statistics since this is a React + NestJS TypeScript application
+*.html linguist-generated

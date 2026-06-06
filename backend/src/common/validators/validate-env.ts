@@ -13,7 +13,17 @@ import { Logger } from '@nestjs/common';
  */
 export function validateEnv(): void {
   const logger = new Logger('EnvValidation');
-  const isProduction = process.env.NODE_ENV === 'production';
+  
+  // Validate NODE_ENV
+  const nodeEnv = process.env.NODE_ENV || 'development';
+  const validEnvs = ['development', 'production', 'test'];
+  if (!validEnvs.includes(nodeEnv)) {
+    throw new Error(
+      `🚫 FATAL: Invalid NODE_ENV "${nodeEnv}". Must be one of: ${validEnvs.join(', ')}`,
+    );
+  }
+
+  const isProduction = nodeEnv === 'production';
 
   // Required for the application to function in all environments
   const required: string[] = [
@@ -37,10 +47,28 @@ export function validateEnv(): void {
   const missing: string[] = [];
   const warnings: string[] = [];
 
+  // Helper to validate URL format
+  const isValidUrl = (urlStr: string) => {
+    try {
+      const url = new URL(urlStr);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
   // Check required vars
   for (const key of required) {
     if (!process.env[key]) {
       missing.push(key);
+    }
+  }
+
+  // Validate URL format for CORS URLs if present
+  for (const key of corsVars) {
+    const val = process.env[key];
+    if (val && !isValidUrl(val)) {
+      missing.push(`${key} must be a valid HTTP or HTTPS URL (got: "${val}")`);
     }
   }
 

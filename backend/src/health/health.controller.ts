@@ -1,5 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { SkipThrottle } from '@nestjs/throttler';
+import os from 'node:os';
+
 import { PrismaService } from '../prisma/prisma.service';
 
 /**
@@ -18,6 +20,8 @@ export class HealthController {
   check() {
     return {
       status: 'ok',
+      instance: os.hostname(),
+      version: '1.0.0',
       timestamp: new Date().toISOString(),
       uptime: Math.round(process.uptime()),
     };
@@ -30,6 +34,8 @@ export class HealthController {
       await this.prisma.$queryRaw`SELECT 1`;
       return {
         status: 'ok',
+        instance: os.hostname(),
+        version: '1.0.0',
         database: 'connected',
         timestamp: new Date().toISOString(),
         uptime: Math.round(process.uptime()),
@@ -37,6 +43,8 @@ export class HealthController {
     } catch (error: any) {
       return {
         status: 'degraded',
+        instance: os.hostname(),
+        version: '1.0.0',
         database: 'disconnected',
         error: error.message,
         timestamp: new Date().toISOString(),

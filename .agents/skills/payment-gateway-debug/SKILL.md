@@ -1,6 +1,6 @@
 ---
 name: payment-gateway-debug
-description: "Razorpay and Stripe payment integration for FAN Club. ACTIVATE when: debugging payment issues, implementing payment flows, handling webhooks, verifying payment signatures, processing refunds, troubleshooting checkout errors, working with Razorpay/Stripe APIs, fixing payment status mismatches, debugging webhook delivery, or implementing new payment features. Triggers: Razorpay, Stripe, payment, webhook, checkout, refund, gateway, PaymentGateway, razorpay_order_id, stripe_session, signature verification."
+description: "Razorpay payment integration for FAN Club. ACTIVATE when: debugging payment issues, implementing payment flows, handling webhooks, verifying payment signatures, processing refunds, troubleshooting checkout errors, working with Razorpay APIs, fixing payment status mismatches, debugging webhook delivery, or implementing new payment features. Triggers: Razorpay, payment, webhook, checkout, refund, gateway, PaymentGateway, razorpay_order_id, signature verification."
 metadata:
   author: fan-team
   version: "1.0.0"
@@ -10,9 +10,8 @@ metadata:
 
 ## Architecture Overview
 
-FAN Club uses a **dual payment gateway** architecture:
+FAN Club uses a **payment gateway** architecture:
 - **Razorpay** — For Indian customers (INR)
-- **Stripe** — For international customers (multi-currency)
 - **COD** — Cash on Delivery (no gateway)
 
 ### Backend Files
@@ -21,7 +20,7 @@ FAN Club uses a **dual payment gateway** architecture:
 | `payments.controller.ts` | Unified endpoints for all payment operations |
 | `payments.service.ts` | Payment orchestration, status management, webhook routing |
 | `razorpay.service.ts` | Razorpay-specific: order creation, verification, refunds |
-| `stripe.service.ts` | Stripe-specific: session creation, webhook handling |
+
 | `dto/` | Request validation DTOs |
 | `interfaces/` | TypeScript interfaces for payment types |
 
@@ -120,78 +119,7 @@ const isValid = expectedSignature === req.headers['x-razorpay-signature'];
 
 ---
 
-## Stripe Integration
 
-### Payment Flow
-
-```mermaid
-sequenceDiagram
-    Frontend->>Backend: POST /api/payments/stripe/create-session
-    Backend->>Stripe API: Create Checkout Session
-    Stripe API-->>Backend: { id, url }
-    Backend-->>Frontend: { sessionId, url }
-    Frontend->>Stripe Checkout: Redirect to hosted checkout
-    Note over Stripe Checkout: Customer completes payment
-    Stripe Checkout-->>Frontend: Redirect to success_url
-    Note over Stripe API: Webhook fires async
-    Stripe API->>Backend: POST /api/payments/webhook/stripe
-    Backend->>Backend: Verify signature (stripe.webhooks.constructEvent)
-    Backend->>Backend: Update Payment + Order status
-```
-
-### Stripe Session Creation
-```typescript
-const session = await this.stripe.checkout.sessions.create({
-  payment_method_types: ['card'],
-  mode: 'payment',
-  line_items: items.map((item) => ({
-    price_data: {
-      currency: 'usd',
-      product_data: {
-        name: item.name,
-        images: [item.image],
-      },
-      unit_amount: Math.round(item.price * 100), // Stripe uses cents
-    },
-    quantity: item.quantity,
-  })),
-  success_url: `${FRONTEND_URL}/order-success?session_id={CHECKOUT_SESSION_ID}`,
-  cancel_url: `${FRONTEND_URL}/checkout?cancelled=true`,
-  metadata: { orderId, userId },
-});
-```
-
-> **CRITICAL:** Stripe amounts are in **cents** (smallest currency unit). $9.99 = 999 cents.
-
-### Stripe Webhook Verification
-```typescript
-const event = stripe.webhooks.constructEvent(
-  rawBody,                    // Must be raw body buffer
-  req.headers['stripe-signature'],
-  STRIPE_WEBHOOK_SECRET,
-);
-```
-
-### Key Stripe Webhook Events
-```typescript
-switch (event.type) {
-  case 'checkout.session.completed':   // Payment successful
-  case 'payment_intent.succeeded':     // Payment confirmed
-  case 'payment_intent.payment_failed': // Payment failed
-  case 'charge.refunded':              // Refund processed
-}
-```
-
-### Common Stripe Errors
-
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `No signatures found matching the expected signature` | Wrong webhook secret | Verify `STRIPE_WEBHOOK_SECRET` from Stripe dashboard → Webhooks |
-| `Invalid value for stripe.checkout.sessions.create` | Bad line_items format | Check `unit_amount` is integer, `currency` is lowercase |
-| `Webhook endpoint must be HTTPS` | Local development | Use Stripe CLI: `stripe listen --forward-to localhost:3001/api/payments/webhook/stripe` |
-| `Resource already exists` | Duplicate session creation | Use idempotency key: `{ idempotencyKey: orderId }` |
-
----
 
 ## Debugging Checklist
 
@@ -218,7 +146,7 @@ switch (event.type) {
 1. **Check Refund status** in DB
 2. **Check gateway dashboard** — Was refund initiated on their end?
 3. **Razorpay:** Refunds can take 5-7 business days to reflect
-4. **Stripe:** Refunds typically process in 3-5 business days
+
 
 ---
 
@@ -230,25 +158,18 @@ RAZORPAY_KEY_ID=rzp_test_xxxxx          # Public key (frontend + backend)
 RAZORPAY_KEY_SECRET=xxxxxxxx            # Secret key (backend only)
 RAZORPAY_WEBHOOK_SECRET=xxxxxxxx        # Webhook signature verification
 
-# Stripe
-STRIPE_SECRET_KEY=sk_test_xxxxx         # Server-side key
-STRIPE_PUBLISHABLE_KEY=pk_test_xxxxx    # Client-side key
-STRIPE_WEBHOOK_SECRET=whsec_xxxxx       # Webhook signature verification
 ```
 
 ### Test vs Live Mode
 - **Razorpay test:** Keys start with `rzp_test_`
 - **Razorpay live:** Keys start with `rzp_live_`
-- **Stripe test:** Keys start with `sk_test_` / `pk_test_`
-- **Stripe live:** Keys start with `sk_live_` / `pk_live_`
+
 
 ### Test Card Numbers
 | Gateway | Card Number | Expiry | CVV |
 |---------|------------|--------|-----|
 | Razorpay | `4111 1111 1111 1111` | Any future | Any 3 digits |
-| Stripe | `4242 4242 4242 4242` | Any future | Any 3 digits |
-| Stripe (decline) | `4000 0000 0000 0002` | Any future | Any 3 digits |
-| Stripe (3DS) | `4000 0027 6000 3184` | Any future | Any 3 digits |
+
 
 ---
 
@@ -279,17 +200,7 @@ Razorpay doesn't have an official CLI tunnel. Options:
 1. Use **ngrok**: `ngrok http 3001` → set webhook URL in Razorpay dashboard
 2. Manually test via curl with a computed signature
 
-### Stripe
-```bash
-# Install Stripe CLI
-# Forward webhooks to local server:
-stripe listen --forward-to localhost:3001/api/payments/webhook/stripe
 
-# Trigger a test event:
-stripe trigger checkout.session.completed
-```
-
----
 
 ## Idempotency Pattern (Actual Implementation)
 

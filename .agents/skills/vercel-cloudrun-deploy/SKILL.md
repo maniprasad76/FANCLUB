@@ -205,9 +205,7 @@ SUPABASE_JWT_SECRET
 RAZORPAY_KEY_ID
 RAZORPAY_KEY_SECRET
 RAZORPAY_WEBHOOK_SECRET
-STRIPE_SECRET_KEY
-STRIPE_PUBLISHABLE_KEY
-STRIPE_WEBHOOK_SECRET
+
 ADMIN_EMAIL
 ADMIN_PASSWORD
 FRONTEND_URL
@@ -316,7 +314,7 @@ jobs:
 
 1. **Set `min-instances: 1`** in production to avoid cold starts for the first request
 2. **Use multi-stage Docker builds** to keep image size small (<300MB)
-3. **Lazy-load heavy modules** (e.g., Razorpay, Stripe SDKs) only when needed
+3. **Lazy-load heavy modules** (e.g., Razorpay SDK) only when needed
 4. **Health check endpoint** (`/api/health`) should return fast — no DB queries
 5. **Connection pooling** via Supabase Session Mode Pooler handles connection management
 

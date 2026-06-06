@@ -67,7 +67,7 @@ FAN/
 
 * **Immersive Landing Page:** Brand intro animations, particle effects, and dynamic social proof toasts.
 * **Seamless Discovery:** Rich product pages, intuitive category filters, and high-quality image galleries.
-* **Frictionless Checkout:** Integrated Razorpay (India) & Stripe (Global) with cart & wishlist management.
+* **Frictionless Checkout:** Integrated Razorpay with cart & wishlist management.
 * **Customer Hub:** Secure JWT authentication, order tracking, and profile management.
 * **Fluid UX:** Smooth page transitions powered by Framer Motion and a responsive mobile-first design.
 
@@ -76,7 +76,7 @@ FAN/
 
 * **Command Center:** Real-time sales analytics and KPI tracking.
 * **Catalog Management:** Full product CRUD with seamless Supabase Storage image uploads.
-* **Order & Payment Tracking:** Comprehensive oversight of customer orders and Razorpay/Stripe transactions.
+* **Order & Payment Tracking:** Comprehensive oversight of customer orders and Razorpay transactions.
 * **CRM Tools:** Customer management, newsletter subscriptions, and contact inquiries.
 * **Moderation:** Review moderation and dynamic store configuration settings.
 
@@ -86,7 +86,7 @@ FAN/
 * **Enterprise Architecture:** Modular NestJS design with strict TypeScript typing.
 * **Data Layer:** Prisma ORM connected to Supabase PostgreSQL.
 * **Fortified Security:** Supabase Auth, bcrypt, Helmet, and `@nestjs/throttler` rate limiting.
-* **Integrated Services:** Nodemailer (Emails), Twilio (SMS), and Supabase Storage (Files).
+* **Integrated Services:** Supabase Storage (Files).
 * **Developer Ready:** Auto-generated Swagger API documentation and comprehensive health checks.
 
 ---
@@ -106,8 +106,7 @@ FAN/
 | **Backend Core** | NestJS 11, TypeScript |
 | **Database & ORM** | PostgreSQL (Supabase), Prisma 7 |
 | **Auth & Storage** | Supabase Auth, Passport, Supabase Storage |
-| **Payments** | Razorpay, Stripe |
-| **Communications**| Nodemailer, Twilio |
+| **Payments** | Razorpay |
 | **Documentation** | Swagger / OpenAPI |
 | **Deployment** | Vercel (Frontend/Admin), Cloud Run / Node.js (Backend) |
 
@@ -124,7 +123,7 @@ Follow these steps to set up the project locally.
 Ensure you have the following installed and configured:
 - **Node.js** v18+ & **npm** v9+
 - A **Supabase** Project (PostgreSQL + Auth + Storage)
-- **Razorpay** & **Stripe** Accounts
+- **Razorpay** Account
 
 ### 1. Clone the repository
 
@@ -147,7 +146,7 @@ npm install
 ```bash
 cp .env.example .env
 ```
-*Populate `.env` with your Supabase, Razorpay, and Stripe credentials.*
+*Populate `.env` with your Supabase and Razorpay credentials.*
 
 **Database Migration & Run:**
 ```bash
@@ -194,7 +193,7 @@ The backend provides a comprehensive REST API. Once running, visit `http://local
 * `👤 /users` - Profile Management
 * `🛍️ /products` - Product Catalog CRUD
 * `🛒 /cart` & `❤️ /wishlist` - Shopping Utilities
-* `💳 /payments` - Razorpay & Stripe Webhooks
+* `💳 /payments` - Razorpay Webhooks
 * `📊 /dashboard` - Analytics Data
 
 ---

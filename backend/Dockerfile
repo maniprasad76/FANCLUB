@@ -23,6 +23,9 @@ RUN npm prune --production
 # ── Stage 2: Runtime ──
 FROM node:20-alpine AS runtime
 
+# Install dumb-init for proper signal forwarding to NestJS
+RUN apk add --no-cache dumb-init
+
 # Security: run as non-root user
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nestjs -u 1001 -G nodejs
@@ -45,9 +48,13 @@ EXPOSE 5000
 # Switch to non-root user
 USER nestjs
 
+# Set graceful shutdown signal
+STOPSIGNAL SIGTERM
+
 # Health check — verifies the app is responding
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=15s \
   CMD wget --no-verbose --tries=1 --spider http://localhost:5000/api/health || exit 1
 
-# Start the application
+# Start the application using dumb-init
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["node", "dist/src/main"]

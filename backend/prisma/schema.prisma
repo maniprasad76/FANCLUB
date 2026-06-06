@@ -129,7 +129,7 @@ model Order {
   paymentMethod   String?
   paymentId       String?
   razorpayOrderId String?
-  stripeSessionId String?
+
   status          OrderStatus @default(PENDING)
   trackingId      String?
   notes           String?
@@ -320,7 +320,7 @@ enum PaymentStatus {
 
 enum PaymentGateway {
   RAZORPAY
-  STRIPE
+
   COD
 }
 

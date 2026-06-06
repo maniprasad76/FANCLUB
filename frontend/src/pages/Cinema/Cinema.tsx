@@ -33,18 +33,18 @@ export default function Cinema() {
     { title: 'The Character Within', desc: 'Where characters live in characters. Our designs embody the soul of iconic roles.', icon: Film, color: 'var(--bauhaus-yellow)' },
     { title: 'Excellence of Cinema', desc: 'Celebrating the legacy, action, drama, and pure emotion of FAN.', icon: Sparkles, color: 'var(--bauhaus-red)' },
     { title: 'Script & Typography', desc: 'Unique typography that speaks the language of our beautiful cinema.', icon: Palette, color: 'var(--bauhaus-blue)' },
-    { title: 'Cinematic Glory', desc: 'From the silver screen to the streets, wearing the culture proudly.', icon: Clapperboard, color: 'var(--bauhaus-white)' },
+    { title: 'Cinematic Glory', desc: 'From the silver screen to the streets, wearing the culture proudly.', icon: Clapperboard, color: 'var(--bauhaus-green)' },
   ];
 
   const cinemaPoem = [
     { text: 'Cinema is the one who cries,\nCinema is the one who smiles.', color: 'var(--bauhaus-yellow)' },
     { text: 'Cinema is the one who dances,\nCinema is the rhythm in every step.', color: 'var(--bauhaus-red)' },
     { text: 'Cinema is the one who feels,\nCinema is the heartbeat of emotions.', color: 'var(--bauhaus-blue)' },
-    { text: 'Cinema is the one who fights,\nCinema is the courage within.', color: 'var(--bauhaus-white)' },
+    { text: 'Cinema is the one who fights,\nCinema is the courage within.', color: 'var(--bauhaus-green)' },
     { text: 'Cinema is the one who speaks,\nCinema is the power of every dialogue.', color: 'var(--bauhaus-yellow)' },
     { text: 'Cinema is the one who walks,\nCinema is the journey of dreams.', color: 'var(--bauhaus-red)' },
     { text: 'Cinema is the one who stands,\nCinema is the strength of stories.', color: 'var(--bauhaus-blue)' },
-    { text: 'Cinema is the silence between words,\nCinema is the echo that stays forever.', color: 'var(--bauhaus-white)' },
+    { text: 'Cinema is the silence between words,\nCinema is the echo that stays forever.', color: 'var(--bauhaus-green)' },
     { text: 'Cinema is light in the darkness,\nCinema is life on the screen.', color: 'var(--bauhaus-yellow)' },
     { text: 'Cinema is not just seen…\nCinema is felt like heaven.', color: 'var(--bauhaus-red)' }
   ];
@@ -188,7 +188,7 @@ export default function Cinema() {
             </div>
             <div className="cinema-insp-grid">
               {inspirations.map((item, i) => {
-                const isDarkBg = item.color === 'var(--bauhaus-red)' || item.color === 'var(--bauhaus-blue)';
+                const isDarkBg = item.color === 'var(--bauhaus-red)' || item.color === 'var(--bauhaus-blue)' || item.color === 'var(--bauhaus-green)' || item.color === 'var(--bauhaus-black)';
                 
                 return (
                   <motion.div
@@ -236,7 +236,7 @@ export default function Cinema() {
             </div>
             <div className="cinema-insp-grid">
               {cinemaPoem.map((item, i) => {
-                const isDarkBg = item.color === 'var(--bauhaus-red)' || item.color === 'var(--bauhaus-blue)';
+                const isDarkBg = item.color === 'var(--bauhaus-red)' || item.color === 'var(--bauhaus-blue)' || item.color === 'var(--bauhaus-green)' || item.color === 'var(--bauhaus-black)';
                 return (
                   <motion.div
                     key={i}

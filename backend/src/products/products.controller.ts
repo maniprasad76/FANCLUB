@@ -11,7 +11,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { CacheInterceptor } from '@nestjs/cache-manager';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { ProductsService } from './products.service';
 import {
   CreateProductDto,
@@ -20,6 +20,7 @@ import {
 } from './dto/products.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
+import { CacheInvalidationInterceptor } from '../common/interceptors/cache-invalidation.interceptor';
 
 @ApiTags('Products')
 @Controller('products')
@@ -29,30 +30,35 @@ export class ProductsController {
   @ApiOperation({ summary: 'Get all products with filtering and pagination' })
   @ApiResponse({ status: 200, description: 'List of products returned successfully.' })
   @UseInterceptors(CacheInterceptor)
+  @CacheTTL(300000) // 5 minutes
   @Get()
   findAll(@Query() query: ProductQueryDto) {
     return this.productsService.findAll(query);
   }
 
   @UseInterceptors(CacheInterceptor)
+  @CacheTTL(600000) // 10 minutes — featured products change rarely
   @Get('featured')
   getFeatured() {
     return this.productsService.getFeatured();
   }
 
   @UseInterceptors(CacheInterceptor)
+  @CacheTTL(600000) // 10 minutes
   @Get('bestsellers')
   getBestsellers() {
     return this.productsService.getBestsellers();
   }
 
   @UseInterceptors(CacheInterceptor)
+  @CacheTTL(600000) // 10 minutes
   @Get('new-arrivals')
   getNewArrivals() {
     return this.productsService.getNewArrivals();
   }
 
   @UseInterceptors(CacheInterceptor)
+  @CacheTTL(300000) // 5 minutes
   @Get('slug/:slug')
   findBySlug(@Param('slug') slug: string) {
     return this.productsService.findBySlug(slug);
@@ -82,6 +88,7 @@ export class ProductsController {
   @ApiOperation({ summary: 'Create a new product (Admin)' })
   @ApiResponse({ status: 201, description: 'Product created successfully.' })
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseInterceptors(CacheInvalidationInterceptor)
   @Post()
   create(@Body() dto: CreateProductDto) {
     return this.productsService.create(dto);
@@ -91,18 +98,21 @@ export class ProductsController {
   @ApiOperation({ summary: 'Bulk delete products (Admin)' })
   @ApiResponse({ status: 200, description: 'Products deleted successfully.' })
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseInterceptors(CacheInvalidationInterceptor)
   @Post('bulk-delete')
   bulkDelete(@Body('ids') ids: string[]) {
     return this.productsService.bulkDelete(ids);
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseInterceptors(CacheInvalidationInterceptor)
   @Put(':id')
   update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
     return this.productsService.update(id, dto);
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseInterceptors(CacheInvalidationInterceptor)
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.productsService.delete(id);
