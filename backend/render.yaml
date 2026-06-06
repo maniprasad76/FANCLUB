@@ -25,6 +25,6 @@ services:
       - key: RAZORPAY_WEBHOOK_SECRET
         sync: false
       - key: FRONTEND_URL
-        sync: false
+        value: https://tfi-frontend-kappa.vercel.app
       - key: ADMIN_URL
-        sync: false
+        value: https://tfi-admin-six.vercel.app
