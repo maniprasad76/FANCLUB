@@ -77,7 +77,7 @@ export function validateEnv(): void {
     (key) => process.env[key] && process.env[key]!.length > 0,
   );
   if (!hasCorsOrigin) {
-    missing.push(`At least one of: ${corsVars.join(', ')}`);
+    warnings.push(`CORS origins missing (${corsVars.join(', ')}). Defaulting to '*'`);
   }
 
   // Gateway credential checks

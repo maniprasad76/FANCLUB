@@ -1,26 +1,28 @@
 services:
   - type: web
-    name: fan-backend
+    name: tfi-backend
     env: node
-    rootDir: backend
+    plan: free
+    region: singapore # Adjust if you have a different preferred region
     buildCommand: npm ci --include=dev && npm run build
     preDeployCommand: npm run prisma:migrate
     startCommand: npm run start:prod
     envVars:
-      - key: NODE_VERSION
-        value: "20.x"
-      # These variables must be populated in the Render Dashboard after deployment
+      - key: NODE_ENV
+        value: production
       - key: DATABASE_URL
-        sync: false
-      - key: DIRECT_URL
-        sync: false
+        sync: false # Prompts user to input during deployment
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_ANON_KEY
         sync: false
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
-      - key: SUPABASE_JWT_SECRET
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
         sync: false
       - key: FRONTEND_URL
         sync: false
