@@ -4,5 +4,6 @@ node_modules
 
 # Build output — Render rebuilds on every deploy
 /dist
+*.tsbuildinfo
 
 /generated/prisma
