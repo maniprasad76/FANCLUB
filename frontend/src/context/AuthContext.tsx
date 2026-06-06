@@ -52,17 +52,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // ── Detect if this is an OAuth callback redirect ──
     // Supabase appends auth tokens as URL hash fragments after OAuth redirect
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const queryParams = new URLSearchParams(window.location.search);
     const isOAuthCallback =
       hashParams.has("access_token") || hashParams.has("refresh_token");
-    const oauthError = hashParams.get("error_description") || hashParams.get("error");
+
+    // Supabase sends errors in EITHER hash OR query string depending on the error type
+    const oauthError =
+      hashParams.get("error_description") ||
+      hashParams.get("error") ||
+      queryParams.get("error_description") ||
+      queryParams.get("error");
 
     if (oauthError) {
-      toast.error("Authentication Error: " + oauthError.replace(/\+/g, " "));
-      // Clean up the hash
-      if (window.location.hash) {
-        window.history.replaceState(null, "", window.location.pathname + window.location.search);
-      }
+      const readable = decodeURIComponent(oauthError).replace(/\+/g, " ");
+      toast.error("Sign-in failed: " + readable);
+      // Clean up the URL so the error doesn't persist on reload
+      window.history.replaceState(null, "", window.location.pathname);
     }
+
 
     // ── 1. Try to restore session from sessionStorage ──
     const storedUser = sessionStorage.getItem("user");
