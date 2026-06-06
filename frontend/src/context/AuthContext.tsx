@@ -221,6 +221,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       provider,
       options: {
         redirectTo: window.location.origin,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
       },
     });
   };
