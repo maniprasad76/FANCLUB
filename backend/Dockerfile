@@ -57,4 +57,4 @@ HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=15s \
 
 # Start the application using dumb-init
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["node", "dist/src/main"]
+CMD ["node", "dist/main"]

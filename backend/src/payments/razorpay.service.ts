@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
+import Razorpay from 'razorpay';
 import {
   PaymentGatewayProvider,
   GatewayOrder,
@@ -54,7 +55,6 @@ export class RazorpayService implements PaymentGatewayProvider {
 
     if (hasRealKeys) {
       try {
-        const Razorpay = require('razorpay');
         this.razorpay = new Razorpay({
           key_id: this.keyId,
           key_secret: this.keySecret,
