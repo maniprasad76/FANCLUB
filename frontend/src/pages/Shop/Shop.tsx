@@ -62,13 +62,13 @@ export default function Shop() {
   return (
     <AnimatedPage>
       <SEOHead
-        title={`${search ? `"${search}" results` : category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Shop All'} | FANCLUB — Cinema Streetwear`}
-        description={`Browse ${total} ${category || 'cinema-inspired'} products at FANCLUB. Premium streetwear from ₹499. Free shipping over ₹999. ${gender ? `For ${gender.toLowerCase()}.` : ''}`}
-        keywords={`FANCLUB shop, ${category || 'streetwear'}, cinema fashion, buy online India, ${gender || 'unisex'}`}
+        title={`${search ? `"${search}" results` : category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Shop All'} | FANCLUB — Fandom Streetwear`}
+        description={`Browse ${total} ${category || 'fandom-inspired'} products at FANCLUB. Premium streetwear from ₹499. Free shipping over ₹999. ${gender ? `For ${gender.toLowerCase()}.` : ''}`}
+        keywords={`FANCLUB shop, ${category || 'streetwear'}, fandom fashion, buy online India, ${gender || 'unisex'}`}
         jsonLd={[
           buildCollectionSchema(
             `${category || 'All Products'} — FANCLUB`,
-            `Shop ${total} cinema-inspired fashion products at FANCLUB`
+            `Shop ${total} fandom-inspired fashion products at FANCLUB`
           ),
           buildBreadcrumbSchema([
             { name: 'Home', url: window.location.origin },
@@ -87,7 +87,7 @@ export default function Shop() {
           ]} />
           {/* Header */}
           <motion.div
-            className="shop-header cinematic-panel"
+            className="shop-header fandomtic-panel"
             initial={{ opacity: 0, y: 30, filter: 'blur(8px)' }}
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
@@ -126,7 +126,7 @@ export default function Shop() {
           <div className="shop-layout">
             {/* Sidebar */}
             <motion.aside
-              className={`shop-sidebar glass-card cinematic-panel ${filtersOpen ? 'open' : ''}`}
+              className={`shop-sidebar glass-card fandomtic-panel ${filtersOpen ? 'open' : ''}`}
               initial={{ opacity: 0, x: -24 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}

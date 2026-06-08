@@ -93,9 +93,9 @@ export default function TopNav() {
           <div className="topnav-center desktop-only" onMouseLeave={() => setHoveredIndex(null)}>
             {[
               { name: 'Shop', path: '/shop' },
-              { name: 'Cinema', path: '/cinema' },
-              { name: 'About FANCLUB', path: '/about' },
-              { name: 'Contact Us', path: '/contact' }
+              { name: 'Fandom', path: '/fandom' },
+              { name: 'About', path: '/about' },
+              { name: 'Contact', path: '/contact' }
             ].map((item, index) => (
               <Magnetic key={item.name}>
                 <Link
@@ -250,14 +250,12 @@ export default function TopNav() {
           >
             <div className="mobile-menu-links">
               <Link to="/shop" onClick={() => setMenuOpen(false)}>Shop</Link>
-              <Link to="/cinema" onClick={() => setMenuOpen(false)}>Cinema</Link>
-              <Link to="/about" onClick={() => setMenuOpen(false)}>About FANCLUB</Link>
-              <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact Us</Link>
+              <Link to="/fandom" onClick={() => setMenuOpen(false)}>Fandom</Link>
+              <Link to="/about" onClick={() => setMenuOpen(false)}>About</Link>
+              <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
+              <Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
               {user ? (
-                <>
-                  <Link to="/profile" onClick={() => setMenuOpen(false)}>My Profile</Link>
-                  <button onClick={() => { logout(); setMenuOpen(false); }}>Sign Out</button>
-                </>
+                <button onClick={() => { logout(); setMenuOpen(false); }}>Sign Out</button>
               ) : (
                 <Link to="/login" onClick={() => setMenuOpen(false)}>Sign In</Link>
               )}

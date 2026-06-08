@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { MapPin, CreditCard, Truck, ChevronDown, Building2, Smartphone, CheckCircle2, Shield, Loader2, Globe } from 'lucide-react';
-import AnimatedPage, { cinematicItem, cinematicStagger } from '../../components/AnimatedPage';
+import AnimatedPage, { fandomticItem, fandomticStagger } from '../../components/AnimatedPage';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../lib/api';
@@ -279,11 +279,11 @@ export default function Checkout() {
           <div className="checkout-secure-badge"><Shield size={14} /> Secure Checkout</div>
         </motion.div>
 
-        <motion.div className="checkout-layout" variants={cinematicStagger} initial="initial" animate="animate">
-          <motion.div className="checkout-left" variants={cinematicItem}>
+        <motion.div className="checkout-layout" variants={fandomticStagger} initial="initial" animate="animate">
+          <motion.div className="checkout-left" variants={fandomticItem}>
 
             {/* ─── ADDRESS SECTION ─── */}
-            <section className="checkout-section glass-card cinematic-panel" id="checkout-address">
+            <section className="checkout-section glass-card fandomtic-panel" id="checkout-address">
               <h3 className="heading-sm"><MapPin size={18} /> Shipping Address</h3>
               <div className="address-list">
                 {addresses.map((addr, i) => (
@@ -356,7 +356,7 @@ export default function Checkout() {
             </section>
 
             {/* ─── PAYMENT SECTION ─── */}
-            <section className="checkout-section glass-card cinematic-panel" id="checkout-payment">
+            <section className="checkout-section glass-card fandomtic-panel" id="checkout-payment">
               <h3 className="heading-sm"><CreditCard size={18} /> Payment Method</h3>
 
               {/* COD */}
@@ -414,7 +414,7 @@ export default function Checkout() {
           </motion.div>
 
           {/* ─── ORDER SUMMARY ─── */}
-          <motion.div className="checkout-summary glass-card cinematic-panel" variants={cinematicItem} id="checkout-summary">
+          <motion.div className="checkout-summary glass-card fandomtic-panel" variants={fandomticItem} id="checkout-summary">
             <h3 className="heading-sm">Order Summary</h3>
             <div className="checkout-items">
               {items.map((item, index) => (

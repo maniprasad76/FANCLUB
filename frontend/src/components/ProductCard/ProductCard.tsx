@@ -82,7 +82,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               ? product.description.length > 60
                 ? product.description.slice(0, 60) + "..."
                 : product.description
-              : "Step into classic cinema style with durable, premium materials designed for comfort."}
+              : "Step into classic fandom style with durable, premium materials designed for comfort."}
           </p>
 
           <div className="mpc-bottom-row">

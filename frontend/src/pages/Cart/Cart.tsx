@@ -18,7 +18,7 @@ export default function Cart() {
   if (count === 0) {
     return (
       <AnimatedPage>
-        <SEOHead title="Cart | FANCLUB" description="Your shopping cart is empty. Browse our cinema-inspired streetwear collection." noIndex />
+        <SEOHead title="Cart | FANCLUB" description="Your shopping cart is empty. Browse our fandom-inspired streetwear collection." noIndex />
         <div className="cart-empty container" id="cart-page">
           <ShoppingBag size={64} strokeWidth={1} />
           <h2 className="heading-md">Your Cart is Empty</h2>

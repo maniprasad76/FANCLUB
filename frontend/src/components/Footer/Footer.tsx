@@ -77,14 +77,14 @@ export default function Footer() {
             <Link to="/" className="footer-logo">
               <span className="logo-box">FAN</span>
               <div className="logo-text">
-                <span className="text-red">TELUGU</span>
-                <span className="text-yellow">FILM</span>
-                <span className="text-blue">INDUSTRY</span>
+                <span className="text-red">BE</span>
+                <span className="text-yellow">YOUR OWN</span>
+                <span className="text-blue">STYLE</span>
               </div>
             </Link>
             <p className="footer-brand-desc">
-              Premium streetwear inspired by the legacy of Telugu Cinema. 
-              We blend cinematic storytelling with modern design for the true fans.
+              Premium streetwear inspired by the legacy of Telugu Fandom. 
+              We blend fandomtic storytelling with modern design for the true fans.
             </p>
             <div className="footer-socials">
               <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram"><IconInstagram /></a>
@@ -135,9 +135,9 @@ export default function Footer() {
               </button>
               <div className={`footer-dropdown-content ${openDropdown === 'company' ? 'show' : ''}`}>
                 <div className="footer-dropdown-inner">
-                  <Link to="/about">Our Story</Link>
-                  <Link to="/cinema">The Lounge</Link>
-                  <Link to="/contact">Contact Us</Link>
+                  <Link to="/about">About</Link>
+                  <Link to="/fandom">The Lounge</Link>
+                  <Link to="/contact">Contact</Link>
                   <Link to="/privacy">Privacy Policy</Link>
                   <Link to="/terms">Terms of Service</Link>
                 </div>

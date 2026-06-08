@@ -32,10 +32,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdeb5c4 # v4.1.0
         with:
           node-version: '20'
           cache: 'npm'
@@ -75,10 +75,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdeb5c4 # v4.1.0
         with:
           node-version: '20'
           cache: 'npm'
@@ -95,6 +95,13 @@ jobs:
       - name: Build (uses .env.production automatically)
         run: npm run build
 
+      - name: Build Size Report
+        run: |
+          echo "=== Frontend Build Folder Size ==="
+          du -sh dist
+          echo "=== Top 10 Largest Frontend Files ==="
+          find dist -type f -exec ls -lh {} + | sort -hr -k 5 | head -n 10
+
   # ─────────────────────────────────────────
   # 3. ADMIN — React/Vite (runs after backend passes)
   # ─────────────────────────────────────────
@@ -108,10 +115,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdeb5c4 # v4.1.0
         with:
           node-version: '20'
           cache: 'npm'
@@ -128,6 +135,13 @@ jobs:
       - name: Build (uses .env.production automatically)
         run: npm run build
 
+      - name: Build Size Report
+        run: |
+          echo "=== Admin Build Folder Size ==="
+          du -sh dist
+          echo "=== Top 10 Largest Admin Files ==="
+          find dist -type f -exec ls -lh {} + | sort -hr -k 5 | head -n 10
+
   # ─────────────────────────────────────────
   # 4. E2E TESTING — Playwright
   # ─────────────────────────────────────────
@@ -142,10 +156,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdeb5c4 # v4.1.0
         with:
           node-version: '20'
           cache: 'npm'
@@ -161,7 +175,7 @@ jobs:
         run: npx playwright test
         
       - name: Upload Playwright Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.6.0
         if: always()
         with:
           name: playwright-report

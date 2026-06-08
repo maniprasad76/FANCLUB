@@ -13,8 +13,8 @@ import {
 } from "lucide-react";
 import { Magnetic } from "../../components/Magnetic";
 import AnimatedPage, {
-  cinematicItem,
-  cinematicStagger,
+  fandomticItem,
+  fandomticStagger,
 } from "../../components/AnimatedPage";
 import ProductCard from "../../components/ProductCard/ProductCard";
 import SEOHead from "../../components/SEOHead";
@@ -87,9 +87,9 @@ export default function Home() {
   return (
     <AnimatedPage className="home-page">
       <SEOHead
-        title="FANCLUB — Cinema-Inspired Streetwear | Wear the Culture"
-        description="Premium streetwear celebrating Telugu Film Industry culture. Shop cinema-inspired t-shirts, hoodies & accessories. Free shipping over ₹999."
-        keywords="FANCLUB, Telugu film merch, cinema fashion, anime streetwear, pop culture clothing, Tollywood merchandise"
+        title="FANCLUB — Fandom-Inspired Streetwear | Wear the Culture"
+        description="Premium streetwear celebrating Telugu Film Industry culture. Shop fandom-inspired t-shirts, hoodies & accessories. Free shipping over ₹999."
+        keywords="FANCLUB, Telugu film merch, fandom fashion, anime streetwear, pop culture clothing, Tollywood merchandise"
       />
 
       {/* ════════════════════════════════════════════
@@ -134,23 +134,23 @@ export default function Home() {
         <motion.div
           className="hero-content container"
           style={{ opacity: heroOpacity }}
-          variants={cinematicStagger}
+          variants={fandomticStagger}
           initial="initial"
           animate="animate"
         >
-          <motion.span className="hero-badge" variants={cinematicItem}>
+          <motion.span className="hero-badge" variants={fandomticItem}>
             <Square size={8} fill="currentColor" /> NEW COLLECTION
           </motion.span>
 
-          <motion.h1 className="hero-title" variants={cinematicItem}>
+          <motion.h1 className="hero-title" variants={fandomticItem}>
             FAN<span className="text-gradient">CLUB</span>
           </motion.h1>
 
-          <motion.p className="hero-tagline" variants={cinematicItem}>
+          <motion.p className="hero-tagline" variants={fandomticItem}>
             Be Your Own Style
           </motion.p>
 
-          <motion.div className="hero-actions" variants={cinematicItem}>
+          <motion.div className="hero-actions" variants={fandomticItem}>
             <Magnetic strength={0.35}>
               <Link to="/shop" className="btn btn-primary btn-lg" id="hero-cta">
                 Explore Collection <ArrowRight size={16} />
@@ -159,7 +159,7 @@ export default function Home() {
           </motion.div>
 
           {/* Social Proof — Trust counter */}
-          <motion.div className="hero-trust-stats" variants={cinematicItem}>
+          <motion.div className="hero-trust-stats" variants={fandomticItem}>
             <div className="trust-stat">
               <Users size={14} /> <span>10,000+ Happy Customers</span>
             </div>
@@ -185,15 +185,15 @@ export default function Home() {
         <div className="text-marquee-track">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={`tm-${i}`} className="text-marquee-content">
-              <span>TELUGU FILM INDUSTRY</span>
+              <span>BE YOUR OWN STYLE</span>
               <span className="marquee-shape">✦</span>
-              <span>CINEMA DROPS</span>
+              <span>FANDOM DROPS</span>
               <span className="marquee-shape">✦</span>
               <span>FANCLUB</span>
               <span className="marquee-shape">✦</span>
               <span>FEEL THE DESIGNS</span>
               <span className="marquee-shape">✦</span>
-              <span>CINEMA CULTURE</span>
+              <span>FANDOM CULTURE</span>
               <span className="marquee-shape">✦</span>
             </div>
           ))}
@@ -210,15 +210,15 @@ export default function Home() {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true, amount: 0.3 }}
-            variants={cinematicStagger}
+            variants={fandomticStagger}
           >
-            <motion.p className="section-subtitle" variants={cinematicItem}>
+            <motion.p className="section-subtitle" variants={fandomticItem}>
               Latest
             </motion.p>
-            <motion.h2 className="section-title" variants={cinematicItem}>
+            <motion.h2 className="section-title" variants={fandomticItem}>
               NEW <span className="text-gradient">DROPS</span>
             </motion.h2>
-            <motion.div className="section-divider" variants={cinematicItem} />
+            <motion.div className="section-divider" variants={fandomticItem} />
           </motion.div>
         </div>
 
@@ -248,14 +248,14 @@ export default function Home() {
         initial="initial"
         whileInView="animate"
         viewport={{ once: true, amount: 0.3 }}
-        variants={cinematicStagger}
+        variants={fandomticStagger}
       >
         {/* Corner decorations */}
         <div className="bauhaus-corner bauhaus-corner-tl" />
         <div className="bauhaus-corner bauhaus-corner-br" />
 
         <div className="container delivery-content">
-          <motion.div className="social-icons-row" variants={cinematicItem}>
+          <motion.div className="social-icons-row" variants={fandomticItem}>
             <a
               href={SOCIAL_LINKS.instagram}
               target="_blank"
@@ -355,15 +355,15 @@ export default function Home() {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true, amount: 0.3 }}
-            variants={cinematicStagger}
+            variants={fandomticStagger}
           >
-            <motion.p className="section-subtitle" variants={cinematicItem}>
+            <motion.p className="section-subtitle" variants={fandomticItem}>
               Curated
             </motion.p>
-            <motion.h2 className="section-title" variants={cinematicItem}>
+            <motion.h2 className="section-title" variants={fandomticItem}>
               THE <span className="text-gradient">COLLECTION</span>
             </motion.h2>
-            <motion.div className="section-divider" variants={cinematicItem} />
+            <motion.div className="section-divider" variants={fandomticItem} />
           </motion.div>
 
           <div className="showcase-grid">
@@ -445,18 +445,18 @@ export default function Home() {
         initial="initial"
         whileInView="animate"
         viewport={{ once: true, amount: 0.2 }}
-        variants={cinematicStagger}
+        variants={fandomticStagger}
       >
         <div className="container about-grid">
-          <motion.div className="about-text" variants={cinematicItem}>
+          <motion.div className="about-text" variants={fandomticItem}>
             <p className="section-subtitle">The Story</p>
             <h2 className="about-title">
               STREETWEAR <br />
-              AS <span className="text-gradient">CINEMA</span>
+              AS <span className="text-gradient">FANDOM</span>
             </h2>
             <p className="about-body">
               Every thread tells a story. Dedicated to the Telugu Film Industry,
-              its legendary characters, and cinematic masterpieces — FANCLUB
+              its legendary characters, and fandomtic masterpieces — FANCLUB
               blends our rich cultural heritage with premium aesthetics. We
               don't just make clothes. We craft scenes you can wear.
             </p>
@@ -471,7 +471,7 @@ export default function Home() {
             </Magnetic>
           </motion.div>
 
-          <motion.div className="about-visual" variants={cinematicItem}>
+          <motion.div className="about-visual" variants={fandomticItem}>
             <div className="about-visual-inner">
               {aboutImage ? (
                 <img
@@ -510,7 +510,7 @@ export default function Home() {
         <div className="text-marquee-track">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={`hype-tm-${i}`} className="text-marquee-content">
-              <span>NEW CINEMA DROPS</span>
+              <span>NEW FANDOM DROPS</span>
               <span className="marquee-shape">✦</span>
               <span>LIMITED EDITIONS</span>
               <span className="marquee-shape">✦</span>
@@ -534,7 +534,7 @@ export default function Home() {
         initial="initial"
         whileInView="animate"
         viewport={{ once: true, amount: 0.4 }}
-        variants={cinematicStagger}
+        variants={fandomticStagger}
       >
         <div className="container">
           <div className="features-row">
@@ -542,7 +542,7 @@ export default function Home() {
               <motion.div
                 className={`feature-card feature-card-${color}`}
                 key={label}
-                variants={cinematicItem}
+                variants={fandomticItem}
                 whileHover={{ y: -4 }}
                 whileTap={{ scale: 0.97 }}
               >

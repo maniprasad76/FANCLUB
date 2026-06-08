@@ -6,7 +6,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import { SupabaseService } from '../../supabase/supabase.service.js';
+import { SupabaseService } from '../../supabase/supabase.service';
 import { PrismaService } from '../../prisma/prisma.service';
 
 /**

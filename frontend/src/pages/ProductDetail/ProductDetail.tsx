@@ -12,9 +12,6 @@ import {
   Truck,
   Shield,
   RotateCcw,
-  Edit3,
-  X,
-  ChevronDown,
   Flame,
   CheckCircle2,
   Shirt,
@@ -32,6 +29,8 @@ import { useCart } from "../../context/CartContext";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../lib/api";
 import { formatImageUrl } from "../../lib/utils";
+import ProductReviews from "./ProductReviews";
+import { AccordionItem, FeatureAccordionItem } from "./ProductAccordions";
 import "./ProductDetail.css";
 
 export default function ProductDetail() {
@@ -48,9 +47,6 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
 
-  const [reviewModalOpen, setReviewModalOpen] = useState(false);
-  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
-  const [submittingReview, setSubmittingReview] = useState(false);
   const [cartStatus, setCartStatus] = useState<"idle" | "adding" | "added">(
     "idle",
   );
@@ -142,26 +138,6 @@ export default function ProductDetail() {
     }
   };
 
-  const submitReview = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!product) return;
-    setSubmittingReview(true);
-    try {
-      await api.post("/reviews", {
-        productId: product.id,
-        rating: reviewForm.rating,
-        comment: reviewForm.comment,
-      });
-      setReviewModalOpen(false);
-      setReviewForm({ rating: 5, comment: "" });
-      api.get(`/products/slug/${slug}`).then((r) => setProduct(r.data));
-    } catch {
-      // silent
-    } finally {
-      setSubmittingReview(false);
-    }
-  };
-
   if (loading)
     return (
       <div className="container pdp-page">
@@ -219,7 +195,7 @@ export default function ProductDetail() {
         <SEOHead
           title={`${product.name} — FANCLUB | ₹${product.price.toLocaleString("en-IN")}`}
           description={`${product.description?.slice(0, 155)}... Shop ${product.name} at FANCLUB.`}
-          keywords={`${product.name}, FANCLUB, ${product.category?.name || ""}, cinema fashion, buy online India`}
+          keywords={`${product.name}, FANCLUB, ${product.category?.name || ""}, fandom fashion, buy online India`}
           ogType="product"
           ogImage={formatImageUrl(displayImages[0])}
           jsonLd={[
@@ -698,7 +674,7 @@ export default function ProductDetail() {
                       }}
                     >
                       <li>Premium 100% bio-washed cotton</li>
-                      <li>High-density cinematic prints</li>
+                      <li>High-density fandomtic prints</li>
                       <li>Pre-shrunk for perfect fit</li>
                       <li>Made in India</li>
                     </ul>
@@ -754,85 +730,12 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        {/* Full Width Reviews Section */}
-        <div className="neo-section" id="reviews-section">
-          <div className="container">
-            <h2 className="neo-section-title">Customer Reviews</h2>
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginBottom: "20px",
-              }}
-            >
-              {user ? (
-                <button
-                  className="btn btn-outline"
-                  onClick={() => setReviewModalOpen(true)}
-                >
-                  <Edit3 size={18} /> Write a Review
-                </button>
-              ) : (
-                <Link to="/login" className="btn btn-ghost">
-                  Login to Review
-                </Link>
-              )}
-            </div>
-
-            {product.reviews?.length > 0 ? (
-              <div className="review-masonry">
-                {product.reviews.map((r: any, i: number) => (
-                  <motion.div
-                    key={r.id}
-                    className="review-card-neo"
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.1, duration: 0.5 }}
-                  >
-                    <div className="review-header-neo">
-                      <span className="reviewer-name">
-                        {r.user?.name || "Anonymous Verified Buyer"}
-                      </span>
-                      <div style={{ display: "flex", gap: "2px" }}>
-                        {Array.from({ length: 5 }).map((_, idx) => (
-                          <Star
-                            key={idx}
-                            size={14}
-                            fill={
-                              idx < r.rating
-                                ? "var(--bauhaus-black)"
-                                : "transparent"
-                            }
-                            stroke="var(--bauhaus-black)"
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    {r.comment && (
-                      <p className="review-comment">"{r.comment}"</p>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
-            ) : (
-              <div className="neo-reviews-empty">
-                <Star
-                  size={48}
-                  color="var(--text-muted)"
-                  style={{ margin: "0 auto 16px", opacity: 0.3 }}
-                />
-                <h4 style={{ fontSize: "1.5rem", marginBottom: "8px" }}>
-                  No reviews yet
-                </h4>
-                <p style={{ color: "var(--text-muted)" }}>
-                  Be the first to share your thoughts!
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
+        <ProductReviews
+          product={product}
+          setProduct={setProduct}
+          user={user}
+          slug={slug}
+        />
 
         {/* You May Also Like */}
         {related.length > 0 && (
@@ -963,208 +866,8 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        {/* Review Modal */}
-        <AnimatePresence>
-          {reviewModalOpen && (
-            <motion.div
-              className="modal-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setReviewModalOpen(false)}
-              style={{
-                position: "fixed",
-                inset: 0,
-                backgroundColor: "rgba(0,0,0,0.8)",
-                zIndex: 9999,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "20px",
-              }}
-            >
-              <motion.div
-                className="modal-content glass-card"
-                onClick={(e) => e.stopPropagation()}
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.95, opacity: 0 }}
-                style={{
-                  backgroundColor: "white",
-                  color: "black",
-                  padding: "32px",
-                  borderRadius: "16px",
-                  border: "none",
-                  maxWidth: "400px",
-                  width: "100%",
-                  position: "relative",
-                }}
-              >
-                <button
-                  onClick={() => setReviewModalOpen(false)}
-                  style={{
-                    position: "absolute",
-                    top: "16px",
-                    right: "16px",
-                    cursor: "pointer",
-                    background: "transparent",
-                    border: "none",
-                  }}
-                >
-                  <X size={24} color="black" />
-                </button>
-                <h3
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "1.8rem",
-                    textTransform: "uppercase",
-                    marginBottom: "16px",
-                  }}
-                >
-                  Leave a Review
-                </h3>
-                <form
-                  onSubmit={submitReview}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "16px",
-                  }}
-                >
-                  <div
-                    style={{ display: "flex", gap: "8px", cursor: "pointer" }}
-                  >
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        size={28}
-                        fill={
-                          star <= reviewForm.rating
-                            ? "var(--bauhaus-black)"
-                            : "transparent"
-                        }
-                        stroke="var(--bauhaus-black)"
-                        onClick={() =>
-                          setReviewForm({ ...reviewForm, rating: star })
-                        }
-                      />
-                    ))}
-                  </div>
-                  <textarea
-                    placeholder="Share your thoughts on the quality and fit..."
-                    value={reviewForm.comment}
-                    onChange={(e) =>
-                      setReviewForm({ ...reviewForm, comment: e.target.value })
-                    }
-                    style={{
-                      padding: "16px",
-                      minHeight: "120px",
-                      borderRadius: "8px",
-                      border: "1px solid #ddd",
-                      outline: "none",
-                      resize: "vertical",
-                      fontFamily: "inherit",
-                    }}
-                  />
-                  <button
-                    type="submit"
-                    disabled={submittingReview}
-                    className="btn-super"
-                    style={{ marginTop: "8px" }}
-                  >
-                    {submittingReview ? "Submitting..." : "Submit Review"}
-                  </button>
-                </form>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+
       </div>
     </AnimatedPage>
-  );
-}
-
-// Helper Accordion Component
-function AccordionItem({
-  title,
-  isOpen,
-  onClick,
-  children,
-}: {
-  title: string;
-  isOpen: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="pdp-accordion">
-      <button className="pdp-accordion-trigger" onClick={onClick}>
-        {title}
-        <motion.div
-          animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <ChevronDown size={20} />
-        </motion.div>
-      </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            style={{ overflow: "hidden" }}
-          >
-            <div className="pdp-accordion-content-inner">{children}</div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// Feature Accordion with icon (for Priority Logistics, Artisanal Packaging, etc.)
-function FeatureAccordionItem({
-  icon,
-  title,
-  isOpen,
-  onClick,
-  children,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  isOpen: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="feature-accordion">
-      <button className="feature-accordion-trigger" onClick={onClick}>
-        <div className="feature-accordion-left">
-          <span className="feature-accordion-icon">{icon}</span>
-          <span className="feature-accordion-title">{title}</span>
-        </div>
-        <motion.div
-          animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <ChevronDown size={18} />
-        </motion.div>
-      </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            style={{ overflow: "hidden" }}
-          >
-            <div className="feature-accordion-content">{children}</div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
   );
 }

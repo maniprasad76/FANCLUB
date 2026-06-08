@@ -68,7 +68,7 @@
   --transition-base: 0.2s ease-out;
   --transition-slow: 0.3s ease-out;
   --transition-spring: 0.3s ease-out;
-  --transition-cinematic: 0.3s ease-out;
+  --transition-fandomtic: 0.3s ease-out;
 
   /* Motion depth */
   --depth-soft: 14px;
@@ -592,29 +592,29 @@ ol {
   gap: 60px;
 }
 
-.cinematic-layer {
+.fandomtic-layer {
   will-change: transform, opacity;
 }
 
-.cinematic-reveal {
+.fandomtic-reveal {
   opacity: 0;
   transform: translate3d(0, var(--depth-mid), 0);
-  animation: cinematicReveal var(--transition-cinematic) forwards;
+  animation: fandomticReveal var(--transition-fandomtic) forwards;
 }
 
-.cinematic-panel {
+.fandomtic-panel {
   position: relative;
   overflow: hidden;
 }
 
-.cinematic-panel::after {
+.fandomtic-panel::after {
   display: none; /* No gradient border glow in Bauhaus */
 }
 
 /* ============================================
    ANIMATIONS — Mechanical, Snappy
    ============================================ */
-@keyframes cinematicReveal {
+@keyframes fandomticReveal {
   from {
     opacity: 0;
     transform: translate3d(0, var(--depth-mid), 0);
@@ -683,8 +683,8 @@ ol {
   animation: fadeIn 0.2s ease-out forwards;
 }
 
-.animate-cinematic {
-  animation: cinematicReveal var(--transition-cinematic) forwards;
+.animate-fandomtic {
+  animation: fandomticReveal var(--transition-fandomtic) forwards;
 }
 
 /* Loading skeleton */

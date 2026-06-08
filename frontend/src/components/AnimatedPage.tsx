@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import type { CSSProperties, ReactNode } from 'react';
 
-const cinematicEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const fandomticEase: [number, number, number, number] = [0.22, 1, 0.36, 1];
 const exitEase: [number, number, number, number] = [0.4, 0, 1, 1];
 
 const pageVariants = {
@@ -13,7 +13,7 @@ const pageVariants = {
     filter: 'blur(0px)',
     transition: {
       duration: 0.85,
-      ease: cinematicEase,
+      ease: fandomticEase,
       when: 'beforeChildren',
       staggerChildren: 0.08,
       delayChildren: 0.04,
@@ -31,7 +31,7 @@ const pageVariants = {
   },
 };
 
-export const cinematicStagger = {
+export const fandomticStagger = {
   initial: { opacity: 0 },
   animate: {
     opacity: 1,
@@ -43,7 +43,7 @@ export const cinematicStagger = {
   },
 };
 
-export const cinematicItem = {
+export const fandomticItem = {
   initial: { opacity: 0, y: 32, scale: 0.985, filter: 'blur(8px)' },
   animate: {
     opacity: 1,
@@ -52,7 +52,7 @@ export const cinematicItem = {
     filter: 'blur(0px)',
     transition: {
       duration: 0.75,
-      ease: cinematicEase,
+      ease: fandomticEase,
     },
   },
 };

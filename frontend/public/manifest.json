@@ -1,0 +1,27 @@
+{
+  "name": "FANCLUB — Fandom-Inspired Streetwear",
+  "short_name": "FANCLUB",
+  "description": "Premium streetwear celebrating Telugu Film Industry culture. Shop fandom-inspired t-shirts, hoodies & accessories.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#121212",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["shopping", "fashion", "lifestyle"],
+  "lang": "en-IN",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

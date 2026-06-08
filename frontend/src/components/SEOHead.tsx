@@ -88,7 +88,7 @@ export default function SEOHead({
       name: 'FANCLUB',
       url: window.location.origin,
       logo: window.location.origin + '/favicon.svg',
-      description: 'Cinema-inspired streetwear celebrating Telugu Film Industry culture. Premium t-shirts, hoodies, and accessories.',
+      description: 'Fandom-inspired streetwear celebrating Telugu Film Industry culture. Premium t-shirts, hoodies, and accessories.',
       sameAs: [
         'https://instagram.com/fanclub',
         'https://youtube.com/@fanclub',

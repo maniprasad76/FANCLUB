@@ -1,0 +1,64 @@
+/* ─── Offline Indicator — Bauhaus Styled ─── */
+
+.offline-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  animation: offline-slide-in 0.3s ease-out;
+}
+
+.offline-indicator--offline {
+  background: var(--bauhaus-red, #E63946);
+  color: var(--bauhaus-white, #FAFAFA);
+  border-bottom: 3px solid var(--bauhaus-black, #121212);
+}
+
+.offline-indicator--online {
+  background: #2D936C;
+  color: var(--bauhaus-white, #FAFAFA);
+  border-bottom: 3px solid var(--bauhaus-black, #121212);
+  animation: offline-slide-in 0.3s ease-out, offline-fade-out 0.5s ease-out 2.5s forwards;
+}
+
+.offline-indicator__content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.offline-indicator__content svg {
+  flex-shrink: 0;
+}
+
+@keyframes offline-slide-in {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes offline-fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}

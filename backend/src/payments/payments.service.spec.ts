@@ -13,7 +13,7 @@ describe('PaymentsService', () => {
       },
     };
 
-    service = new PaymentsService(prisma, {} as any, {} as any);
+    service = new PaymentsService(prisma, {} as any);
   });
 
   it('does not create payment orders for another user order', async () => {

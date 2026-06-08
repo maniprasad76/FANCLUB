@@ -1,9 +1,9 @@
-.cinema-page {
+.fandom-page {
 	position: relative;
 	padding-top: var(--nav-height);
 }
 
-.cinema-hero {
+.fandom-hero {
 	position: relative;
 	min-height: 76vh;
 	display: flex;
@@ -11,24 +11,24 @@
 	overflow: hidden;
 }
 
-.cinema-hero-bg {
+.fandom-hero-bg {
 	position: absolute;
 	inset: -8% 0 0;
 	background: var(--bauhaus-white);
 }
 
-.cinema-hero-vignette {
+.fandom-hero-vignette {
 	position: absolute;
 	inset: 0;
 	background: radial-gradient(circle at center, transparent, rgba(0, 0, 0, 0.03) 100%);
 }
 
-.cinema-hero-content {
+.fandom-hero-content {
 	position: relative;
 	z-index: 1;
 }
 
-.cinema-hero-desc {
+.fandom-hero-desc {
 	font-size: 1.1rem;
 	color: var(--text-secondary);
 	max-width: 550px;
@@ -36,13 +36,13 @@
 	margin-top: 20px;
 }
 
-.cinema-philosophy {
+.fandom-philosophy {
 	max-width: 700px;
 	margin: 0 auto;
 	text-align: center;
 }
 
-.cinema-philosophy p {
+.fandom-philosophy p {
 	color: var(--text-secondary);
 	font-size: 1.05rem;
 	line-height: 1.85;
@@ -53,30 +53,30 @@
 	transform: translateY(-8px);
 }
 
-.cinema-inspiration-stage {
+.fandom-inspiration-stage {
 	background:
 		radial-gradient(30% 34% at 86% 18%, rgba(139, 92, 246, 0.16), transparent 70%),
 		var(--bg-secondary);
 }
 
-.cinema-insp-grid {
+.fandom-insp-grid {
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
 	gap: 24px;
 }
 
-.cinema-insp-card {
+.fandom-insp-card {
 	padding: 34px;
 	text-align: center;
 	transition: transform var(--transition-spring), box-shadow var(--transition-base);
 }
 
-.cinema-insp-card:hover {
+.fandom-insp-card:hover {
 	transform: translateY(-10px);
 	box-shadow: 0 24px 56px rgba(0, 0, 0, 0.35);
 }
 
-.cinema-insp-icon {
+.fandom-insp-icon {
 	width: 60px;
 	height: 60px;
 	border-radius: var(--radius-lg);
@@ -90,11 +90,11 @@
 }
 
 @media (max-width: 768px) {
-	.cinema-insp-grid {
+	.fandom-insp-grid {
 		grid-template-columns: 1fr;
 	}
 
-	.cinema-hero {
+	.fandom-hero {
 		min-height: 68vh;
 	}
 }

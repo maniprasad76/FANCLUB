@@ -1,12 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { join } from 'node:path';
 import cookieParser from 'cookie-parser';
 
 import { validateEnv } from './common/validators/validate-env';
+import { helmetConfig } from './common/config/helmet.config';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
@@ -26,10 +28,15 @@ async function bootstrap() {
   const config = app.get(ConfigService);
   const port = config.get<number>('app.port', 3001);
   const env = config.get<string>('app.env', 'development');
+  const isProduction = env === 'production';
   const frontendUrl = config.get<string>('app.frontendUrl', '');
   const adminUrl = config.get<string>('app.adminUrl', '');
 
   app.setGlobalPrefix('api');
+
+  // ── Security Headers (Helmet) ──
+  // Production-grade HTTP headers: HSTS, X-Content-Type-Options, X-Frame-Options, etc.
+  app.use(helmetConfig());
 
   // Root endpoint — responds outside /api prefix for health checks & direct visits
   const expressApp = app.getHttpAdapter().getInstance();
@@ -39,7 +46,7 @@ async function bootstrap() {
       status: 'running',
       version: '1.0.0',
       environment: env,
-      docs: '/api',
+      docs: '/api/docs',
       health: '/api/health',
       timestamp: new Date().toISOString(),
     });
@@ -48,25 +55,46 @@ async function bootstrap() {
   // Cookie parser middleware for httpOnly JWT cookies
   app.use(cookieParser());
 
-  // CORS — restrict to known frontend/admin origins (purely env-driven)
+  // ── CORS — Strict Origin Validation ──
+  // In production: FAIL if no origins configured (no wildcard allowed)
+  // In development: allow wildcard with warning
   const allowedOrigins = [frontendUrl, adminUrl].filter(
     (origin): origin is string =>
       typeof origin === 'string' && origin.length > 0,
   );
-  // Deduplicate
   const uniqueOrigins = [...new Set(allowedOrigins)];
 
-  // If no origins configured, log a warning and fallback to '*' to allow easy initial setup and deployment.
   if (uniqueOrigins.length === 0) {
-    logger.warn(
-      '⚠️ No CORS origins configured. Set FRONTEND_URL and/or ADMIN_URL environment variables. Defaulting to allow all origins (*) for development/deployment testing.',
-    );
-    uniqueOrigins.push('*');
+    if (isProduction) {
+      logger.error(
+        '🚫 FATAL: No CORS origins configured in production. Set FRONTEND_URL and ADMIN_URL environment variables.',
+      );
+      // In production, still allow startup but with strict warning — the service
+      // won't be usable from any frontend without proper CORS.
+      logger.warn(
+        '⚠️ API will reject all cross-origin requests until CORS origins are configured.',
+      );
+    } else {
+      logger.warn(
+        '⚠️ No CORS origins configured. Defaulting to allow all origins (*) for development.',
+      );
+      uniqueOrigins.push('*');
+    }
   }
 
   app.enableCors({
-    origin: uniqueOrigins,
+    origin: uniqueOrigins.length > 0 ? uniqueOrigins : false,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'X-Request-Id',
+      'Accept',
+    ],
+    exposedHeaders: ['X-Request-Id'],
+    maxAge: 86400, // Preflight cache: 24 hours
   });
 
   app.useGlobalPipes(
@@ -81,6 +109,55 @@ async function bootstrap() {
     prefix: '/public',
   });
 
+  // ── Swagger / OpenAPI Documentation ──
+  // Interactive API docs served at /api/docs
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('FANCLUB API')
+    .setDescription(
+      'REST API for the FANCLUB e-commerce platform — fandom-inspired streetwear. ' +
+      'Covers authentication, products, orders, payments (Razorpay), cart, wishlist, ' +
+      'reviews, admin dashboard, and more.',
+    )
+    .setVersion('1.0.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Enter your Supabase JWT access token',
+      },
+      'JWT-Auth',
+    )
+    .addTag('Auth', 'Authentication — signup, signin, OAuth, token refresh')
+    .addTag('Users', 'User profile and account management')
+    .addTag('Products', 'Product catalog — CRUD, filtering, featured')
+    .addTag('Categories', 'Product category management')
+    .addTag('Cart', 'Shopping cart operations')
+    .addTag('Orders', 'Order lifecycle — create, status updates, history')
+    .addTag('Payments', 'Razorpay payment gateway — orders, verification, webhooks')
+    .addTag('Reviews', 'Product reviews — create, list, moderate')
+    .addTag('Wishlist', 'Saved products wishlist')
+    .addTag('Upload', 'File upload to Supabase Storage')
+    .addTag('Newsletter', 'Email subscription management')
+    .addTag('Contact', 'Contact form submissions')
+    .addTag('Dashboard', 'Admin analytics — sales, KPIs, charts')
+    .addTag('Settings', 'Store configuration')
+    .addTag('Health', 'Health check endpoints')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      docExpansion: 'none',
+      filter: true,
+      showRequestDuration: true,
+    },
+    customSiteTitle: 'FANCLUB API Docs',
+  });
+
+  logger.log(`📚 Swagger docs available at /api/docs`);
+
   const host =
     env === 'production' || process.env.RENDER ? '0.0.0.0' : 'localhost';
   await app.listen(port, host);
@@ -88,6 +165,8 @@ async function bootstrap() {
   logger.log(`🎬 FAN Backend v1.0.0 running on http://${host}:${port}`);
   logger.log(`   Environment: ${env}`);
   logger.log(`   Node: ${process.version}`);
-  logger.log(`   CORS origins: ${uniqueOrigins.join(', ')}`);
+  logger.log(`   CORS origins: ${uniqueOrigins.join(', ') || '(none — rejecting all)'}`);
+  logger.log(`   Security headers: ✅ Helmet enabled`);
+  logger.log(`   API docs: http://${host}:${port}/api/docs`);
 }
 bootstrap();

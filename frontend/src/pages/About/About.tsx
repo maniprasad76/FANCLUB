@@ -9,9 +9,9 @@ export default function About() {
   return (
     <AnimatedPage>
       <SEOHead
-        title="About FANCLUB — Our Story | Cinema-Inspired Streetwear Brand"
-        description="FANCLUB is a passion-driven streetwear brand celebrating cinema, anime, and pop culture. Learn about our journey, values, and vision."
-        keywords="FANCLUB about, streetwear brand India, cinema fashion story, Tollywood merchandise brand"
+        title="About FANCLUB — Our Story | Fandom-Inspired Streetwear Brand"
+        description="FANCLUB is a passion-driven streetwear brand celebrating fandom, anime, and pop culture. Learn about our journey, values, and vision."
+        keywords="FANCLUB about, streetwear brand India, fandom fashion story, Tollywood merchandise brand"
       />
       <div style={{ paddingTop: 'var(--nav-height)', background: 'var(--bg-primary)' }} id="about-page">
         {/* HERO SECTION */}

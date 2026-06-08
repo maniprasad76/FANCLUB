@@ -93,6 +93,6 @@ import { SanitizePipe } from './common/pipes/sanitize.pipe';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     // Apply request-ID middleware to all routes
-    consumer.apply(RequestIdMiddleware).forRoutes('*');
+    consumer.apply(RequestIdMiddleware).forRoutes('*path');
   }
 }

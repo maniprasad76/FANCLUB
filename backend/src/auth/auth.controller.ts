@@ -4,12 +4,14 @@ import {
   Get,
   Body,
   UseGuards,
+  UseInterceptors,
   Req,
   HttpCode,
   HttpStatus,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
+import { AccountLockoutInterceptor } from '../common/interceptors/account-lockout.interceptor';
 
 import type { Request } from 'express';
 import { AuthService } from './auth.service.js';
@@ -36,6 +38,7 @@ export class AuthController {
   // ─── POST /auth/signin ────────────────────────────────────
 
   @Throttle({ strict: { limit: 5, ttl: 60000 } })
+  @UseInterceptors(AccountLockoutInterceptor)
   @Post('signin')
   @HttpCode(HttpStatus.OK)
   async signIn(@Body() dto: SignInDto) {
@@ -45,6 +48,7 @@ export class AuthController {
   // ─── POST /auth/admin/signin ──────────────────────────────
 
   @Throttle({ strict: { limit: 5, ttl: 60000 } })
+  @UseInterceptors(AccountLockoutInterceptor)
   @Post('admin/signin')
   @HttpCode(HttpStatus.OK)
   async adminSignIn(@Body() dto: SignInDto) {

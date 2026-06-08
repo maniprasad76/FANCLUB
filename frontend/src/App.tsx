@@ -26,7 +26,7 @@ import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
-import Cinema from "./pages/Cinema/Cinema";
+import Fandom from "./pages/Fandom/Fandom";
 import Contact from "./pages/Contact/Contact";
 import About from "./pages/About/About";
 import FAQ from "./pages/Support/FAQ";
@@ -39,6 +39,7 @@ import { Toaster } from "react-hot-toast";
 import "./App.css";
 import BrandIntro from "./components/BrandIntro/BrandIntro";
 import FloatingSocials from "./components/FloatingSocials/FloatingSocials";
+import OfflineIndicator from "./components/OfflineIndicator";
 
 function AppShell() {
   const location = useLocation();
@@ -131,7 +132,7 @@ function AppShell() {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/cinema" element={<Cinema />} />
+            <Route path="/fandom" element={<Fandom />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<About />} />
             <Route path="/faq" element={<FAQ />} />
@@ -147,6 +148,7 @@ function AppShell() {
       <Footer />
       <MobileBottomNav />
       <FloatingSocials />
+      <OfflineIndicator />
       {/* Global UX Components */}
       <Toaster
         position="top-center"
