@@ -38,10 +38,10 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(240, 240, 240, 0.4) 0%,
-    rgba(240, 240, 240, 0.6) 40%,
-    rgba(240, 240, 240, 0.92) 70%,
-    rgba(240, 240, 240, 1) 100%
+    rgba(var(--bg-rgb), 0.4) 0%,
+    rgba(var(--bg-rgb), 0.6) 40%,
+    rgba(var(--bg-rgb), 0.92) 70%,
+    rgba(var(--bg-rgb), 1) 100%
   );
   z-index: 1;
 }
@@ -192,11 +192,11 @@
 /* ── THIN TEXT MARQUEE ────────────────────── */
 .text-marquee-container {
   overflow: hidden;
-  background: var(--bauhaus-black, #111);
-  color: white;
+  background: var(--bauhaus-black);
+  color: var(--bauhaus-white);
   padding: 8px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--border-subtle);
 }
 
 .text-marquee-container-accent {
@@ -489,7 +489,7 @@
 .showcase-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(18, 18, 18, 0.5);
+  background: rgba(var(--bg-rgb), 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -505,7 +505,7 @@
   font-weight: 700;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: white;
+  color: var(--bauhaus-white);
   transition: all var(--transition-base);
   transform: translateY(8px);
   opacity: 0;
@@ -516,6 +516,7 @@
   opacity: 1;
   background: var(--bauhaus-red);
   border-color: var(--bauhaus-red);
+  color: #ffffff;
 }
 
 .showcase-item:hover .showcase-overlay {

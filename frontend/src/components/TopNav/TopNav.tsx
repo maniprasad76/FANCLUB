@@ -23,9 +23,9 @@ export default function TopNav() {
   const navOpacity = useTransform(scrollY, [0, 220], [0, 1]);
   const navBlur = useTransform(scrollY, [0, 220], [0, 0]);
   const navBorderOpacity = useTransform(scrollY, [0, 220], [0, 1]);
-  const navBg = useMotionTemplate`rgba(240, 240, 240, ${navOpacity})`;
+  const navBg = useMotionTemplate`rgba(var(--bg-rgb), ${navOpacity})`;
   const navBackdrop = useMotionTemplate`blur(${navBlur}px)`;
-  const navBorder = useMotionTemplate`rgba(18, 18, 18, ${navBorderOpacity})`;
+  const navBorder = useMotionTemplate`rgba(var(--border-rgb), ${navBorderOpacity})`;
   const { user, logout } = useAuth();
   const { count } = useCart();
   const { theme, toggleTheme } = useTheme();

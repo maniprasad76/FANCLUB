@@ -9,6 +9,7 @@
 :root {
   /* Core palette — Bauhaus Canvas */
   --bg-primary: #f6fafc; /* surface */
+  --bg-rgb: 246, 250, 252;
   --bg-secondary: #c0e9fc; /* secondary_container */
   --bg-tertiary: #d0d0d0;
   --bg-card: #ffffff;
@@ -34,6 +35,7 @@
   --border-subtle: #121212;
   --border-glass: #121212;
   --border-accent: #121212;
+  --border-rgb: 18, 18, 18;
 
   /* Shadows — Hard Offset, No Blur */
   --shadow-sm: 3px 3px 0px 0px #121212;
@@ -86,6 +88,7 @@
 /* ── DARK MODE SYSTEM ────────────────────── */
 body.dark {
   --bg-primary: #121212;
+  --bg-rgb: 18, 18, 18;
   --bg-secondary: #1a1a1a;
   --bg-tertiary: #2a2a2a;
   --bg-card: #1e1e1e;
@@ -99,6 +102,7 @@ body.dark {
   --border-subtle: #ffffff;
   --border-glass: #ffffff;
   --border-accent: #ffffff;
+  --border-rgb: 255, 255, 255;
 
   --shadow-sm: 3px 3px 0px 0px #ffffff;
   --shadow-md: 6px 6px 0px 0px #ffffff;
