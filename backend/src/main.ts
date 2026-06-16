@@ -58,10 +58,13 @@ async function bootstrap() {
   // ── CORS — Strict Origin Validation ──
   // In production: FAIL if no origins configured (no wildcard allowed)
   // In development: allow wildcard with warning
-  const allowedOrigins = [frontendUrl, adminUrl].filter(
-    (origin): origin is string =>
-      typeof origin === 'string' && origin.length > 0,
-  );
+  const parseOrigins = (urlStr: string): string[] =>
+    (urlStr || '').split(',').map(s => s.trim()).filter(s => s.length > 0);
+
+  const allowedOrigins = [
+    ...parseOrigins(frontendUrl),
+    ...parseOrigins(adminUrl),
+  ];
   const uniqueOrigins = [...new Set(allowedOrigins)];
 
   if (uniqueOrigins.length === 0) {
@@ -115,8 +118,8 @@ async function bootstrap() {
     .setTitle('FANCLUB API')
     .setDescription(
       'REST API for the FANCLUB e-commerce platform — fandom-inspired streetwear. ' +
-      'Covers authentication, products, orders, payments (Razorpay), cart, wishlist, ' +
-      'reviews, admin dashboard, and more.',
+        'Covers authentication, products, orders, payments (Razorpay), cart, wishlist, ' +
+        'reviews, admin dashboard, and more.',
     )
     .setVersion('1.0.0')
     .addBearerAuth(
@@ -134,7 +137,10 @@ async function bootstrap() {
     .addTag('Categories', 'Product category management')
     .addTag('Cart', 'Shopping cart operations')
     .addTag('Orders', 'Order lifecycle — create, status updates, history')
-    .addTag('Payments', 'Razorpay payment gateway — orders, verification, webhooks')
+    .addTag(
+      'Payments',
+      'Razorpay payment gateway — orders, verification, webhooks',
+    )
     .addTag('Reviews', 'Product reviews — create, list, moderate')
     .addTag('Wishlist', 'Saved products wishlist')
     .addTag('Upload', 'File upload to Supabase Storage')
@@ -165,7 +171,9 @@ async function bootstrap() {
   logger.log(`🎬 FAN Backend v1.0.0 running on http://${host}:${port}`);
   logger.log(`   Environment: ${env}`);
   logger.log(`   Node: ${process.version}`);
-  logger.log(`   CORS origins: ${uniqueOrigins.join(', ') || '(none — rejecting all)'}`);
+  logger.log(
+    `   CORS origins: ${uniqueOrigins.join(', ') || '(none — rejecting all)'}`,
+  );
   logger.log(`   Security headers: ✅ Helmet enabled`);
   logger.log(`   API docs: http://${host}:${port}/api/docs`);
 }
