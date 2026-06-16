@@ -87,7 +87,23 @@ async function bootstrap() {
   }
 
   app.enableCors({
-    origin: uniqueOrigins.length > 0 ? uniqueOrigins : false,
+    origin: (requestOrigin, callback) => {
+      // Allow requests with no origin (e.g., server-to-server or curl)
+      if (!requestOrigin) return callback(null, true);
+
+      // Always allow any Vercel preview or production app
+      if (requestOrigin.endsWith('.vercel.app')) {
+        return callback(null, true);
+      }
+
+      // Allow configured origins
+      if (uniqueOrigins.includes(requestOrigin)) {
+        return callback(null, true);
+      }
+
+      // Default fallback
+      callback(null, false);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
