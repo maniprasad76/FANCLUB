@@ -75,6 +75,7 @@
 }
 .btn-social:hover {
   background: var(--bauhaus-yellow);
+  color: #121212 !important;
 }
 .auth-divider {
   display: flex;

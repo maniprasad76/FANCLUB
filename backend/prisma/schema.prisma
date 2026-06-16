@@ -7,6 +7,7 @@ datasource db {
   provider = "postgresql"
 }
 
+
 model User {
   id        String     @id @default(uuid())
   email     String     @unique
@@ -125,6 +126,7 @@ model Order {
   totalAmount     Decimal     @db.Decimal(10, 2)
   shippingAmount  Decimal     @default(0) @db.Decimal(10, 2)
   discountAmount  Decimal     @default(0) @db.Decimal(10, 2)
+  couponCode      String?
   addressId       String?
   paymentMethod   String?
   paymentId       String?
@@ -330,3 +332,40 @@ enum RefundStatus {
   COMPLETED
   FAILED
 }
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?
+  userEmail  String?
+  action     String   // e.g. "CREATE_PRODUCT", "UPDATE_PRODUCT", "DELETE_PRODUCT", "REFUND_PAYMENT", "UPDATE_SETTING"
+  targetId   String?  // ID of the modified entity
+  targetType String?  // e.g. "PRODUCT", "CATEGORY", "PAYMENT", "SETTING"
+  ipAddress  String?
+  userAgent  String?
+  changes    Json?    // stores old vs new value or description of changes
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model Coupon {
+  id            String    @id @default(uuid())
+  code          String    @unique
+  discountType  String    // "PERCENTAGE" | "FIXED"
+  value         Decimal   @db.Decimal(10, 2)
+  minCartAmount Decimal?  @db.Decimal(10, 2)
+  maxDiscount   Decimal?  @db.Decimal(10, 2)
+  startDate     DateTime?
+  endDate       DateTime?
+  usageLimit    Int?
+  usedCount     Int       @default(0)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("coupons")
+}
+

@@ -43,7 +43,9 @@ export class JwtAuthGuard implements CanActivate {
       } = await client.auth.getUser(token);
 
       if (error || !authUser) {
-        throw new UnauthorizedException(`Invalid or expired token: ${error?.message || 'No user returned'}`);
+        throw new UnauthorizedException(
+          `Invalid or expired token: ${error?.message || 'No user returned'}`,
+        );
       }
 
       // Look up user in local DB

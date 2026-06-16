@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 import appConfig from './common/config/app.config';
 import { THROTTLE_CONFIG } from './common/config/throttle.config';
@@ -24,9 +25,18 @@ import { ContactModule } from './contact/contact.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
 import { SettingsModule } from './settings/settings.module.js';
 import { HealthModule } from './health/health.module.js';
+import { CouponsModule } from './coupons/coupons.module.js';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor.js';
 import { SanitizePipe } from './common/pipes/sanitize.pipe';
+
+// Redis & Audit Log imports
+import { RedisModule } from './common/services/redis.module.js';
+import { RedisService } from './common/services/redis.service.js';
+import { RedisFallbackCacheStore } from './common/services/redis-fallback-cache.store.js';
+import { RedisFallbackThrottlerStorage } from './common/services/redis-fallback-throttler.storage.js';
+import { AuditModule } from './audit/audit.module.js';
+import { AuditInterceptor } from './common/interceptors/audit.interceptor.js';
 
 @Module({
   imports: [
@@ -36,20 +46,36 @@ import { SanitizePipe } from './common/pipes/sanitize.pipe';
       load: [appConfig],
     }),
 
-    // ── In-Memory Cache ──
-    // 5 minute default TTL, max 500 entries to prevent memory leaks.
-    // Individual routes override TTL with @CacheTTL().
-    CacheModule.register({
-      isGlobal: true,
-      ttl: 300000,  // 5 minutes (ms)
-      max: 500,     // Max cached entries before LRU eviction
+    // ── Event Emitter (Async Job Processing) ──
+    EventEmitterModule.forRoot({
+      wildcard: true,
+      delimiter: '.',
     }),
 
-    // ── Rate Limiting ──
-    // Default tier: 100 req / 60s per IP.
-    // Controllers override with @Throttle() for stricter or looser limits.
-    // @SkipThrottle() exempts health checks and webhooks.
-    ThrottlerModule.forRoot(THROTTLE_CONFIG),
+    // ── Redis Connection Module ──
+    RedisModule,
+
+    // ── Resilient Caching Store (Redis with In-Memory Fallback) ──
+    CacheModule.registerAsync({
+      isGlobal: true,
+      inject: [RedisService],
+      useFactory: (redisService: RedisService) => ({
+        stores: new RedisFallbackCacheStore(() => redisService.getClient()),
+        ttl: 300000, // 5 minutes (ms)
+        max: 500, // Max cached entries before LRU eviction on memory fallback
+      }),
+    }),
+
+    // ── Resilient Rate Limiting Store (Redis with In-Memory Fallback) ──
+    ThrottlerModule.forRootAsync({
+      inject: [RedisService],
+      useFactory: (redisService: RedisService) => ({
+        throttlers: THROTTLE_CONFIG,
+        storage: new RedisFallbackThrottlerStorage(() =>
+          redisService.getClient(),
+        ),
+      }),
+    }),
 
     // ── Feature Modules ──
     SupabaseModule,
@@ -69,6 +95,8 @@ import { SanitizePipe } from './common/pipes/sanitize.pipe';
     DashboardModule,
     SettingsModule,
     HealthModule,
+    AuditModule,
+    CouponsModule,
   ],
   providers: [
     // Global rate-limit guard — applies the 'default' tier to all routes
@@ -83,6 +111,10 @@ import { SanitizePipe } from './common/pipes/sanitize.pipe';
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggingInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
     },
     {
       provide: APP_PIPE,

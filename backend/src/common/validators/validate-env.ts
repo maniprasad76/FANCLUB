@@ -13,7 +13,7 @@ import { Logger } from '@nestjs/common';
  */
 export function validateEnv(): void {
   const logger = new Logger('EnvValidation');
-  
+
   // Validate NODE_ENV
   const nodeEnv = process.env.NODE_ENV || 'development';
   const validEnvs = ['development', 'production', 'test'];
@@ -74,10 +74,12 @@ export function validateEnv(): void {
 
   // Check CORS vars — at least one must be set
   const hasCorsOrigin = corsVars.some(
-    (key) => process.env[key] && process.env[key]!.length > 0,
+    (key) => process.env[key] && process.env[key].length > 0,
   );
   if (!hasCorsOrigin) {
-    warnings.push(`CORS origins missing (${corsVars.join(', ')}). Defaulting to '*'`);
+    warnings.push(
+      `CORS origins missing (${corsVars.join(', ')}). Defaulting to '*'`,
+    );
   }
 
   // Gateway credential checks
@@ -95,9 +97,7 @@ export function validateEnv(): void {
 
   // Report warnings
   if (warnings.length > 0) {
-    logger.warn(
-      `⚠️  Config warning: ${warnings.join(', ')}`,
-    );
+    logger.warn(`⚠️  Config warning: ${warnings.join(', ')}`);
   }
 
   // Additional production checks

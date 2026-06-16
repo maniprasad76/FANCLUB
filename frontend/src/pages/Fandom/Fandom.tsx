@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Film, Sparkles, Palette, Clapperboard } from 'lucide-react';
 import AnimatedPage, { fandomticItem, fandomticStagger } from '../../components/AnimatedPage';
+import api from '../../lib/api';
 import './Fandom.css';
 
 export default function Fandom() {
@@ -11,13 +12,11 @@ export default function Fandom() {
   const [showVideo, setShowVideo] = useState(true);
 
   useEffect(() => {
-    import('../../lib/api').then(({ default: api }) => {
-      api.get('/settings/video').then(res => {
-        if (res.data?.url) {
-          setVideoUrl(import.meta.env.VITE_API_URL.replace('/api', '') + res.data.url);
-        }
-      }).catch(() => {});
-    });
+    api.get('/settings/video').then(res => {
+      if (res.data?.url) {
+        setVideoUrl(import.meta.env.VITE_API_URL.replace('/api', '') + res.data.url);
+      }
+    }).catch(() => {});
   }, []);
 
   const { scrollYProgress } = useScroll({

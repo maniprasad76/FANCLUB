@@ -60,9 +60,9 @@ export default function FAQ() {
             ))}
           </div>
 
-          <div style={{ marginTop: '60px', textAlign: 'center', padding: '40px', background: 'var(--bauhaus-yellow)', border: '4px solid var(--bauhaus-black)' }}>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', textTransform: 'uppercase', marginBottom: '16px' }}>Still need help?</h2>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>Our support team is ready to assist you.</p>
+          <div style={{ marginTop: '60px', textAlign: 'center', padding: '40px', background: 'var(--bauhaus-yellow)', border: '4px solid var(--bauhaus-black)', color: '#121212' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', textTransform: 'uppercase', marginBottom: '16px', color: '#121212' }}>Still need help?</h2>
+            <p style={{ color: 'rgba(0,0,0,0.7)', marginBottom: '24px' }}>Our support team is ready to assist you.</p>
             <a href="/contact" className="btn btn-primary" style={{ background: 'var(--bauhaus-black)', color: 'var(--bauhaus-white)' }}>
               Contact Us
             </a>

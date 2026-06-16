@@ -1,4 +1,9 @@
-import { UnauthorizedException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  UnauthorizedException,
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 /**
@@ -77,7 +82,11 @@ describe('AuthService', () => {
         error: null,
       });
 
-      const result = await service.signUp('Test@Example.com', 'password123', 'Test User');
+      const result = await service.signUp(
+        'Test@Example.com',
+        'password123',
+        'Test User',
+      );
 
       expect(result.user.email).toBe('test@example.com');
       expect(result.user.role).toBe('USER');
@@ -129,7 +138,9 @@ describe('AuthService', () => {
       ).rejects.toThrow(HttpException);
 
       // Verify cleanup was attempted
-      expect(mockClient.auth.admin.deleteUser).toHaveBeenCalledWith('auth-orphan');
+      expect(mockClient.auth.admin.deleteUser).toHaveBeenCalledWith(
+        'auth-orphan',
+      );
     });
   });
 
@@ -241,9 +252,9 @@ describe('AuthService', () => {
         error: { message: 'Token expired' },
       });
 
-      await expect(
-        service.refreshToken('expired-token'),
-      ).rejects.toThrow(UnauthorizedException);
+      await expect(service.refreshToken('expired-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 
@@ -277,7 +288,14 @@ describe('AuthService', () => {
       expect(result.email).toBe('test@example.com');
       expect(prisma.user.findUnique).toHaveBeenCalledWith({
         where: { authId: 'auth-1' },
-        select: { id: true, email: true, name: true, phone: true, avatar: true, role: true },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          phone: true,
+          avatar: true,
+          role: true,
+        },
       });
     });
 
@@ -321,7 +339,10 @@ describe('AuthService', () => {
           user: {
             id: 'oauth-auth-id',
             email: 'oauth@example.com',
-            user_metadata: { full_name: 'OAuth User', avatar_url: 'https://avatar.jpg' },
+            user_metadata: {
+              full_name: 'OAuth User',
+              avatar_url: 'https://avatar.jpg',
+            },
           },
         },
         error: null,
@@ -350,9 +371,9 @@ describe('AuthService', () => {
         error: { message: 'Invalid token' },
       });
 
-      await expect(
-        service.syncOAuthUser('bad-token'),
-      ).rejects.toThrow(UnauthorizedException);
+      await expect(service.syncOAuthUser('bad-token')).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 });

@@ -28,7 +28,7 @@
   /* Text — Ink on Canvas */
   --text-primary: #121212;
   --text-secondary: #444444;
-  --text-muted: #777777;
+  --text-muted: #595959;
   --text-accent: var(--bauhaus-red);
 
   /* Borders — Thick, Black, Deliberate */
@@ -97,7 +97,7 @@ body.dark {
 
   --text-primary: #f0f0f0;
   --text-secondary: #a0a0a0;
-  --text-muted: #888888;
+  --text-muted: #a3a3a3;
 
   --border-subtle: #ffffff;
   --border-glass: #ffffff;
@@ -265,17 +265,19 @@ ol {
 .heading-md {
   font-family: var(--font-accent);
   font-size: clamp(1.25rem, 3vw, 1.75rem);
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.3;
   text-transform: uppercase;
+  letter-spacing: -0.5px;
 }
 
 .heading-sm {
   font-family: var(--font-accent);
   font-size: 1.1rem;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.4;
   text-transform: uppercase;
+  letter-spacing: -0.2px;
 }
 
 /* Text-gradient becomes solid bold italic in Bauhaus — no gradients allowed */
@@ -285,7 +287,7 @@ ol {
 }
 
 .text-muted {
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 /* ── Font Family Utilities ── */
@@ -376,6 +378,7 @@ ol {
   justify-content: center;
   gap: 8px;
   padding: 14px 32px;
+  min-height: 48px; /* Standard touch target height */
   border-radius: 0;
   font-family: var(--font-accent);
   font-weight: 700;
@@ -394,7 +397,10 @@ ol {
   box-shadow: var(--shadow-glow);
 }
 .btn-primary:hover {
-  opacity: 0.9;
+  background: var(--bauhaus-yellow);
+  color: #121212 !important;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px 0px var(--bauhaus-blue);
 }
 .btn-primary:active {
   transform: translate(2px, 2px);
@@ -408,7 +414,10 @@ ol {
   box-shadow: var(--shadow-glow);
 }
 .btn-secondary:hover {
-  opacity: 0.9;
+  background: var(--bauhaus-red);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px 0px var(--bauhaus-yellow);
 }
 .btn-secondary:active {
   transform: translate(2px, 2px);
@@ -423,6 +432,9 @@ ol {
 }
 .btn-outline:hover {
   background: var(--bauhaus-yellow);
+  color: #121212 !important;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px 0px var(--bauhaus-black);
 }
 .btn-outline:active {
   transform: translate(2px, 2px);
@@ -432,6 +444,8 @@ ol {
 .btn-ghost {
   color: var(--text-secondary);
   border: none;
+  min-height: 48px;
+  padding: 0 16px;
 }
 .btn-ghost:hover {
   color: var(--text-primary);
@@ -441,11 +455,13 @@ ol {
 .btn-lg {
   padding: 16px 40px;
   font-size: 0.95rem;
+  min-height: 54px;
 }
 
 .btn-sm {
   padding: 10px 24px;
   font-size: 0.8rem;
+  min-height: 48px; /* Touch target minimum */
 }
 
 .btn-icon {
@@ -728,7 +744,7 @@ ol {
 
   .product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    gap: 16px;
   }
 
   .contact-grid {
@@ -745,7 +761,7 @@ ol {
 @media (max-width: 480px) {
   .product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 16px;
   }
 
   .contact-grid {
@@ -841,13 +857,17 @@ ol {
 
 /* Focus-visible — distinct keyboard focus ring (not triggered by mouse) */
 *:focus-visible {
-  outline: 3px solid var(--bauhaus-blue);
-  outline-offset: 2px;
+  outline: 3px solid var(--bauhaus-blue) !important;
+  outline-offset: 2px !important;
+}
+
+body.dark *:focus-visible {
+  outline-color: var(--bauhaus-yellow) !important;
 }
 
 /* Remove outline on mouse click (browsers that support :focus-visible) */
 *:focus:not(:focus-visible) {
-  outline: none;
+  outline: none !important;
 }
 
 /* Aria-live announcer — invisible, announces route changes */

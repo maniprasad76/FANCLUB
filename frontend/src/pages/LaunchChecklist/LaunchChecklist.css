@@ -176,6 +176,7 @@
 
 .jump-btn:hover {
   background: var(--bauhaus-yellow);
+  color: #121212;
   transform: translate(-2px, -2px);
   box-shadow: 5px 5px 0px 0px var(--bauhaus-black);
 }
@@ -253,6 +254,7 @@
 
 .btn-reset:hover {
   background: var(--bauhaus-yellow);
+  color: #121212;
   transform: translate(-2px, -2px);
   box-shadow: 5px 5px 0px 0px var(--bauhaus-black);
 }
@@ -513,7 +515,7 @@
   padding: 2px 8px;
   border: 1px solid var(--bauhaus-yellow);
   background: var(--bauhaus-yellow);
-  color: var(--bauhaus-black);
+  color: #121212;
   font-weight: 700;
   flex-shrink: 0;
   margin-top: 2px;
@@ -600,13 +602,13 @@
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: -0.5px;
-  color: var(--bauhaus-black);
+  color: #121212;
 }
 
 .celebration-text p {
   font-family: var(--font-body);
   font-size: 0.9rem;
-  color: var(--bauhaus-black);
+  color: #121212;
   margin-top: 4px;
   opacity: 0.7;
 }

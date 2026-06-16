@@ -16,6 +16,8 @@ import { PaymentsService } from './payments.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Audit } from '../audit/decorators/audit.decorator.js';
+import { UserProfile } from '../auth/auth.types';
 import {
   CreatePaymentDto,
   VerifyRazorpayDto,
@@ -54,7 +56,7 @@ export class PaymentsController {
    */
   @UseGuards(JwtAuthGuard)
   @Post('create-order')
-  createOrder(@Body() dto: CreatePaymentDto, @CurrentUser() user: any) {
+  createOrder(@Body() dto: CreatePaymentDto, @CurrentUser() user: UserProfile) {
     return this.paymentsService.createPaymentOrder(
       dto.orderId,
       dto.gateway,
@@ -70,7 +72,10 @@ export class PaymentsController {
    */
   @UseGuards(JwtAuthGuard)
   @Post('verify')
-  verifyRazorpay(@Body() dto: VerifyRazorpayDto, @CurrentUser() user: any) {
+  verifyRazorpay(
+    @Body() dto: VerifyRazorpayDto,
+    @CurrentUser() user: UserProfile,
+  ) {
     return this.paymentsService.verifyRazorpayPayment(
       dto.razorpayOrderId,
       dto.razorpayPaymentId,
@@ -78,8 +83,6 @@ export class PaymentsController {
       user,
     );
   }
-
-
 
   /**
    * Retry a failed/pending payment with a new attempt.
@@ -89,7 +92,7 @@ export class PaymentsController {
   retryPayment(
     @Param('orderId') orderId: string,
     @Body() dto: RetryPaymentDto,
-    @CurrentUser() user: any,
+    @CurrentUser() user: UserProfile,
   ) {
     return this.paymentsService.retryPayment(orderId, dto.gateway, user);
   }
@@ -101,7 +104,7 @@ export class PaymentsController {
   @Get(':paymentId/status')
   getPaymentStatus(
     @Param('paymentId') paymentId: string,
-    @CurrentUser() user: any,
+    @CurrentUser() user: UserProfile,
   ) {
     return this.paymentsService.getPaymentStatus(paymentId, user);
   }
@@ -113,7 +116,7 @@ export class PaymentsController {
   @Get('order/:orderId')
   getOrderPayments(
     @Param('orderId') orderId: string,
-    @CurrentUser() user: any,
+    @CurrentUser() user: UserProfile,
   ) {
     return this.paymentsService.getOrderPayments(orderId, user);
   }
@@ -138,7 +141,6 @@ export class PaymentsController {
     return this.paymentsService.handleRazorpayWebhook(rawBody, signature, body);
   }
 
-
   // ─────────────────────────────────────────────────────────
   // ADMIN ENDPOINTS
   // ─────────────────────────────────────────────────────────
@@ -147,6 +149,7 @@ export class PaymentsController {
    * Initiate a refund for a payment (admin only).
    */
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @Audit('PROCESS_REFUND', 'PAYMENT')
   @Post('refund/:paymentId')
   processRefund(@Param('paymentId') paymentId: string, @Body() dto: RefundDto) {
     return this.paymentsService.processRefund(

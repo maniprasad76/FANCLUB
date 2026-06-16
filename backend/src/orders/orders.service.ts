@@ -7,6 +7,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentsService } from '../payments/payments.service';
 import { ConfigService } from '@nestjs/config';
+import { CouponsService } from '../coupons/coupons.service';
 import {
   CreateOrderDto,
   UpdateOrderStatusDto,
@@ -27,10 +28,7 @@ const SHIPPING_COST = 99;
  */
 const VALID_TRANSITIONS: Record<string, OrderStatusEnum[]> = {
   PENDING: [OrderStatusEnum.CONFIRMED, OrderStatusEnum.CANCELLED],
-  CONFIRMED: [
-    OrderStatusEnum.PROCESSING,
-    OrderStatusEnum.CANCELLED,
-  ],
+  CONFIRMED: [OrderStatusEnum.PROCESSING, OrderStatusEnum.CANCELLED],
   PROCESSING: [OrderStatusEnum.SHIPPED, OrderStatusEnum.CANCELLED],
   SHIPPED: [OrderStatusEnum.DELIVERED],
   DELIVERED: [],
@@ -44,6 +42,7 @@ export class OrdersService {
     private prisma: PrismaService,
     private paymentsService: PaymentsService,
     private config: ConfigService,
+    private couponsService: CouponsService,
   ) {}
 
   /**
@@ -111,9 +110,21 @@ export class OrdersService {
       return sum + Number(product.price) * item.quantity;
     }, 0);
 
+    let discountAmount = 0;
+    if (dto.couponCode) {
+      const couponValidation = await this.couponsService.validateCoupon(
+        dto.couponCode,
+        subtotal,
+      );
+      if (!couponValidation.valid) {
+        throw new BadRequestException(couponValidation.message);
+      }
+      discountAmount = couponValidation.discountAmount || 0;
+    }
+
     const shippingAmount =
       subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-    const totalAmount = subtotal + shippingAmount;
+    const totalAmount = subtotal - discountAmount + shippingAmount;
 
     const orderNumber = `FAN-${Date.now().toString(36).toUpperCase()}-${uuidv4().slice(0, 4).toUpperCase()}`;
 
@@ -139,6 +150,10 @@ export class OrdersService {
           userId: user.id,
           totalAmount,
           shippingAmount,
+          discountAmount,
+          couponCode: dto.couponCode
+            ? dto.couponCode.toUpperCase().trim()
+            : null,
           addressId: dto.addressId,
           paymentMethod: 'ONLINE',
           status: 'PENDING',
@@ -197,6 +212,14 @@ export class OrdersService {
           }
           // Clear user's cart
           await tx.cartItem.deleteMany({ where: { userId: user.id } });
+
+          // Increment coupon usedCount if applicable
+          if (dto.couponCode) {
+            await tx.coupon.update({
+              where: { code: dto.couponCode.toUpperCase().trim() },
+              data: { usedCount: { increment: 1 } },
+            });
+          }
         },
         { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead },
       );
@@ -231,12 +254,24 @@ export class OrdersService {
           }
         }
 
+        // Increment coupon usedCount if applicable
+        if (dto.couponCode) {
+          await tx.coupon.update({
+            where: { code: dto.couponCode.toUpperCase().trim() },
+            data: { usedCount: { increment: 1 } },
+          });
+        }
+
         const created = await tx.order.create({
           data: {
             orderNumber,
             userId: user.id,
             totalAmount,
             shippingAmount,
+            discountAmount,
+            couponCode: dto.couponCode
+              ? dto.couponCode.toUpperCase().trim()
+              : null,
             addressId: dto.addressId,
             paymentMethod: 'COD',
             status: 'CONFIRMED',
@@ -346,8 +381,13 @@ export class OrdersService {
     }
 
     // Restore stock when cancelling
-    if (dto.status === OrderStatusEnum.CANCELLED && order.status !== 'CANCELLED') {
-      const items = await this.prisma.orderItem.findMany({ where: { orderId: id } });
+    if (
+      dto.status === OrderStatusEnum.CANCELLED &&
+      order.status !== 'CANCELLED'
+    ) {
+      const items = await this.prisma.orderItem.findMany({
+        where: { orderId: id },
+      });
       await this.prisma.$transaction(async (tx) => {
         for (const item of items) {
           await tx.product.update({

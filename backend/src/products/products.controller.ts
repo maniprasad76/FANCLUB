@@ -10,7 +10,12 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { ProductsService } from './products.service';
 import {
@@ -21,6 +26,7 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { CacheInvalidationInterceptor } from '../common/interceptors/cache-invalidation.interceptor';
+import { Audit } from '../audit/decorators/audit.decorator.js';
 
 @ApiTags('Products')
 @Controller('products')
@@ -28,7 +34,10 @@ export class ProductsController {
   constructor(private productsService: ProductsService) {}
 
   @ApiOperation({ summary: 'Get all products with filtering and pagination' })
-  @ApiResponse({ status: 200, description: 'List of products returned successfully.' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of products returned successfully.',
+  })
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(300000) // 5 minutes
   @Get()
@@ -89,6 +98,7 @@ export class ProductsController {
   @ApiResponse({ status: 201, description: 'Product created successfully.' })
   @UseGuards(JwtAuthGuard, AdminGuard)
   @UseInterceptors(CacheInvalidationInterceptor)
+  @Audit('CREATE_PRODUCT', 'PRODUCT')
   @Post()
   create(@Body() dto: CreateProductDto) {
     return this.productsService.create(dto);
@@ -99,6 +109,7 @@ export class ProductsController {
   @ApiResponse({ status: 200, description: 'Products deleted successfully.' })
   @UseGuards(JwtAuthGuard, AdminGuard)
   @UseInterceptors(CacheInvalidationInterceptor)
+  @Audit('BULK_DELETE_PRODUCTS', 'PRODUCT')
   @Post('bulk-delete')
   bulkDelete(@Body('ids') ids: string[]) {
     return this.productsService.bulkDelete(ids);
@@ -106,6 +117,7 @@ export class ProductsController {
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @UseInterceptors(CacheInvalidationInterceptor)
+  @Audit('UPDATE_PRODUCT', 'PRODUCT')
   @Put(':id')
   update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
     return this.productsService.update(id, dto);
@@ -113,6 +125,7 @@ export class ProductsController {
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @UseInterceptors(CacheInvalidationInterceptor)
+  @Audit('DELETE_PRODUCT', 'PRODUCT')
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.productsService.delete(id);

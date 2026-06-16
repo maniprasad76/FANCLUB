@@ -239,9 +239,7 @@ export class RazorpayService implements PaymentGatewayProvider {
   async getPaymentDetails(gatewayPaymentId: string): Promise<PaymentDetails> {
     if (!this.razorpay) {
       if (this.isProduction) {
-        throw new ServiceUnavailableException(
-          'Razorpay is not configured.',
-        );
+        throw new ServiceUnavailableException('Razorpay is not configured.');
       }
       return {
         gatewayPaymentId,

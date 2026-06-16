@@ -390,7 +390,9 @@ export class AuthService {
         this.logger.error(
           `OAuth sync failed: ${error?.message || 'No user returned'}`,
         );
-        throw new UnauthorizedException(`Invalid OAuth token: ${error?.message || 'No user returned'}`);
+        throw new UnauthorizedException(
+          `Invalid OAuth token: ${error?.message || 'No user returned'}`,
+        );
       }
 
       const email = authUser.email;

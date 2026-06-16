@@ -39,7 +39,7 @@
 }
 .pdp-image-wrap {
   width: 100%;
-  background: #fdfdfd; /* Off-white museum matte */
+  background: var(--bg-card); /* Off-white museum matte */
   padding: 8%; /* Framing effect */
   border: 1px solid var(--border-subtle);
   border-radius: 2px;
@@ -351,7 +351,7 @@
   border: 1.5px solid var(--bauhaus-black);
 }
 .btn-add-to-cart:hover {
-  background: rgba(0,0,0,0.04);
+  background: var(--bg-glass-hover);
 }
 .btn-add-to-cart:active {
   transform: scale(0.98);
@@ -360,11 +360,13 @@
 /* Buy It Now — filled dark */
 .btn-buy-now-full {
   background: var(--bauhaus-black);
-  color: white;
+  color: var(--bauhaus-white);
   border: 1.5px solid var(--bauhaus-black);
 }
 .btn-buy-now-full:hover {
-  background: #1a1a3e;
+  background: var(--bauhaus-yellow);
+  color: #121212 !important;
+  border-color: var(--bauhaus-black);
 }
 .btn-buy-now-full:active {
   transform: scale(0.98);
@@ -386,7 +388,7 @@
 }
 .btn-wishlist-neo:hover {
   border-color: var(--bauhaus-black);
-  background: rgba(0,0,0,0.03);
+  background: var(--bg-glass-hover);
 }
 
 /* ============================================
@@ -492,7 +494,7 @@
   height: 48px;
   border-radius: 50%;
   background: var(--bauhaus-black);
-  color: white;
+  color: var(--bauhaus-white);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -587,7 +589,7 @@
 .btn-super {
   flex: 1;
   background: var(--bauhaus-black);
-  color: white;
+  color: var(--bauhaus-white);
   border: none;
   border-radius: 0;
   padding: 20px 24px;

@@ -25,13 +25,11 @@ export class NewsletterController {
     return this.newsletterService.subscribe(email);
   }
 
-
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Get()
   findAll(@Query('page') page = 1, @Query('limit') limit = 50) {
     return this.newsletterService.findAll(+page, +limit);
   }
-
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Delete(':id')

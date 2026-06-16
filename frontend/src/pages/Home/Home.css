@@ -156,6 +156,29 @@
   margin: 0;
 }
 
+.btn-hero-cta {
+  animation: heroCtaPulse 3s infinite ease-in-out;
+}
+
+@keyframes heroCtaPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: var(--shadow-md);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow: 8px 8px 0px 0px var(--bauhaus-blue);
+  }
+}
+
+.btn-hero-cta:hover {
+  animation: none;
+  background: var(--bauhaus-yellow) !important;
+  color: var(--bauhaus-black) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 8px 8px 0px 0px var(--bauhaus-blue) !important;
+}
+
 .hero-actions {
   margin-top: 20px;
 }
@@ -293,7 +316,7 @@
   overflow: hidden;
   text-align: center;
   background: var(--bauhaus-yellow);
-  color: var(--bauhaus-black);
+  color: #121212;
 }
 
 /* Corner decorations */
@@ -336,9 +359,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bauhaus-black);
+  background: #121212;
   color: var(--bauhaus-yellow);
-  border: 2px solid var(--bauhaus-black);
+  border: 2px solid #121212;
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition-base);
 }
@@ -361,9 +384,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bauhaus-black);
+  background: #121212;
   color: var(--bauhaus-yellow);
-  border: 2px solid var(--bauhaus-black);
+  border: 2px solid #121212;
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-base);
   cursor: pointer;
@@ -410,8 +433,7 @@
 
 /* ── PRODUCT SHOWCASE ─────────────────────── */
 .showcase-section {
-  padding-top: 80px;
-  padding-bottom: 60px;
+  padding: 100px 0;
   background: var(--bg-primary);
 }
 
@@ -658,7 +680,7 @@
 
 /* ── FEATURES — Red Color Block ──────────── */
 .features-section {
-  padding: 60px 0 80px;
+  padding: 100px 0;
   background: var(--bauhaus-red);
   color: white;
 }
@@ -790,7 +812,7 @@
 
   .showcase-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    gap: 16px;
     padding: 8px;
   }
 
@@ -858,7 +880,7 @@
 
   .drops-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    gap: 16px;
   }
 }
 
@@ -884,7 +906,7 @@
 
   .showcase-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 16px;
     padding: 4px;
   }
 
@@ -935,7 +957,7 @@
 
   .drops-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 16px;
   }
 
   .about-title {

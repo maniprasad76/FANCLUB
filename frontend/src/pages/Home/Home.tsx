@@ -143,16 +143,16 @@ export default function Home() {
           </motion.span>
 
           <motion.h1 className="hero-title" variants={fandomticItem}>
-            FAN<span className="text-gradient">CLUB</span>
+            WEAR THE <span className="text-gradient">CULTURE</span>
           </motion.h1>
 
           <motion.p className="hero-tagline" variants={fandomticItem}>
-            Be Your Own Style
+            PREMIUM STREETWEAR CELEBRATING TFI CULTURE
           </motion.p>
 
           <motion.div className="hero-actions" variants={fandomticItem}>
             <Magnetic strength={0.35}>
-              <Link to="/shop" className="btn btn-primary btn-lg" id="hero-cta">
+              <Link to="/shop" className="btn btn-primary btn-lg btn-hero-cta" id="hero-cta">
                 Explore Collection <ArrowRight size={16} />
               </Link>
             </Magnetic>

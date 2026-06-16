@@ -236,9 +236,9 @@ describe('OrdersService', () => {
     it('throws NotFoundException for unknown user', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
-      await expect(
-        service.findUserOrders('nonexistent'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.findUserOrders('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('caps pagination limit at 50', async () => {

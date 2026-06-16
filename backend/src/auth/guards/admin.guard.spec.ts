@@ -59,7 +59,10 @@ describe('AdminGuard', () => {
   });
 
   it('throws ForbiddenException when user has no role', () => {
-    const context = createMockContext({ id: 'user-1', email: 'test@example.com' });
+    const context = createMockContext({
+      id: 'user-1',
+      email: 'test@example.com',
+    });
 
     expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
   });

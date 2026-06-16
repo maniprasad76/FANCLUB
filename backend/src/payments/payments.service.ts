@@ -124,9 +124,7 @@ export class PaymentsService {
     });
 
     // Create the gateway-specific order/session
-    let gatewayResult;
-
-    gatewayResult = await this.razorpayService.createOrder(
+    const gatewayResult = await this.razorpayService.createOrder(
       Number(order.totalAmount),
       currency,
       {
@@ -172,8 +170,7 @@ export class PaymentsService {
 
     return {
       ...base,
-      razorpayOrderId:
-        gatewayResult?.gatewayOrderId || payment.gatewayOrderId,
+      razorpayOrderId: gatewayResult?.gatewayOrderId || payment.gatewayOrderId,
       razorpayKey: this.razorpayService.getPublishableKey(),
     };
   }
@@ -263,7 +260,6 @@ export class PaymentsService {
     };
   }
 
-
   // ─────────────────────────────────────────────────────────
   // WEBHOOKS
   // ─────────────────────────────────────────────────────────
@@ -340,18 +336,18 @@ export class PaymentsService {
     } catch (err: any) {
       this.logger.error(`Razorpay webhook processing error: ${err.message}`);
       // Update log with error detail
-      await this.prisma.webhookLog.update({
-        where: { id: webhookLog.id },
-        data: { error: err.message },
-      }).catch(() => {});
+      await this.prisma.webhookLog
+        .update({
+          where: { id: webhookLog.id },
+          data: { error: err.message },
+        })
+        .catch(() => {});
       // Re-throw so Razorpay knows to retry
       throw err;
     }
 
     return { status: 'ok' };
   }
-
-
 
   // ─────────────────────────────────────────────────────────
   // WEBHOOK HELPERS
@@ -464,7 +460,8 @@ export class PaymentsService {
           .reduce((sum, r) => sum + Number(r.amount), 0);
 
         const refundAmount = amount || Number(payment.amount) - alreadyRefunded;
-        if (refundAmount <= 0) throw new BadRequestException('Nothing to refund');
+        if (refundAmount <= 0)
+          throw new BadRequestException('Nothing to refund');
         if (refundAmount > Number(payment.amount) - alreadyRefunded) {
           throw new BadRequestException(
             `Maximum refundable amount is ₹${(Number(payment.amount) - alreadyRefunded).toFixed(2)}`,

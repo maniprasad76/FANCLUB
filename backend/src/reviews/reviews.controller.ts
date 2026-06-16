@@ -19,7 +19,6 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 export class ReviewsController {
   constructor(private reviewsService: ReviewsService) {}
 
-
   @Get('product/:productId')
   findByProduct(@Param('productId') productId: string) {
     return this.reviewsService.findByProduct(productId);
@@ -38,13 +37,11 @@ export class ReviewsController {
     );
   }
 
-
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Get()
   adminFindAll(@Query('page') page = 1, @Query('limit') limit = 20) {
     return this.reviewsService.adminFindAll(+page, +limit);
   }
-
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Delete(':id')

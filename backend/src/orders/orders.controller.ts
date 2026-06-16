@@ -13,6 +13,7 @@ import { CreateOrderDto, UpdateOrderStatusDto } from './dto/orders.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { UserProfile } from '../auth/auth.types';
 
 @Controller('orders')
 export class OrdersController {
@@ -36,7 +37,7 @@ export class OrdersController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findById(@Param('id') id: string, @CurrentUser() user: any) {
+  findById(@Param('id') id: string, @CurrentUser() user: UserProfile) {
     return this.ordersService.findById(id, user);
   }
 

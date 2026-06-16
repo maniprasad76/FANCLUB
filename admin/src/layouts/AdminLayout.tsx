@@ -12,6 +12,8 @@ import {
   Mail,
   Settings,
   LogOut,
+  ShieldAlert,
+  Ticket,
 } from "lucide-react";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import "./AdminLayout.css";
@@ -26,6 +28,8 @@ const navItems = [
   { path: "/reviews", icon: Star, label: "Reviews" },
   { path: "/newsletter", icon: Newspaper, label: "Newsletter" },
   { path: "/contacts", icon: Mail, label: "Messages" },
+  { path: "/coupons", icon: Ticket, label: "Coupons" },
+  { path: "/audit-logs", icon: ShieldAlert, label: "Security Logs" },
   { path: "/settings", icon: Settings, label: "Settings" },
 ];
 

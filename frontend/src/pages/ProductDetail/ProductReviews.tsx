@@ -136,11 +136,11 @@ export default function ProductReviews({ product, setProduct, user, slug }: any)
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               style={{
-                backgroundColor: "white",
-                color: "black",
+                backgroundColor: "var(--bg-card)",
+                color: "var(--text-primary)",
                 padding: "32px",
                 borderRadius: "16px",
-                border: "none",
+                border: "1px solid var(--border-subtle)",
                 maxWidth: "400px",
                 width: "100%",
                 position: "relative",
@@ -157,7 +157,7 @@ export default function ProductReviews({ product, setProduct, user, slug }: any)
                   border: "none",
                 }}
               >
-                <X size={24} color="black" />
+                <X size={24} color="currentColor" />
               </button>
               <h3
                 style={{
@@ -204,10 +204,12 @@ export default function ProductReviews({ product, setProduct, user, slug }: any)
                     padding: "16px",
                     minHeight: "120px",
                     borderRadius: "8px",
-                    border: "1px solid #ddd",
+                    border: "1px solid var(--border-subtle)",
                     outline: "none",
                     resize: "vertical",
                     fontFamily: "inherit",
+                    backgroundColor: "transparent",
+                    color: "inherit",
                   }}
                 />
                 <button

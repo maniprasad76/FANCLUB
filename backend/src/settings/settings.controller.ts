@@ -15,6 +15,7 @@ import * as fs from 'fs';
 import { SettingsService } from './settings.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
+import { Audit } from '../audit/decorators/audit.decorator.js';
 
 @Controller('settings')
 export class SettingsController {
@@ -26,6 +27,7 @@ export class SettingsController {
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @Audit('UPLOAD_FOOTER_VIDEO', 'SETTING')
   @Post('video/upload')
   @UseInterceptors(
     FileInterceptor('video', {
@@ -60,6 +62,7 @@ export class SettingsController {
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @Audit('UPLOAD_ABOUT_IMAGE', 'SETTING')
   @Post('about-image/upload')
   @UseInterceptors(
     FileInterceptor('image', {
@@ -89,6 +92,7 @@ export class SettingsController {
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @Audit('DELETE_FOOTER_VIDEO', 'SETTING')
   @Delete('video')
   deleteFooterVideo() {
     const currentUrl = this.settingsService.getSetting('footer_video_url');
@@ -105,6 +109,7 @@ export class SettingsController {
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @Audit('DELETE_ABOUT_IMAGE', 'SETTING')
   @Delete('about-image')
   deleteAboutImage() {
     const currentUrl = this.settingsService.getSetting('about_image_url');
@@ -128,6 +133,7 @@ export class SettingsController {
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
+  @Audit('TOGGLE_COD_STATUS', 'SETTING')
   @Post('cod')
   toggleCod(@Body('enabled') enabled: boolean) {
     this.settingsService.setSetting('cod_enabled', enabled);

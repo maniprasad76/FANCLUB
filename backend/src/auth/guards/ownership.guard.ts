@@ -94,9 +94,7 @@ export class OwnershipGuard implements CanActivate {
       ) {
         throw error;
       }
-      this.logger.error(
-        `OwnershipGuard error: ${(error as Error).message}`,
-      );
+      this.logger.error(`OwnershipGuard error: ${(error as Error).message}`);
       return true; // Fail open on unexpected errors
     }
   }

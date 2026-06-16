@@ -97,7 +97,6 @@ export class AuthController {
   // ─── POST /auth/user/oauth/sync ──────────────────────────
 
   @Post('user/oauth/sync')
-
   @HttpCode(HttpStatus.OK)
   async syncOAuthUser(@Body() body: { access_token: string }) {
     return this.authService.syncOAuthUser(body.access_token);
@@ -106,7 +105,6 @@ export class AuthController {
   // ─── POST /auth/admin/oauth/sync ──────────────────────────
 
   @Post('admin/oauth/sync')
-
   @HttpCode(HttpStatus.OK)
   async syncAdminOAuthUser(@Body() body: { access_token: string }) {
     const result = await this.authService.syncOAuthUser(body.access_token);

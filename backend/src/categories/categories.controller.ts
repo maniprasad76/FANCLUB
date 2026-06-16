@@ -15,6 +15,7 @@ import { CreateCategoryDto, UpdateCategoryDto } from './dto/categories.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
 import { CacheInvalidationInterceptor } from '../common/interceptors/cache-invalidation.interceptor';
+import { Audit } from '../audit/decorators/audit.decorator.js';
 
 @Controller('categories')
 export class CategoriesController {
@@ -36,6 +37,7 @@ export class CategoriesController {
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @UseInterceptors(CacheInvalidationInterceptor)
+  @Audit('CREATE_CATEGORY', 'CATEGORY')
   @Post()
   create(@Body() dto: CreateCategoryDto) {
     return this.categoriesService.create(dto);
@@ -43,6 +45,7 @@ export class CategoriesController {
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @UseInterceptors(CacheInvalidationInterceptor)
+  @Audit('UPDATE_CATEGORY', 'CATEGORY')
   @Put(':id')
   update(@Param('id') id: string, @Body() dto: UpdateCategoryDto) {
     return this.categoriesService.update(id, dto);
@@ -50,6 +53,7 @@ export class CategoriesController {
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @UseInterceptors(CacheInvalidationInterceptor)
+  @Audit('DELETE_CATEGORY', 'CATEGORY')
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.categoriesService.delete(id);

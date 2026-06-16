@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateProductDto,
@@ -8,8 +8,23 @@ import {
 import { Prisma } from '@prisma/client';
 
 @Injectable()
-export class ProductsService {
+export class ProductsService implements OnModuleInit {
   constructor(private prisma: PrismaService) {}
+
+  async onModuleInit() {
+    try {
+      await this.prisma.$executeRawUnsafe(`
+        CREATE INDEX IF NOT EXISTS products_search_idx 
+        ON products 
+        USING gin(to_tsvector('english', name || ' ' || description || ' ' || array_to_string(tags, ' ')));
+      `);
+    } catch (err) {
+      console.warn(
+        'Could not create products_search_idx:',
+        (err as Error).message,
+      );
+    }
+  }
 
   async findAll(query: ProductQueryDto) {
     const page = query.page || 1;
@@ -25,11 +40,42 @@ export class ProductsService {
       where.gender = query.gender as any;
     }
     if (query.search) {
-      where.OR = [
-        { name: { contains: query.search, mode: 'insensitive' } },
-        { description: { contains: query.search, mode: 'insensitive' } },
-        { tags: { hasSome: [query.search] } },
-      ];
+      const cleanedSearch = query.search
+        .trim()
+        .split(/\s+/)
+        .map((term) => `${term.replace(/[^a-zA-Z0-9]/g, '')}:*`)
+        .filter((term) => term.length > 2)
+        .join(' & ');
+
+      let useFallback = true;
+      if (cleanedSearch) {
+        try {
+          const matchedIds: { id: string }[] =
+            await this.prisma.$queryRawUnsafe(
+              `
+            SELECT id FROM products 
+            WHERE to_tsvector('english', name || ' ' || description || ' ' || array_to_string(tags, ' ')) @@ to_tsquery('english', $1)
+            AND "isActive" = true
+          `,
+              cleanedSearch,
+            );
+
+          if (matchedIds && matchedIds.length > 0) {
+            where.id = { in: matchedIds.map((m) => m.id) };
+            useFallback = false;
+          }
+        } catch (err) {
+          // Fallback to contains
+        }
+      }
+
+      if (useFallback) {
+        where.OR = [
+          { name: { contains: query.search, mode: 'insensitive' } },
+          { description: { contains: query.search, mode: 'insensitive' } },
+          { tags: { hasSome: [query.search] } },
+        ];
+      }
     }
     if (query.minPrice || query.maxPrice) {
       where.price = {};

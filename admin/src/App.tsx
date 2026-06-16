@@ -13,6 +13,8 @@ import Reviews from './pages/Reviews';
 import Newsletter from './pages/Newsletter';
 import Contacts from './pages/Contacts';
 import Settings from './pages/Settings';
+import AuditLogs from './pages/AuditLogs';
+import Coupons from './pages/Coupons';
 import './App.css';
 import { Toaster } from 'react-hot-toast';
 
@@ -49,7 +51,9 @@ function App() {
             <Route path="/reviews" element={<Reviews />} />
             <Route path="/newsletter" element={<Newsletter />} />
             <Route path="/contacts" element={<Contacts />} />
+            <Route path="/audit-logs" element={<AuditLogs />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/coupons" element={<Coupons />} />
           </Route>
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

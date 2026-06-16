@@ -32,20 +32,17 @@ export class ContactController {
     );
   }
 
-
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Get()
   findAll(@Query('page') page = 1, @Query('limit') limit = 20) {
     return this.contactService.findAll(+page, +limit);
   }
 
-
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Put(':id/read')
   markRead(@Param('id') id: string) {
     return this.contactService.markRead(id);
   }
-
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Delete(':id')

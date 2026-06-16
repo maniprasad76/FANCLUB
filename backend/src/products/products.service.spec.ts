@@ -97,7 +97,9 @@ describe('ProductsService', () => {
         expect.objectContaining({
           where: expect.objectContaining({
             OR: expect.arrayContaining([
-              expect.objectContaining({ name: { contains: 'pushpa', mode: 'insensitive' } }),
+              expect.objectContaining({
+                name: { contains: 'pushpa', mode: 'insensitive' },
+              }),
             ]),
           }),
         }),
@@ -151,9 +153,9 @@ describe('ProductsService', () => {
     it('throws NotFoundException when not found', async () => {
       prisma.product.findUnique.mockResolvedValue(null);
 
-      await expect(
-        service.findBySlug('nonexistent'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(service.findBySlug('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -224,7 +226,10 @@ describe('ProductsService', () => {
   describe('update', () => {
     it('updates a product by ID', async () => {
       const dto = { name: 'Updated Name' };
-      prisma.product.update.mockResolvedValue({ ...mockProduct, name: 'Updated Name' });
+      prisma.product.update.mockResolvedValue({
+        ...mockProduct,
+        name: 'Updated Name',
+      });
 
       const result = await service.update('prod-1', dto as any);
 

@@ -1,4 +1,9 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
@@ -25,7 +30,9 @@ export class PrismaService
   }
 
   async onModuleDestroy() {
-    this.logger.log('🔌 Disconnecting Prisma from PostgreSQL database pool (graceful shutdown)...');
+    this.logger.log(
+      '🔌 Disconnecting Prisma from PostgreSQL database pool (graceful shutdown)...',
+    );
     await this.$disconnect();
     this.logger.log('✅ Prisma disconnected successfully.');
   }

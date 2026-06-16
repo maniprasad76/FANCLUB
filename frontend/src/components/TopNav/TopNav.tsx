@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion, useMotionTemplate, useScroll, useTransform } from 'framer-motion';
 import { Search, ShoppingBag, Heart, User, Menu, X, Loader2, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -30,6 +30,7 @@ export default function TopNav() {
   const { count } = useCart();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -96,14 +97,16 @@ export default function TopNav() {
               { name: 'Fandom', path: '/fandom' },
               { name: 'About', path: '/about' },
               { name: 'Contact', path: '/contact' }
-            ].map((item, index) => (
-              <Magnetic key={item.name}>
-                <Link
-                  to={item.path}
-                  className={`nav-link interactive ${hoveredIndex !== null && hoveredIndex !== index ? 'dimmed' : ''}`}
-                  onMouseEnter={() => setHoveredIndex(index)}
-                >
-                  {item.name}
+            ].map((item, index) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Magnetic key={item.name}>
+                  <Link
+                    to={item.path}
+                    className={`nav-link interactive ${isActive ? 'active' : ''} ${hoveredIndex !== null && hoveredIndex !== index ? 'dimmed' : ''}`}
+                    onMouseEnter={() => setHoveredIndex(index)}
+                  >
+                    {item.name}
                   <AnimatePresence>
                     {hoveredIndex === index && (
                       <motion.div
@@ -116,9 +119,10 @@ export default function TopNav() {
                       />
                     )}
                   </AnimatePresence>
-                </Link>
-              </Magnetic>
-            ))}
+                  </Link>
+                </Magnetic>
+              );
+            })}
           </div>
 
           <div className="topnav-right">

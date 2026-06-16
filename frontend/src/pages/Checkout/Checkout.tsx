@@ -79,6 +79,44 @@ export default function Checkout() {
   const [showNewAddr, setShowNewAddr] = useState(false);
   const [customerCountry, setCustomerCountry] = useState('India');
 
+  // Coupon states
+  const [couponInput, setCouponInput] = useState('');
+  const [discount, setDiscount] = useState(0);
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+
+  const handleApplyCoupon = async () => {
+    if (!couponInput.trim()) return toast.error('Please enter a coupon code');
+    setValidatingCoupon(true);
+    try {
+      const { data } = await api.post('/coupons/validate', {
+        code: couponInput.trim(),
+        cartAmount: total,
+      });
+      if (data.valid) {
+        setDiscount(data.discountAmount);
+        setAppliedCoupon(data.code);
+        toast.success(`Coupon "${data.code}" applied! You saved ₹${data.discountAmount}`);
+      } else {
+        toast.error(data.message || 'Invalid coupon code');
+        setDiscount(0);
+        setAppliedCoupon(null);
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to validate coupon');
+      setDiscount(0);
+      setAppliedCoupon(null);
+    }
+    setValidatingCoupon(false);
+  };
+
+  const handleRemoveCoupon = () => {
+    setCouponInput('');
+    setDiscount(0);
+    setAppliedCoupon(null);
+    toast.success('Coupon removed');
+  };
+
   /* redirect guests to login (with return path), empty-cart users to cart */
   useEffect(() => {
     if (!user) { navigate('/login?redirect=/checkout'); return; }
@@ -232,6 +270,7 @@ export default function Checkout() {
         paymentMethod,
         gateway: paymentMethod === 'ONLINE' ? 'RAZORPAY' : undefined,
         country: customerCountry,
+        couponCode: appliedCoupon || undefined,
       };
       const { data } = await api.post('/orders', orderData);
 
@@ -425,8 +464,55 @@ export default function Checkout() {
               ))}
             </div>
             <div className="summary-row"><span>Subtotal</span><span>₹{total.toLocaleString('en-IN')}</span></div>
+            
+            {/* Coupon input field */}
+            <div className="coupon-section" style={{
+              display: 'flex',
+              gap: '8px',
+              padding: '16px 0',
+              borderTop: '2px solid var(--bauhaus-black)',
+              borderBottom: '2px solid var(--bauhaus-black)',
+              margin: '12px 0'
+            }}>
+              {appliedCoupon ? (
+                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
+                    🎟️ {appliedCoupon} APPLIED
+                  </span>
+                  <button className="btn btn-outline btn-sm" onClick={handleRemoveCoupon} style={{ padding: '4px 8px' }}>
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="ENTER COUPON"
+                    value={couponInput}
+                    onChange={e => setCouponInput(e.target.value.toUpperCase())}
+                    style={{ flex: 1, margin: 0, textTransform: 'uppercase', fontFamily: 'var(--font-mono)', fontWeight: 700 }}
+                  />
+                  <button
+                    className="btn btn-primary btn-sm"
+                    onClick={handleApplyCoupon}
+                    disabled={validatingCoupon}
+                    style={{ minWidth: '80px' }}
+                  >
+                    {validatingCoupon ? '...' : 'APPLY'}
+                  </button>
+                </>
+              )}
+            </div>
+
+            {discount > 0 && (
+              <div className="summary-row discount" style={{ color: 'var(--bauhaus-red)', fontWeight: 700 }}>
+                <span>Discount ({appliedCoupon})</span>
+                <span>-₹{discount.toLocaleString('en-IN')}</span>
+              </div>
+            )}
             <div className="summary-row"><span>Shipping</span><span>{shipping === 0 ? 'Free' : `₹${shipping}`}</span></div>
-            <div className="summary-row total"><span>Total</span><span>₹{(total + shipping).toLocaleString('en-IN')}</span></div>
+            <div className="summary-row total"><span>Total</span><span>₹{(total - discount + shipping).toLocaleString('en-IN')}</span></div>
 
             <div className="selected-payment-preview">
               {paymentMethod === 'COD'
@@ -438,7 +524,7 @@ export default function Checkout() {
               {loading
                 ? <><Loader2 size={18} className="spin" /> Processing...</>
                 : paymentMethod === 'ONLINE'
-                  ? `Pay ₹${(total + shipping).toLocaleString('en-IN')}`
+                  ? `Pay ₹${(total - discount + shipping).toLocaleString('en-IN')}`
                   : 'Place Order'}
             </button>
 
