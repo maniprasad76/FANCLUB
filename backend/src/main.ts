@@ -55,15 +55,16 @@ async function bootstrap() {
   // Cookie parser middleware for httpOnly JWT cookies
   app.use(cookieParser());
 
-  // ── CORS — Strict Origin Validation ──
-  // In production: FAIL if no origins configured (no wildcard allowed)
-  // In development: allow wildcard with warning
   const parseOrigins = (urlStr: string): string[] =>
     (urlStr || '').split(',').map(s => s.trim()).filter(s => s.length > 0);
 
   const allowedOrigins = [
     ...parseOrigins(frontendUrl),
     ...parseOrigins(adminUrl),
+    'https://tfi-admin-six.vercel.app',
+    'https://tfi-frontend-kappa.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:5174',
   ];
   const uniqueOrigins = [...new Set(allowedOrigins)];
 
