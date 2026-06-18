@@ -24,6 +24,11 @@ export default function AdminSettings() {
   const [currentImage, setCurrentImage] = useState("");
   const imageInputRef = useRef<HTMLInputElement>(null);
 
+  const [uploadingHero, setUploadingHero] = useState(false);
+  const [successHero, setSuccessHero] = useState(false);
+  const [heroImages, setHeroImages] = useState<string[]>([]);
+  const heroInputRef = useRef<HTMLInputElement>(null);
+
   const [codEnabled, setCodEnabled] = useState(true);
   const [updatingCod, setUpdatingCod] = useState(false);
 
@@ -31,6 +36,7 @@ export default function AdminSettings() {
     fetchCurrentVideo();
     fetchCurrentImage();
     fetchCodStatus();
+    fetchHeroImages();
   }, []);
 
   const fetchCurrentVideo = async () => {
@@ -48,6 +54,15 @@ export default function AdminSettings() {
       if (res.data?.url) setCurrentImage(res.data.url);
     } catch (err: any) {
       // No image configured yet
+    }
+  };
+
+  const fetchHeroImages = async () => {
+    try {
+      const res = await api.get("/settings/hero-images");
+      if (res.data?.urls) setHeroImages(res.data.urls);
+    } catch (err: any) {
+      // No images configured yet
     }
   };
 
@@ -154,6 +169,48 @@ export default function AdminSettings() {
       toast.success("Image deleted successfully");
     } catch (e) {
       toast.error("Failed to delete image");
+    }
+  };
+
+  const handleHeroUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingHero(true);
+    setSuccessHero(false);
+
+    try {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const res = await api.post("/settings/hero-images/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (res.data?.success && res.data.urls) {
+        setSuccessHero(true);
+        setHeroImages(res.data.urls);
+        setTimeout(() => setSuccessHero(false), 3000);
+      }
+    } catch (err: any) {
+      console.error("Hero image upload failed", err);
+      toast.error("Hero image upload failed.");
+    } finally {
+      setUploadingHero(false);
+      if (heroInputRef.current) heroInputRef.current.value = "";
+    }
+  };
+
+  const handleDeleteHeroImage = async (url: string) => {
+    if (!confirm("Are you sure you want to delete this hero image?")) return;
+    try {
+      const res = await api.delete("/settings/hero-images", { data: { url } });
+      if (res.data?.success && res.data.urls) {
+        setHeroImages(res.data.urls);
+        toast.success("Hero image deleted successfully");
+      }
+    } catch (e) {
+      toast.error("Failed to delete hero image");
     }
   };
 
@@ -640,6 +697,226 @@ export default function AdminSettings() {
                     border: "2px solid var(--bauhaus-black)",
                   }}
                 />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Hero Images Upload Card */}
+        <div className="glass" style={{ padding: 32 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              marginBottom: 8,
+            }}
+          >
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                background: "var(--bauhaus-red)",
+                border: "2px solid var(--bauhaus-black)",
+                boxShadow: "2px 2px 0px 0px var(--bauhaus-black)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <ImageIcon size={20} color="var(--bauhaus-black)" />
+            </div>
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 900,
+                fontSize: "1.1rem",
+                textTransform: "uppercase",
+                letterSpacing: "1px",
+              }}
+            >
+              Hero Images
+            </h2>
+          </div>
+          <p
+            style={{
+              color: "var(--text-muted)",
+              marginBottom: 24,
+              fontSize: "0.85rem",
+            }}
+          >
+            Upload images for the Hero carousel.
+          </p>
+
+          <div style={uploadZoneStyle}>
+            {uploadingHero ? (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 16,
+                  color: "var(--text-secondary)",
+                }}
+              >
+                <Loader2
+                  size={40}
+                  className="spin"
+                  style={{ color: "var(--bauhaus-blue)" }}
+                />
+                <p
+                  style={{
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                  }}
+                >
+                  Uploading Image...
+                </p>
+              </div>
+            ) : successHero ? (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 16,
+                  color: "var(--accent-emerald)",
+                }}
+              >
+                <CheckCircle2 size={40} />
+                <p
+                  style={{
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                  }}
+                >
+                  Image uploaded!
+                </p>
+              </div>
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 16,
+                }}
+              >
+                <div
+                  style={{
+                    width: 64,
+                    height: 64,
+                    background: "var(--bauhaus-black)",
+                    border: "3px solid var(--bauhaus-black)",
+                    boxShadow: "3px 3px 0px 0px var(--bauhaus-red)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => heroInputRef.current?.click()}
+                >
+                  <Upload size={28} color="white" />
+                </div>
+                <div>
+                  <h4
+                    style={{
+                      margin: "0 0 6px 0",
+                      fontWeight: 900,
+                      textTransform: "uppercase",
+                      letterSpacing: "1px",
+                    }}
+                  >
+                    Select Image File
+                  </h4>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "0.82rem",
+                      color: "var(--text-muted)",
+                    }}
+                  >
+                    JPG, PNG, WebP supported.
+                  </p>
+                </div>
+                <input
+                  type="file"
+                  ref={heroInputRef}
+                  onChange={handleHeroUpload}
+                  accept="image/jpeg,image/png,image/webp"
+                  style={{ display: "none" }}
+                />
+              </div>
+            )}
+          </div>
+
+          {heroImages.length > 0 && !uploadingHero && (
+            <div style={{ marginTop: "20px" }}>
+              <p
+                style={{
+                  margin: "0 0 12px 0",
+                  fontSize: "0.75rem",
+                  color: "var(--bauhaus-blue)",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "1px",
+                }}
+              >
+                Current Images:
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                {heroImages.map((imgUrl, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      background: "var(--bg-primary)",
+                      padding: "8px",
+                      border: "2px solid var(--bauhaus-black)",
+                    }}
+                  >
+                    <img
+                      src={
+                        (() => {
+                          let base =
+                            import.meta.env.VITE_API_URL?.replace("/api", "") ||
+                            "https://fanclub-backend.onrender.com";
+                          if (
+                            base.includes("localhost") &&
+                            typeof window !== "undefined"
+                          )
+                            base = base.replace(
+                              "localhost",
+                              window.location.hostname,
+                            );
+                          return base;
+                        })() + imgUrl
+                      }
+                      alt={`Hero ${i}`}
+                      style={{
+                        height: "40px",
+                        width: "80px",
+                        objectFit: "cover",
+                        border: "2px solid var(--bauhaus-black)",
+                      }}
+                    />
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => handleDeleteHeroImage(imgUrl)}
+                      style={{
+                        padding: "4px 8px",
+                        minHeight: "unset",
+                        fontSize: "0.7rem",
+                      }}
+                    >
+                      <Trash2 size={12} /> Delete
+                    </button>
+                  </div>
+                ))}
               </div>
             </div>
           )}

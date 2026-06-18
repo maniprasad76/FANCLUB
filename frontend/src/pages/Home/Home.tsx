@@ -52,6 +52,8 @@ export default function Home() {
   const [drops, setDrops] = useState<Product[]>([]);
   const [heroVideoError, setHeroVideoError] = useState(false);
   const [aboutImage, setAboutImage] = useState<string | null>(null);
+  const [heroImages, setHeroImages] = useState<string[]>([]);
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
 
   /* parallax */
   const { scrollYProgress } = useScroll({
@@ -65,14 +67,16 @@ export default function Home() {
   /* fetch products & config */
   const fetchData = useCallback(async () => {
     try {
-      const [featuredRes, dropsRes, aboutImgRes] = await Promise.all([
+      const [featuredRes, dropsRes, aboutImgRes, heroImgRes] = await Promise.all([
         api.get("/products/featured"),
         api.get("/products?sort=newest&limit=12"),
         api.get("/settings/about-image").catch(() => ({ data: {} })),
+        api.get("/settings/hero-images").catch(() => ({ data: {} })),
       ]);
       setFeatured(featuredRes.data?.products || featuredRes.data || []);
       setDrops(dropsRes.data?.products || dropsRes.data || []);
       if (aboutImgRes.data?.url) setAboutImage(aboutImgRes.data.url);
+      if (heroImgRes.data?.urls) setHeroImages(heroImgRes.data.urls);
     } catch {
       /* silent — skeletons will show */
     }
@@ -81,6 +85,15 @@ export default function Home() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    if (heroImages.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentHeroIndex((prev) => (prev + 1) % heroImages.length);
+      }, 4000);
+      return () => clearInterval(interval);
+    }
+  }, [heroImages]);
 
   /* products ready to display */
 
@@ -142,9 +155,20 @@ export default function Home() {
             <Square size={8} fill="currentColor" /> NEW COLLECTION
           </motion.span>
 
-          <motion.h1 className="hero-title" variants={fandomticItem}>
-            WEAR THE <span className="text-gradient">CULTURE</span>
-          </motion.h1>
+          <motion.div className="hero-image-carousel" variants={fandomticItem}>
+            {heroImages.length > 0 ? (
+              heroImages.map((imgUrl, idx) => (
+                <img
+                  key={idx}
+                  src={formatImageUrl(imgUrl)}
+                  alt={`Hero ${idx + 1}`}
+                  className={`hero-carousel-img ${idx === currentHeroIndex ? "active" : ""}`}
+                />
+              ))
+            ) : (
+              <div className="hero-carousel-placeholder" />
+            )}
+          </motion.div>
 
           <motion.p className="hero-tagline" variants={fandomticItem}>
             PREMIUM STREETWEAR CELEBRATING TFI CULTURE

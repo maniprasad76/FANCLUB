@@ -125,6 +125,60 @@ export class SettingsController {
     return { success: true };
   }
 
+  @Get('hero-images')
+  getHeroImages() {
+    return { urls: this.settingsService.getSetting('hero_images_urls') || [] };
+  }
+
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Audit('UPLOAD_HERO_IMAGE', 'SETTING')
+  @Post('hero-images/upload')
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: (req, file, cb) => {
+          const uploadPath = './public/uploads';
+          if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+          }
+          cb(null, uploadPath);
+        },
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, 'hero-image-' + uniqueSuffix + extname(file.originalname));
+        },
+      }),
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    }),
+  )
+  uploadHeroImage(@UploadedFile() file: Express.Multer.File) {
+    if (!file) throw new Error('No file uploaded');
+
+    const imageUrl = `/public/uploads/${file.filename}`;
+    const currentUrls = this.settingsService.getSetting('hero_images_urls') || [];
+    this.settingsService.setSetting('hero_images_urls', [...currentUrls, imageUrl]);
+    return { success: true, url: imageUrl, urls: this.settingsService.getSetting('hero_images_urls') };
+  }
+
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @Audit('DELETE_HERO_IMAGE', 'SETTING')
+  @Delete('hero-images')
+  deleteHeroImage(@Body('url') urlToDelete: string) {
+    let currentUrls = this.settingsService.getSetting('hero_images_urls') || [];
+    if (currentUrls.includes(urlToDelete)) {
+      const filePath = `.${urlToDelete}`;
+      try {
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      } catch (e) {
+        console.error('Could not delete image file', e);
+      }
+      currentUrls = currentUrls.filter((u: string) => u !== urlToDelete);
+      this.settingsService.setSetting('hero_images_urls', currentUrls);
+    }
+    return { success: true, urls: currentUrls };
+  }
+
   @Get('cod')
   getCodStatus() {
     const status = this.settingsService.getSetting('cod_enabled');
