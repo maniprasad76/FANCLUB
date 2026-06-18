@@ -377,14 +377,14 @@ ol {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 32px;
-  min-height: 48px; /* Standard touch target height */
+  padding: clamp(12px, 2vw, 16px) clamp(24px, 4vw, 36px);
+  min-height: clamp(48px, 6vw, 54px);
   border-radius: 0;
   font-family: var(--font-accent);
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  font-size: 0.85rem;
+  font-size: clamp(0.85rem, 1.5vw, 0.95rem);
   transition: all var(--transition-fast);
   position: relative;
   overflow: hidden;
@@ -452,17 +452,7 @@ ol {
   background: var(--bg-glass);
 }
 
-.btn-lg {
-  padding: 16px 40px;
-  font-size: 0.95rem;
-  min-height: 54px;
-}
 
-.btn-sm {
-  padding: 10px 24px;
-  font-size: 0.8rem;
-  min-height: 48px; /* Touch target minimum */
-}
 
 .btn-icon {
   width: 48px;
@@ -750,11 +740,6 @@ ol {
   .contact-grid {
     grid-template-columns: 1fr;
     gap: 40px;
-  }
-
-  .btn-lg {
-    padding: 14px 28px;
-    font-size: 0.95rem;
   }
 }
 
