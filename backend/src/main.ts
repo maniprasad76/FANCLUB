@@ -40,6 +40,7 @@ async function bootstrap() {
 
   // Root endpoint — responds outside /api prefix for health checks & direct visits
   const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.set('trust proxy', 1); // Crucial for rate limiting behind a reverse proxy (like Render)
   expressApp.get('/', (_req: any, res: any) => {
     res.json({
       name: 'FAN Backend API',
