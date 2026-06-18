@@ -176,6 +176,12 @@ export default function AdminSettings() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (heroImages.length >= 5) {
+      toast.error("Maximum 5 media items allowed for the Hero section.");
+      if (heroInputRef.current) heroInputRef.current.value = "";
+      return;
+    }
+
     setUploadingHero(true);
     setSuccessHero(false);
 
@@ -735,7 +741,7 @@ export default function AdminSettings() {
                 letterSpacing: "1px",
               }}
             >
-              Hero Images
+              Hero Media (Max 5)
             </h2>
           </div>
           <p
@@ -745,7 +751,7 @@ export default function AdminSettings() {
               fontSize: "0.85rem",
             }}
           >
-            Upload images for the Hero carousel.
+            Upload images or videos for the Hero carousel. Maximum 5 items.
           </p>
 
           <div style={uploadZoneStyle}>
@@ -829,7 +835,7 @@ export default function AdminSettings() {
                       letterSpacing: "1px",
                     }}
                   >
-                    Select Image File
+                    Select Media File
                   </h4>
                   <p
                     style={{
@@ -838,14 +844,14 @@ export default function AdminSettings() {
                       color: "var(--text-muted)",
                     }}
                   >
-                    JPG, PNG, WebP supported.
+                    JPG, PNG, WebP, MP4, WebM supported.
                   </p>
                 </div>
                 <input
                   type="file"
                   ref={heroInputRef}
                   onChange={handleHeroUpload}
-                  accept="image/jpeg,image/png,image/webp"
+                  accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
                   style={{ display: "none" }}
                 />
               </div>
@@ -879,31 +885,47 @@ export default function AdminSettings() {
                       border: "2px solid var(--bauhaus-black)",
                     }}
                   >
-                    <img
-                      src={
-                        (() => {
-                          let base =
-                            import.meta.env.VITE_API_URL?.replace("/api", "") ||
-                            "https://fanclub-backend.onrender.com";
-                          if (
-                            base.includes("localhost") &&
-                            typeof window !== "undefined"
-                          )
-                            base = base.replace(
-                              "localhost",
-                              window.location.hostname,
-                            );
-                          return base;
-                        })() + imgUrl
-                      }
-                      alt={`Hero ${i}`}
-                      style={{
-                        height: "40px",
-                        width: "80px",
-                        objectFit: "cover",
-                        border: "2px solid var(--bauhaus-black)",
-                      }}
-                    />
+                    {imgUrl.endsWith('.mp4') || imgUrl.endsWith('.webm') ? (
+                      <video
+                        src={
+                          (() => {
+                            let base =
+                              import.meta.env.VITE_API_URL?.replace("/api", "") ||
+                              "https://fanclub-backend.onrender.com";
+                            if (base.includes("localhost") && typeof window !== "undefined")
+                              base = base.replace("localhost", window.location.hostname);
+                            return base;
+                          })() + imgUrl
+                        }
+                        style={{
+                          height: "40px",
+                          width: "80px",
+                          objectFit: "cover",
+                          border: "2px solid var(--bauhaus-black)",
+                        }}
+                        muted
+                      />
+                    ) : (
+                      <img
+                        src={
+                          (() => {
+                            let base =
+                              import.meta.env.VITE_API_URL?.replace("/api", "") ||
+                              "https://fanclub-backend.onrender.com";
+                            if (base.includes("localhost") && typeof window !== "undefined")
+                              base = base.replace("localhost", window.location.hostname);
+                            return base;
+                          })() + imgUrl
+                        }
+                        alt={`Hero ${i}`}
+                        style={{
+                          height: "40px",
+                          width: "80px",
+                          objectFit: "cover",
+                          border: "2px solid var(--bauhaus-black)",
+                        }}
+                      />
+                    )}
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={() => handleDeleteHeroImage(imgUrl)}

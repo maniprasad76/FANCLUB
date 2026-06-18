@@ -115,14 +115,27 @@ export default function Home() {
           style={{ y: heroBgY, scale: heroScale }}
         >
           {heroImages.length > 0 ? (
-            heroImages.map((imgUrl, idx) => (
-              <img
-                key={idx}
-                src={formatImageUrl(imgUrl)}
-                alt={`Hero ${idx + 1}`}
-                className={`hero-carousel-img full-screen ${idx === currentHeroIndex ? "active" : ""}`}
-              />
-            ))
+            heroImages.map((imgUrl, idx) => {
+              const isVideo = imgUrl.endsWith('.mp4') || imgUrl.endsWith('.webm');
+              return isVideo ? (
+                <video
+                  key={idx}
+                  src={formatImageUrl(imgUrl)}
+                  className={`hero-carousel-img full-screen ${idx === currentHeroIndex ? "active" : ""}`}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                />
+              ) : (
+                <img
+                  key={idx}
+                  src={formatImageUrl(imgUrl)}
+                  alt={`Hero ${idx + 1}`}
+                  className={`hero-carousel-img full-screen ${idx === currentHeroIndex ? "active" : ""}`}
+                />
+              );
+            })
           ) : !heroVideoError ? (
             <video
               className="hero-media"
