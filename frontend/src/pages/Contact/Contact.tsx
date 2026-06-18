@@ -451,7 +451,7 @@ export default function Contact() {
                 <button
                   type="submit"
                   className="btn btn-primary"
-                  style={{ width: "100%", padding: "18px", fontSize: "1.1rem" }}
+                  style={{ width: "100%" }}
                   id="contact-submit"
                 >
                   <Send size={20} /> SEND MESSAGE
