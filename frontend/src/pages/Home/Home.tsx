@@ -114,7 +114,16 @@ export default function Home() {
           className="hero-bg"
           style={{ y: heroBgY, scale: heroScale }}
         >
-          {!heroVideoError ? (
+          {heroImages.length > 0 ? (
+            heroImages.map((imgUrl, idx) => (
+              <img
+                key={idx}
+                src={formatImageUrl(imgUrl)}
+                alt={`Hero ${idx + 1}`}
+                className={`hero-carousel-img full-screen ${idx === currentHeroIndex ? "active" : ""}`}
+              />
+            ))
+          ) : !heroVideoError ? (
             <video
               className="hero-media"
               src="/assets/hero-media.mp4"
@@ -137,13 +146,7 @@ export default function Home() {
           <div className="hero-gradient-overlay" />
         </motion.div>
 
-        {/* Geometric decorations */}
-        <div className="hero-geo hero-geo-circle" />
-        <div className="hero-geo hero-geo-square" />
-        <div className="hero-geo hero-geo-triangle" />
-        <div className="hero-geo hero-geo-cross" />
-
-        {/* Content */}
+        {/* Content - Empty as requested by user to have full screen images only */}
         <motion.div
           className="hero-content container"
           style={{ opacity: heroOpacity }}
@@ -151,50 +154,9 @@ export default function Home() {
           initial="initial"
           animate="animate"
         >
-          <motion.span className="hero-badge" variants={fandomticItem}>
-            <Square size={8} fill="currentColor" /> NEW COLLECTION
-          </motion.span>
-
-          <motion.div className="hero-image-carousel" variants={fandomticItem}>
-            {heroImages.length > 0 ? (
-              heroImages.map((imgUrl, idx) => (
-                <img
-                  key={idx}
-                  src={formatImageUrl(imgUrl)}
-                  alt={`Hero ${idx + 1}`}
-                  className={`hero-carousel-img ${idx === currentHeroIndex ? "active" : ""}`}
-                />
-              ))
-            ) : (
-              <div className="hero-carousel-placeholder" />
-            )}
-          </motion.div>
-
-          <motion.p className="hero-tagline" variants={fandomticItem}>
-            PREMIUM STREETWEAR CELEBRATING TFI CULTURE
-          </motion.p>
-
-          <motion.div className="hero-actions" variants={fandomticItem}>
-            <Magnetic strength={0.35}>
-              <Link to="/shop" className="btn btn-primary btn-lg btn-hero-cta" id="hero-cta">
-                Explore Collection <ArrowRight size={16} />
-              </Link>
-            </Magnetic>
-          </motion.div>
-
-          {/* Social Proof — Trust counter */}
-          <motion.div className="hero-trust-stats" variants={fandomticItem}>
-            <div className="trust-stat">
-              <Users size={14} /> <span>10,000+ Happy Customers</span>
-            </div>
-            <div className="trust-stat">
-              <Star size={14} /> <span>4.8★ Average Rating</span>
-            </div>
-            <div className="trust-stat">
-              <Shield size={14} /> <span>100% Genuine Products</span>
-            </div>
-          </motion.div>
         </motion.div>
+
+
 
         {/* Scroll indicator */}
         <div className="hero-scroll-cue">
