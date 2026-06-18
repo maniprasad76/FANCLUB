@@ -85,39 +85,7 @@
   --radius-full: 9999px;
 }
 
-/* ── DARK MODE SYSTEM ────────────────────── */
-body.dark {
-  --bg-primary: #121212;
-  --bg-rgb: 18, 18, 18;
-  --bg-secondary: #1a1a1a;
-  --bg-tertiary: #2a2a2a;
-  --bg-card: #1e1e1e;
-  --bg-glass: rgba(255, 255, 255, 0.05);
-  --bg-glass-hover: rgba(255, 255, 255, 0.1);
 
-  --text-primary: #f0f0f0;
-  --text-secondary: #a0a0a0;
-  --text-muted: #a3a3a3;
-
-  --border-subtle: #ffffff;
-  --border-glass: #ffffff;
-  --border-accent: #ffffff;
-  --border-rgb: 255, 255, 255;
-
-  --shadow-sm: 3px 3px 0px 0px #ffffff;
-  --shadow-md: 6px 6px 0px 0px #ffffff;
-  --shadow-lg: 8px 8px 0px 0px #ffffff;
-  --shadow-glow: 4px 4px 0px 0px #ffffff;
-  --shadow-glow-amber: 4px 4px 0px 0px #ffffff;
-
-  /* Invert bauhaus black and white for contrast */
-  --bauhaus-black: #ffffff;
-  --bauhaus-white: #121212;
-}
-
-body.dark::before {
-  opacity: 0.05; /* Tone down the dot grid in dark mode */
-}
 
 /* ============================================
    RESET & BASE
@@ -846,9 +814,7 @@ ol {
   outline-offset: 2px !important;
 }
 
-body.dark *:focus-visible {
-  outline-color: var(--bauhaus-yellow) !important;
-}
+
 
 /* Remove outline on mouse click (browsers that support :focus-visible) */
 *:focus:not(:focus-visible) {

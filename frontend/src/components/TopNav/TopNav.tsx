@@ -28,7 +28,6 @@ export default function TopNav() {
   const navBorder = useMotionTemplate`rgba(var(--border-rgb), ${navBorderOpacity})`;
   const { user, logout } = useAuth();
   const { count } = useCart();
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -126,11 +125,7 @@ export default function TopNav() {
           </div>
 
           <div className="topnav-right">
-            <Magnetic>
-              <button className="btn-icon nav-icon-btn interactive" onClick={toggleTheme} id="nav-theme-btn">
-                {theme === 'dark' ? <Sun size={22} /> : <Moon size={22} />}
-              </button>
-            </Magnetic>
+
             <Magnetic>
               <button className="btn-icon nav-icon-btn interactive" onClick={() => setSearchOpen(!searchOpen)} id="nav-search-btn">
                 <Search size={22} />

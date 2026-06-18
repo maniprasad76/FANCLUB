@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 
-type Theme = 'light' | 'dark';
+type Theme = 'light';
 
 interface ThemeContextType {
   theme: Theme;
@@ -10,27 +10,8 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    // Check localStorage first
-    const saved = localStorage.getItem('fan_theme');
-    if (saved === 'light' || saved === 'dark') return saved;
-    // Default to light for Bauhaus aesthetics, but respect system preference if possible
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark';
-    }
-    return 'light';
-  });
-
-  useEffect(() => {
-    localStorage.setItem('fan_theme', theme);
-    if (theme === 'dark') {
-      document.body.classList.add('dark');
-    } else {
-      document.body.classList.remove('dark');
-    }
-  }, [theme]);
-
-  const toggleTheme = () => setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+  const theme: Theme = 'light';
+  const toggleTheme = () => {};
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
