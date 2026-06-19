@@ -122,6 +122,10 @@ api.interceptors.response.use(
         toast.error('File is too large. Please select a smaller file.');
       } else if (status === 403) {
         toast.error('You do not have permission to perform this action.');
+        // Dispatch event so pages can redirect to /access-denied if needed
+        window.dispatchEvent(new CustomEvent('auth:access-denied', {
+          detail: { url: error.config?.url, method: error.config?.method },
+        }));
       } else if (status === 429) {
         toast.error('Too many requests. Please try again later.');
       } else if (status >= 500) {

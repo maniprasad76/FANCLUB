@@ -7,6 +7,8 @@ import {
   Min,
   IsString,
   IsIn,
+  MaxLength,
+  IsUUID,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -35,10 +37,10 @@ const ALLOWED_CURRENCIES = [
 ] as const;
 
 export class OrderItemDto {
-  @IsString() productId: string;
+  @IsString() @IsUUID() productId: string;
   @IsNumber() @Min(1) @Type(() => Number) quantity: number;
-  @IsOptional() @IsString() size?: string;
-  @IsOptional() @IsString() color?: string;
+  @IsOptional() @IsString() @MaxLength(50) size?: string;
+  @IsOptional() @IsString() @MaxLength(50) color?: string;
 }
 
 export class CreateOrderDto {
@@ -48,6 +50,7 @@ export class CreateOrderDto {
   items: OrderItemDto[];
 
   @IsString()
+  @IsUUID()
   addressId: string;
 
   /**
@@ -66,6 +69,7 @@ export class CreateOrderDto {
   /** Customer country — used for gateway auto-routing. Read from address if omitted. */
   @IsOptional()
   @IsString()
+  @MaxLength(100)
   country?: string;
 
   /** Currency code — must be an allowlisted value. Defaults to INR. */
@@ -75,10 +79,12 @@ export class CreateOrderDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(2000)
   notes?: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(50)
   couponCode?: string;
 }
 
@@ -102,5 +108,6 @@ export class UpdateOrderStatusDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(255)
   trackingId?: string;
 }

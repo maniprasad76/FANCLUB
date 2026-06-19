@@ -37,6 +37,7 @@ import { RedisFallbackCacheStore } from './common/services/redis-fallback-cache.
 import { RedisFallbackThrottlerStorage } from './common/services/redis-fallback-throttler.storage.js';
 import { AuditModule } from './audit/audit.module.js';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor.js';
+import { SecurityAuditInterceptor } from './common/interceptors/security-audit.interceptor.js';
 
 @Module({
   imports: [
@@ -115,6 +116,10 @@ import { AuditInterceptor } from './common/interceptors/audit.interceptor.js';
     {
       provide: APP_INTERCEPTOR,
       useClass: AuditInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: SecurityAuditInterceptor,
     },
     {
       provide: APP_PIPE,

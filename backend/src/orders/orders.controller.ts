@@ -35,6 +35,11 @@ export class OrdersController {
     return this.ordersService.findUserOrders(authId, +page, +limit);
   }
 
+  @Get('public/recent')
+  findPublicRecentPurchases() {
+    return this.ordersService.getPublicRecentPurchases();
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   findById(@Param('id') id: string, @CurrentUser() user: UserProfile) {

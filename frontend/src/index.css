@@ -833,3 +833,192 @@ ol {
   white-space: nowrap;
   border: 0;
 }
+
+/* ==========================================================================
+   DYNAMIC DEVICE LAYOUT COMPONENT STYLES
+   ========================================================================== */
+
+/* Swipeable horizontal carousels (Mobile UI) */
+.mobile-swipe-carousel {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 16px var(--container-padding);
+  margin-left: calc(-1 * var(--container-padding));
+  margin-right: calc(-1 * var(--container-padding));
+  scrollbar-width: none; /* Hide scrollbar Firefox */
+}
+.mobile-swipe-carousel::-webkit-scrollbar {
+  display: none; /* Hide scrollbar Chrome/Safari */
+}
+.mobile-swipe-item {
+  flex: 0 0 78vw;
+  scroll-snap-align: start;
+}
+
+/* Horizontal pill selectors (Mobile UI) */
+.mobile-pills-row {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 8px var(--container-padding);
+  margin-left: calc(-1 * var(--container-padding));
+  margin-right: calc(-1 * var(--container-padding));
+  margin-bottom: 24px;
+}
+.mobile-pills-row::-webkit-scrollbar {
+  display: none;
+}
+.mobile-pill {
+  padding: 8px 16px;
+  background: var(--bg-card);
+  border: 2px solid var(--bauhaus-black);
+  font-family: var(--font-accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+.mobile-pill.active {
+  background: var(--bauhaus-yellow);
+  box-shadow: 3px 3px 0px 0px var(--bauhaus-black);
+}
+
+/* Bottom Sheet Filter drawer (Mobile UI) */
+.mobile-bottom-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(18, 18, 18, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 1200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.mobile-bottom-sheet-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+.mobile-bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-height: 80vh;
+  background: var(--bg-primary);
+  border-top: 4px solid var(--bauhaus-black);
+  z-index: 1201;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 24px var(--container-padding);
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+}
+.mobile-bottom-sheet.active {
+  transform: translateY(0);
+}
+.mobile-bottom-sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--bauhaus-black);
+}
+.mobile-bottom-sheet-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.mobile-bottom-sheet-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+.mobile-bottom-sheet-content {
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Mobile Sticky Bottom CTA buy bar */
+.mobile-sticky-buy-bar {
+  position: fixed;
+  bottom: var(--mobile-nav-height);
+  left: 0;
+  right: 0;
+  height: 76px;
+  background: var(--bg-card);
+  border-top: 3px solid var(--bauhaus-black);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--container-padding);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+}
+.mobile-sticky-buy-info {
+  display: flex;
+  flex-direction: column;
+}
+.mobile-sticky-price {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--bauhaus-red);
+}
+.mobile-sticky-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mobile-sticky-btn {
+  height: 48px;
+  padding: 0 20px;
+  font-family: var(--font-accent);
+  background: var(--bauhaus-black);
+  color: var(--bauhaus-white);
+  border: 2px solid var(--bauhaus-black);
+  font-weight: 700;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all var(--transition-fast);
+}
+.mobile-sticky-btn:active {
+  background: var(--bauhaus-blue);
+  color: var(--bauhaus-white);
+}
+
+/* Desktop Grid and layout enhancements */
+@media (min-width: 1024px) {
+  /* Hover previews & scaling animations */
+  .desktop-hover-lift {
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+  }
+  .desktop-hover-lift:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 8px 8px 0px 0px var(--bauhaus-black) !important;
+  }
+  
+  .desktop-hover-zoom img {
+    transition: transform 0.4s ease;
+  }
+  .desktop-hover-zoom:hover img {
+    transform: scale(1.05);
+  }
+}
+

@@ -76,4 +76,31 @@ export class ReviewsService {
 
     return { message: 'Review deleted' };
   }
+
+  /**
+   * Delete a review owned by the authenticated user.
+   * SECURITY: userId is derived from the JWT — users can only delete their own reviews.
+   * Returns 404 (not 403) if the review doesn't belong to the user to prevent enumeration.
+   */
+  async deleteByOwner(id: string, userId: string) {
+    const review = await this.prisma.review.findFirst({
+      where: { id, userId },
+    });
+    if (!review) throw new NotFoundException('Review not found');
+
+    await this.prisma.review.delete({ where: { id } });
+
+    // Recalculate product rating
+    const agg = await this.prisma.review.aggregate({
+      where: { productId: review.productId },
+      _avg: { rating: true },
+      _count: { rating: true },
+    });
+    await this.prisma.product.update({
+      where: { id: review.productId },
+      data: { rating: agg._avg.rating || 0, reviewCount: agg._count.rating },
+    });
+
+    return { message: 'Review deleted' };
+  }
 }

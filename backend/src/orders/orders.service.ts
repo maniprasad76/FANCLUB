@@ -437,4 +437,42 @@ export class OrdersService {
     ]);
     return { orders, total, page, pages: Math.ceil(total / safeLimit) };
   }
+
+  async getPublicRecentPurchases() {
+    const orders = await this.prisma.order.findMany({
+      where: {
+        status: {
+          in: ['CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED'],
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      include: {
+        items: true,
+        address: true,
+        user: { select: { name: true } },
+      },
+    });
+
+    return orders.map((order) => {
+      const city = order.address?.city || 'India';
+      const productName = order.items[0]?.name || 'Premium Streetwear';
+      const rawName = order.user?.name || order.address?.name || 'A customer';
+
+      const nameParts = rawName.trim().split(/\s+/);
+      let anonymizedName = 'A customer';
+      if (nameParts.length > 0 && nameParts[0]) {
+        const first = nameParts[0];
+        const lastInit = nameParts[1] ? ` ${nameParts[1][0]}.` : '';
+        anonymizedName = `${first}${lastInit}`;
+      }
+
+      return {
+        purchaserName: anonymizedName,
+        productName,
+        city,
+        createdAt: order.createdAt,
+      };
+    });
+  }
 }

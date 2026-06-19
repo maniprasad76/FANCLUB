@@ -2,28 +2,35 @@ import {
   Injectable,
   CanActivate,
   ExecutionContext,
-  ForbiddenException,
   NotFoundException,
+  InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PrismaService } from '../../prisma/prisma.service';
 
 /**
- * OWNERSHIP_MODEL metadata key — set via @SetMetadata or a custom decorator.
- * Tells the guard which Prisma model to check ownership against.
+ * OwnershipGuard — Zero-Trust Resource Ownership Verification
+ *
+ * Verifies that the authenticated user owns the resource they are
+ * trying to access. Admins bypass ownership checks.
+ *
+ * SECURITY DESIGN:
+ * - Fails CLOSED on all error paths (denies access)
+ * - Returns 404 (not 403) for non-owner access to prevent resource enumeration
+ * - Emits audit events for unauthorized access attempts
  *
  * Usage:
  *   @UseGuards(JwtAuthGuard, OwnershipGuard)
- *   @SetMetadata('ownership_model', 'order')
+ *   @CheckOwnership('order')           // model name
  *   @Get(':id')
  *   getOrder(@Param('id') id: string) { ... }
  *
- * The guard will:
- *   1. Read the model name from metadata
- *   2. Look up the resource by `params.id`
- *   3. Compare `resource.userId` with `req.user.id`
- *   4. Allow admins to bypass ownership checks
+ *   // Custom param key (when the param is not `:id`):
+ *   @CheckOwnership('order', 'orderId')
+ *   @Get(':orderId/details')
+ *   getOrderDetails(@Param('orderId') orderId: string) { ... }
  */
 @Injectable()
 export class OwnershipGuard implements CanActivate {
@@ -32,6 +39,7 @@ export class OwnershipGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -53,7 +61,12 @@ export class OwnershipGuard implements CanActivate {
       return true;
     }
 
-    const resourceId = request.params?.id;
+    // Determine which param holds the resource ID
+    const paramKey =
+      this.reflector.get<string>('ownership_param', context.getHandler()) ||
+      'id';
+    const resourceId = request.params?.[paramKey];
+
     if (!resourceId) {
       return true; // No resource ID in params — skip
     }
@@ -63,9 +76,12 @@ export class OwnershipGuard implements CanActivate {
       const model = (this.prisma as any)[modelName];
       if (!model) {
         this.logger.error(
-          `OwnershipGuard: Unknown model "${modelName}" — check @SetMetadata('ownership_model', ...)`,
+          `OwnershipGuard: Unknown Prisma model "${modelName}" — DENYING ACCESS. Fix @CheckOwnership() metadata.`,
         );
-        return true; // Fail open — don't block if misconfigured, log the error
+        // FAIL CLOSED — deny access on misconfiguration
+        throw new InternalServerErrorException(
+          'Authorization configuration error',
+        );
       }
 
       const resource = await model.findUnique({
@@ -78,24 +94,49 @@ export class OwnershipGuard implements CanActivate {
       }
 
       if (resource.userId !== user?.id) {
+        // Log the unauthorized access attempt
         this.logger.warn(
-          `🚫 Ownership denied — user=${user?.id} attempted to access ${modelName}=${resourceId} owned by ${resource.userId}`,
+          `🚫 IDOR attempt blocked — user=${user?.id} tried to access ${modelName}=${resourceId} owned by ${resource.userId} → ${request.method} ${request.url}`,
         );
-        throw new ForbiddenException(
-          'You do not have permission to access this resource',
-        );
+
+        // Emit audit event for security monitoring
+        this.eventEmitter.emit('audit.log', {
+          userId: user?.id,
+          userEmail: user?.email,
+          action: 'OWNERSHIP_VIOLATION',
+          targetId: resourceId,
+          targetType: modelName.toUpperCase(),
+          ipAddress:
+            request.ip || request.headers['x-forwarded-for'] || 'unknown',
+          userAgent: request.headers['user-agent'] || 'unknown',
+          changes: {
+            attemptedResource: `${modelName}:${resourceId}`,
+            resourceOwner: resource.userId,
+            httpMethod: request.method,
+            url: request.url,
+          },
+        });
+
+        // Return 404 — prevents resource enumeration (IDOR defense)
+        throw new NotFoundException('Resource not found');
       }
 
       return true;
     } catch (error) {
+      // Re-throw known HTTP exceptions
       if (
-        error instanceof ForbiddenException ||
-        error instanceof NotFoundException
+        error instanceof NotFoundException ||
+        error instanceof InternalServerErrorException
       ) {
         throw error;
       }
-      this.logger.error(`OwnershipGuard error: ${(error as Error).message}`);
-      return true; // Fail open on unexpected errors
+
+      // FAIL CLOSED — deny access on unexpected errors
+      this.logger.error(
+        `OwnershipGuard unexpected error — DENYING ACCESS: ${(error as Error).message}`,
+        (error as Error).stack,
+      );
+      throw new NotFoundException('Resource not found');
     }
   }
 }

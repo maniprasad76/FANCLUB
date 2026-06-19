@@ -16,6 +16,7 @@ describe('OrdersService', () => {
   let prisma: any;
   let paymentsService: any;
   let configService: any;
+  let couponsService: any;
 
   beforeEach(() => {
     prisma = {
@@ -36,6 +37,7 @@ describe('OrdersService', () => {
       },
       cartItem: { deleteMany: jest.fn() },
       address: { findFirst: jest.fn() },
+      coupon: { update: jest.fn() },
       $transaction: jest.fn((fn) => fn(prisma)),
     };
 
@@ -47,7 +49,11 @@ describe('OrdersService', () => {
       get: jest.fn(),
     };
 
-    service = new OrdersService(prisma, paymentsService, configService);
+    couponsService = {
+      validateCoupon: jest.fn(),
+    };
+
+    service = new OrdersService(prisma, paymentsService, configService, couponsService);
   });
 
   // ─── STATUS TRANSITIONS ──────────────────────────────────────

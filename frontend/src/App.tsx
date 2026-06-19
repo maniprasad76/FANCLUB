@@ -6,6 +6,7 @@ import { PageSkeleton } from "./components/SkeletonLoader";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import { DeviceProvider } from "./context/DeviceContext";
 import { Particles } from "./components/Particles";
 import TopNav from "./components/TopNav/TopNav";
 import Footer from "./components/Footer/Footer";
@@ -35,11 +36,13 @@ import Returns from "./pages/Support/Returns";
 import Terms from "./pages/Support/Terms";
 import LaunchChecklist from "./pages/LaunchChecklist/LaunchChecklist";
 import NotFound from "./pages/NotFound";
+import AccessDenied from "./pages/AccessDenied/AccessDenied";
 import { Toaster } from "react-hot-toast";
 import "./App.css";
 import BrandIntro from "./components/BrandIntro/BrandIntro";
 import FloatingSocials from "./components/FloatingSocials/FloatingSocials";
 import OfflineIndicator from "./components/OfflineIndicator";
+import ScarcityToaster from "./components/ScarcityToaster/ScarcityToaster";
 
 function AppShell() {
   const location = useLocation();
@@ -139,6 +142,7 @@ function AppShell() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/returns" element={<Returns />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/access-denied" element={<AccessDenied />} />
             <Route path="/launch-checklist" element={<LaunchChecklist />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
@@ -149,6 +153,7 @@ function AppShell() {
       <MobileBottomNav />
       <FloatingSocials />
       <OfflineIndicator />
+      <ScarcityToaster />
       {/* Global UX Components */}
       <Toaster
         position="top-center"
@@ -217,17 +222,19 @@ function App() {
         {showIntro && <BrandIntro key="brand-intro" />}
       </AnimatePresence>
       <Particles />
-      <ThemeProvider>
-        <AuthProvider>
-          <CartProvider>
-            <ErrorBoundary>
-              <Suspense fallback={<PageSkeleton />}>
-                <AppShell />
-              </Suspense>
-            </ErrorBoundary>
-          </CartProvider>
-        </AuthProvider>
-      </ThemeProvider>
+      <DeviceProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <CartProvider>
+              <ErrorBoundary>
+                <Suspense fallback={<PageSkeleton />}>
+                  <AppShell />
+                </Suspense>
+              </ErrorBoundary>
+            </CartProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </DeviceProvider>
     </BrowserRouter>
   );
 }

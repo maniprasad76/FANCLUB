@@ -8,8 +8,10 @@ import SEOHead, { buildCollectionSchema, buildBreadcrumbSchema } from '../../com
 import Breadcrumbs from '../../components/Breadcrumbs';
 import api from '../../lib/api';
 import './Shop.css';
+import { useDevice } from '../../context/DeviceContext';
 
 export default function Shop() {
+  const { isDesktop } = useDevice();
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
@@ -124,84 +126,180 @@ export default function Shop() {
           </motion.div>
 
           <div className="shop-layout">
-            {/* Sidebar */}
-            <motion.aside
-              className={`shop-sidebar glass-card fandomtic-panel ${filtersOpen ? 'open' : ''}`}
-              initial={{ opacity: 0, x: -24 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-            >
-              <div className="sidebar-header">
-                <h3 className="heading-sm">Filters</h3>
-                <button className="btn-icon sidebar-close" onClick={() => setFiltersOpen(false)}>
-                  <X size={20} />
-                </button>
-              </div>
-              <div className="filter-group">
-                <h4 className="filter-title">Gender</h4>
-                <div className="filter-chips">
-                  <button className={`filter-chip ${!gender ? 'active' : ''}`} onClick={() => updateFilter('gender', '')}>All</button>
-                  <button className={`filter-chip ${gender === 'MEN' ? 'active' : ''}`} onClick={() => updateFilter('gender', 'MEN')}>Men</button>
-                  <button className={`filter-chip ${gender === 'WOMEN' ? 'active' : ''}`} onClick={() => updateFilter('gender', 'WOMEN')}>Women</button>
-                </div>
-              </div>
-
-              <div className="filter-group">
-                <h4 className="filter-title">Categories</h4>
-                <div className="filter-chips">
-                  <button className={`filter-chip ${!category ? 'active' : ''}`} onClick={() => updateFilter('category', '')}>All</button>
-                  {categories.map((cat: any) => (
-                    <button
-                      key={cat.id}
-                      className={`filter-chip ${category === cat.slug ? 'active' : ''}`}
-                      onClick={() => updateFilter('category', cat.slug)}
-                    >
-                      {cat.name} ({cat._count?.products || 0})
+            {/* Mobile / Tablet Filter Bottom Sheet */}
+            {!isDesktop ? (
+              <>
+                <div 
+                  className={`mobile-bottom-sheet-overlay ${filtersOpen ? 'active' : ''}`}
+                  onClick={() => setFiltersOpen(false)}
+                />
+                <div className={`mobile-bottom-sheet ${filtersOpen ? 'active' : ''}`}>
+                  <div className="mobile-bottom-sheet-header">
+                    <h3 className="mobile-bottom-sheet-title">Filters</h3>
+                    <button className="mobile-bottom-sheet-close" onClick={() => setFiltersOpen(false)}>
+                      <X size={24} />
                     </button>
-                  ))}
-                </div>
-              </div>
+                  </div>
+                  <div className="mobile-bottom-sheet-content">
+                    {/* Render all filters */}
+                    <div className="filter-group">
+                      <h4 className="filter-title">Gender</h4>
+                      <div className="filter-chips">
+                        <button className={`filter-chip ${!gender ? 'active' : ''}`} onClick={() => updateFilter('gender', '')}>All</button>
+                        <button className={`filter-chip ${gender === 'MEN' ? 'active' : ''}`} onClick={() => updateFilter('gender', 'MEN')}>Men</button>
+                        <button className={`filter-chip ${gender === 'WOMEN' ? 'active' : ''}`} onClick={() => updateFilter('gender', 'WOMEN')}>Women</button>
+                      </div>
+                    </div>
 
-              <div className="filter-group" style={{ marginTop: '24px' }}>
-                <h4 className="filter-title">Size</h4>
-                <div className="filter-chips">
-                  {['S', 'M', 'L', 'XL', 'XXL'].map(s => (
-                    <button key={s} className={`filter-chip ${size === s ? 'active' : ''}`} onClick={() => updateFilter('size', size === s ? '' : s)}>{s}</button>
-                  ))}
-                </div>
-              </div>
+                    <div className="filter-group" style={{ marginTop: '20px' }}>
+                      <h4 className="filter-title">Categories</h4>
+                      <div className="filter-chips">
+                        <button className={`filter-chip ${!category ? 'active' : ''}`} onClick={() => updateFilter('category', '')}>All</button>
+                        {categories.map((cat: any) => (
+                          <button
+                            key={cat.id}
+                            className={`filter-chip ${category === cat.slug ? 'active' : ''}`}
+                            onClick={() => updateFilter('category', cat.slug)}
+                          >
+                            {cat.name} ({cat._count?.products || 0})
+                          </button>
+                        ))}
+                      </div>
+                    </div>
 
-              <div className="filter-group" style={{ marginTop: '24px' }}>
-                <h4 className="filter-title">Color</h4>
-                <div className="filter-chips" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {['Black', 'White', 'Red', 'Blue', 'Yellow'].map(c => (
-                    <button 
-                      key={c} 
-                      title={c}
-                      onClick={() => updateFilter('color', color === c ? '' : c)}
-                      style={{ 
-                        width: '28px', height: '28px', borderRadius: '50%', background: c.toLowerCase(), 
-                        border: color === c ? '3px solid var(--bauhaus-red)' : '2px solid var(--bauhaus-black)',
-                        cursor: 'pointer' 
-                      }} 
-                    />
-                  ))}
-                </div>
-              </div>
+                    <div className="filter-group" style={{ marginTop: '20px' }}>
+                      <h4 className="filter-title">Size</h4>
+                      <div className="filter-chips">
+                        {['S', 'M', 'L', 'XL', 'XXL'].map(s => (
+                          <button key={s} className={`filter-chip ${size === s ? 'active' : ''}`} onClick={() => updateFilter('size', size === s ? '' : s)}>{s}</button>
+                        ))}
+                      </div>
+                    </div>
 
-              <div className="filter-group" style={{ marginTop: '24px' }}>
-                <h4 className="filter-title">Price Range</h4>
-                <div className="filter-chips">
-                  <button className={`filter-chip ${!minPrice && !maxPrice ? 'active' : ''}`} onClick={() => { updateFilter('minPrice', ''); updateFilter('maxPrice', ''); }}>All</button>
-                  <button className={`filter-chip ${maxPrice === '999' ? 'active' : ''}`} onClick={() => { updateFilter('minPrice', ''); updateFilter('maxPrice', '999'); }}>Under ₹999</button>
-                  <button className={`filter-chip ${minPrice === '1000' && maxPrice === '2999' ? 'active' : ''}`} onClick={() => { updateFilter('minPrice', '1000'); updateFilter('maxPrice', '2999'); }}>₹1000 - ₹2999</button>
-                  <button className={`filter-chip ${minPrice === '3000' ? 'active' : ''}`} onClick={() => { updateFilter('minPrice', '3000'); updateFilter('maxPrice', ''); }}>Above ₹3000</button>
+                    <div className="filter-group" style={{ marginTop: '20px' }}>
+                      <h4 className="filter-title">Color</h4>
+                      <div className="filter-chips" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        {['Black', 'White', 'Red', 'Blue', 'Yellow'].map(c => (
+                          <button 
+                            key={c} 
+                            title={c}
+                            onClick={() => updateFilter('color', color === c ? '' : c)}
+                            style={{ 
+                              width: '28px', height: '28px', borderRadius: '50%', background: c.toLowerCase(), 
+                              border: color === c ? '3px solid var(--bauhaus-red)' : '2px solid var(--bauhaus-black)',
+                              cursor: 'pointer' 
+                            }} 
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="filter-group" style={{ marginTop: '20px', marginBottom: '20px' }}>
+                      <h4 className="filter-title">Price Range</h4>
+                      <div className="filter-chips">
+                        <button className={`filter-chip ${!minPrice && !maxPrice ? 'active' : ''}`} onClick={() => { updateFilter('minPrice', ''); updateFilter('maxPrice', ''); }}>All</button>
+                        <button className={`filter-chip ${maxPrice === '999' ? 'active' : ''}`} onClick={() => { updateFilter('minPrice', ''); updateFilter('maxPrice', '999'); }}>Under ₹999</button>
+                        <button className={`filter-chip ${minPrice === '1000' && maxPrice === '2999' ? 'active' : ''}`} onClick={() => { updateFilter('minPrice', '1000'); updateFilter('maxPrice', '2999'); }}>₹1000 - ₹2999</button>
+                        <button className={`filter-chip ${minPrice === '3000' ? 'active' : ''}`} onClick={() => { updateFilter('minPrice', '3000'); updateFilter('maxPrice', ''); }}>Above ₹3000</button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </motion.aside>
+              </>
+            ) : (
+              /* Desktop Sidebar */
+              <motion.aside
+                className={`shop-sidebar glass-card fandomtic-panel ${filtersOpen ? 'open' : ''}`}
+                initial={{ opacity: 0, x: -24 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+              >
+                <div className="sidebar-header">
+                  <h3 className="heading-sm">Filters</h3>
+                  <button className="btn-icon sidebar-close" onClick={() => setFiltersOpen(false)}>
+                    <X size={20} />
+                  </button>
+                </div>
+                <div className="filter-group">
+                  <h4 className="filter-title">Gender</h4>
+                  <div className="filter-chips">
+                    <button className={`filter-chip ${!gender ? 'active' : ''}`} onClick={() => updateFilter('gender', '')}>All</button>
+                    <button className={`filter-chip ${gender === 'MEN' ? 'active' : ''}`} onClick={() => updateFilter('gender', 'MEN')}>Men</button>
+                    <button className={`filter-chip ${gender === 'WOMEN' ? 'active' : ''}`} onClick={() => updateFilter('gender', 'WOMEN')}>Women</button>
+                  </div>
+                </div>
+
+                <div className="filter-group">
+                  <h4 className="filter-title">Categories</h4>
+                  <div className="filter-chips">
+                    <button className={`filter-chip ${!category ? 'active' : ''}`} onClick={() => updateFilter('category', '')}>All</button>
+                    {categories.map((cat: any) => (
+                      <button
+                        key={cat.id}
+                        className={`filter-chip ${category === cat.slug ? 'active' : ''}`}
+                        onClick={() => updateFilter('category', cat.slug)}
+                      >
+                        {cat.name} ({cat._count?.products || 0})
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="filter-group" style={{ marginTop: '24px' }}>
+                  <h4 className="filter-title">Size</h4>
+                  <div className="filter-chips">
+                    {['S', 'M', 'L', 'XL', 'XXL'].map(s => (
+                      <button key={s} className={`filter-chip ${size === s ? 'active' : ''}`} onClick={() => updateFilter('size', size === s ? '' : s)}>{s}</button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="filter-group" style={{ marginTop: '24px' }}>
+                  <h4 className="filter-title">Color</h4>
+                  <div className="filter-chips" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {['Black', 'White', 'Red', 'Blue', 'Yellow'].map(c => (
+                      <button 
+                        key={c} 
+                        title={c}
+                        onClick={() => updateFilter('color', color === c ? '' : c)}
+                        style={{ 
+                          width: '28px', height: '28px', borderRadius: '50%', background: c.toLowerCase(), 
+                          border: color === c ? '3px solid var(--bauhaus-red)' : '2px solid var(--bauhaus-black)',
+                          cursor: 'pointer' 
+                        }} 
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="filter-group" style={{ marginTop: '24px' }}>
+                  <h4 className="filter-title">Price Range</h4>
+                  <div className="filter-chips">
+                    <button className={`filter-chip ${!minPrice && !maxPrice ? 'active' : ''}`} onClick={() => { updateFilter('minPrice', ''); updateFilter('maxPrice', ''); }}>All</button>
+                    <button className={`filter-chip ${maxPrice === '999' ? 'active' : ''}`} onClick={() => { updateFilter('minPrice', ''); updateFilter('maxPrice', '999'); }}>Under ₹999</button>
+                    <button className={`filter-chip ${minPrice === '1000' && maxPrice === '2999' ? 'active' : ''}`} onClick={() => { updateFilter('minPrice', '1000'); updateFilter('maxPrice', '2999'); }}>₹1000 - ₹2999</button>
+                    <button className={`filter-chip ${minPrice === '3000' ? 'active' : ''}`} onClick={() => { updateFilter('minPrice', '3000'); updateFilter('maxPrice', ''); }}>Above ₹3000</button>
+                  </div>
+                </div>
+              </motion.aside>
+            )}
 
             {/* Products */}
             <div className="shop-products">
+              {!isDesktop && (
+                <div className="mobile-pills-row" style={{ padding: '0 0 16px 0', margin: '0 0 8px 0' }}>
+                  <button className={`mobile-pill ${!category ? 'active' : ''}`} onClick={() => updateFilter('category', '')}>All</button>
+                  {categories.map((cat: any) => (
+                    <button
+                      key={cat.id}
+                      className={`mobile-pill ${category === cat.slug ? 'active' : ''}`}
+                      onClick={() => updateFilter('category', cat.slug)}
+                    >
+                      {cat.name}
+                    </button>
+                  ))}
+                </div>
+              )}
               <AnimatePresence mode="wait">
                 {loading ? (
                   <motion.div

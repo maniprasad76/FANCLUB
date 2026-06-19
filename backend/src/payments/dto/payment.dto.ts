@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsNumber, Min } from 'class-validator';
+import { IsString, IsOptional, IsNumber, Min, IsUUID, MaxLength } from 'class-validator';
 import { Type } from 'class-transformer';
 
 /**
@@ -7,21 +7,25 @@ import { Type } from 'class-transformer';
  */
 export class CreatePaymentDto {
   @IsString()
+  @IsUUID()
   orderId: string;
 
   /** Optional: RAZORPAY or COD. Auto-routed if omitted. */
   @IsOptional()
   @IsString()
+  @MaxLength(50)
   gateway?: string;
 
   /** Customer country — used for gateway auto-routing. Defaults to 'India'. */
   @IsOptional()
   @IsString()
+  @MaxLength(100)
   country?: string;
 
   /** Currency code — defaults to INR. */
   @IsOptional()
   @IsString()
+  @MaxLength(10)
   currency?: string;
 }
 
@@ -30,12 +34,15 @@ export class CreatePaymentDto {
  */
 export class VerifyRazorpayDto {
   @IsString()
+  @MaxLength(255)
   razorpayOrderId: string;
 
   @IsString()
+  @MaxLength(255)
   razorpayPaymentId: string;
 
   @IsString()
+  @MaxLength(255)
   signature: string;
 }
 
@@ -52,6 +59,7 @@ export class RefundDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(500)
   reason?: string;
 }
 
@@ -62,5 +70,6 @@ export class RetryPaymentDto {
   /** Override gateway for the retry. */
   @IsOptional()
   @IsString()
+  @MaxLength(50)
   gateway?: string;
 }

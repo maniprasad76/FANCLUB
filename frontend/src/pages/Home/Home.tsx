@@ -7,9 +7,6 @@ import {
   Truck,
   RotateCcw,
   Headphones,
-  Square,
-  Users,
-  Star,
 } from "lucide-react";
 import { Magnetic } from "../../components/Magnetic";
 import AnimatedPage, {
@@ -22,6 +19,7 @@ import { SOCIAL_LINKS } from "../../config";
 import api from "../../lib/api";
 import { formatImageUrl } from "../../lib/utils";
 import "./Home.css";
+import { useDevice } from "../../context/DeviceContext";
 
 /* ─── types ─── */
 interface Product {
@@ -47,6 +45,7 @@ const FEATURES = [
 ];
 
 export default function Home() {
+  const { isMobile } = useDevice();
   const heroRef = useRef<HTMLElement>(null);
   const [featured, setFeatured] = useState<Product[]>([]);
   const [drops, setDrops] = useState<Product[]>([]);
@@ -67,12 +66,13 @@ export default function Home() {
   /* fetch products & config */
   const fetchData = useCallback(async () => {
     try {
-      const [featuredRes, dropsRes, aboutImgRes, heroImgRes] = await Promise.all([
-        api.get("/products/featured"),
-        api.get("/products?sort=newest&limit=12"),
-        api.get("/settings/about-image").catch(() => ({ data: {} })),
-        api.get("/settings/hero-images").catch(() => ({ data: {} })),
-      ]);
+      const [featuredRes, dropsRes, aboutImgRes, heroImgRes] =
+        await Promise.all([
+          api.get("/products/featured"),
+          api.get("/products?sort=newest&limit=12"),
+          api.get("/settings/about-image").catch(() => ({ data: {} })),
+          api.get("/settings/hero-images").catch(() => ({ data: {} })),
+        ]);
       setFeatured(featuredRes.data?.products || featuredRes.data || []);
       setDrops(dropsRes.data?.products || dropsRes.data || []);
       if (aboutImgRes.data?.url) setAboutImage(aboutImgRes.data.url);
@@ -108,15 +108,16 @@ export default function Home() {
       {/* ════════════════════════════════════════════
           1. HERO — Bauhaus Constructivist
          ════════════════════════════════════════════ */}
-      <section className="hero" id="hero-section" ref={heroRef}>
+      <section className="hero" id="hero-section" ref={heroRef} style={isMobile ? { minHeight: "85vh", height: "85vh" } : {}}>
         {/* Background media */}
         <motion.div
           className="hero-bg"
-          style={{ y: heroBgY, scale: heroScale }}
+          style={isMobile ? {} : { y: heroBgY, scale: heroScale }}
         >
           {heroImages.length > 0 ? (
             heroImages.map((imgUrl, idx) => {
-              const isVideo = imgUrl.endsWith('.mp4') || imgUrl.endsWith('.webm');
+              const isVideo =
+                imgUrl.endsWith(".mp4") || imgUrl.endsWith(".webm");
               return isVideo ? (
                 <video
                   key={idx}
@@ -159,22 +160,49 @@ export default function Home() {
           <div className="hero-gradient-overlay" />
         </motion.div>
 
-        {/* Content - Empty as requested by user to have full screen images only */}
-        <motion.div
-          className="hero-content container"
-          style={{ opacity: heroOpacity }}
-          variants={fandomticStagger}
-          initial="initial"
-          animate="animate"
-        >
-        </motion.div>
-
-
+        {/* Content */}
+        {isMobile ? (
+          <div 
+            className="hero-content container" 
+            style={{ 
+              position: "absolute", 
+              zIndex: 10, 
+              bottom: "40px", 
+              left: "0", 
+              right: "0", 
+              textAlign: "center", 
+              display: "flex", 
+              flexDirection: "column", 
+              alignItems: "center",
+              padding: "0 24px"
+            }}
+          >
+            <h1 className="font-display" style={{ fontSize: "2.5rem", fontWeight: 900, textTransform: "uppercase", color: "var(--bauhaus-white)", textShadow: "2px 2px 0px var(--bauhaus-black)", letterSpacing: "1px", marginBottom: "8px" }}>
+              FANCLUB
+            </h1>
+            <p className="font-accent" style={{ fontSize: "0.85rem", fontWeight: 700, textTransform: "uppercase", color: "var(--bauhaus-yellow)", letterSpacing: "1.5px", marginBottom: "20px" }}>
+              Wear the Culture
+            </p>
+            <Link to="/shop" className="btn btn-primary" style={{ background: "var(--bauhaus-red)", border: "3px solid var(--bauhaus-black)", boxShadow: "4px 4px 0 var(--bauhaus-black)", borderRadius: 0 }}>
+              Shop Latest Drops
+            </Link>
+          </div>
+        ) : (
+          <motion.div
+            className="hero-content container"
+            style={{ opacity: heroOpacity }}
+            variants={fandomticStagger}
+            initial="initial"
+            animate="animate"
+          ></motion.div>
+        )}
 
         {/* Scroll indicator */}
-        <div className="hero-scroll-cue">
-          <div className="scroll-line" />
-        </div>
+        {!isMobile && (
+          <div className="hero-scroll-cue">
+            <div className="scroll-line" />
+          </div>
+        )}
       </section>
 
       {/* ════════════════════════════════════════════
@@ -221,21 +249,51 @@ export default function Home() {
           </motion.div>
         </div>
 
-        <div className="container">
-          <div className="drops-grid">
-            {drops.length > 0
-              ? drops.map((product, i) => (
-                  <div className="drops-item" key={`drop-${product.id}-${i}`}>
-                    <ProductCard product={product} />
-                  </div>
-                ))
-              : Array.from({ length: 8 }).map((_, i) => (
-                  <div className="drops-item" key={`skel-${i}`}>
-                    <div className="skeleton-card" />
-                  </div>
-                ))}
+        {isMobile ? (
+          <div className="container">
+            {/* Category Quick Pills */}
+            <div className="mobile-pills-row">
+              <Link to="/shop" className="mobile-pill active">All Drops</Link>
+              <Link to="/shop?category=tees" className="mobile-pill">Tees</Link>
+              <Link to="/shop?category=hoodies" className="mobile-pill">Hoodies</Link>
+              <Link to="/shop?category=sweatshirts" className="mobile-pill">Sweatshirts</Link>
+              <Link to="/shop?category=accessories" className="mobile-pill">Accessories</Link>
+            </div>
+            
+            <div className="mobile-swipe-carousel">
+              {drops.length > 0
+                ? drops.map((product, i) => (
+                    <div className="mobile-swipe-item" key={`drop-${product.id}-${i}`}>
+                      <ProductCard product={product} />
+                    </div>
+                  ))
+                : Array.from({ length: 4 }).map((_, i) => (
+                    <div className="mobile-swipe-item" key={`skel-${i}`}>
+                      <div className="skeleton-card" style={{ height: "380px" }} />
+                    </div>
+                  ))}
+            </div>
+            <div style={{ textAlign: "center", marginTop: "12px", fontFamily: "var(--font-mono)", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1px", color: "var(--text-muted)" }}>
+              ← Swipe to Explore →
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="container">
+            <div className="drops-grid">
+              {drops.length > 0
+                ? drops.map((product, i) => (
+                    <div className="drops-item" key={`drop-${product.id}-${i}`}>
+                      <ProductCard product={product} />
+                    </div>
+                  ))
+                : Array.from({ length: 8 }).map((_, i) => (
+                    <div className="drops-item" key={`skel-${i}`}>
+                      <div className="skeleton-card" />
+                    </div>
+                  ))}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* ════════════════════════════════════════════
@@ -365,15 +423,15 @@ export default function Home() {
             <motion.div className="section-divider" variants={fandomticItem} />
           </motion.div>
 
-          <div className="showcase-grid">
+          <div className={isMobile ? "mobile-swipe-carousel" : "showcase-grid"}>
             {featured.length > 0
               ? featured.map((product, i) => (
                   <motion.div
-                    className="showcase-item"
+                    className={isMobile ? "mobile-swipe-item" : "showcase-item"}
                     key={product.id}
-                    initial={{ opacity: 0, y: 40 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    whileHover={{ y: -6 }}
+                    initial={isMobile ? undefined : { opacity: 0, y: 40 }}
+                    whileInView={isMobile ? undefined : { opacity: 1, y: 0 }}
+                    whileHover={isMobile ? undefined : { y: -6 }}
                     viewport={{ once: true, amount: 0.15 }}
                     transition={{ duration: 0.3, ease: "easeOut" }}
                   >
@@ -408,9 +466,9 @@ export default function Home() {
                     </Link>
                   </motion.div>
                 ))
-              : Array.from({ length: 6 }).map((_, i) => (
-                  <div className="showcase-item" key={`skel-${i}`}>
-                    <div className="skeleton-card showcase-skeleton" />
+              : Array.from({ length: 4 }).map((_, i) => (
+                  <div className={isMobile ? "mobile-swipe-item" : "showcase-item"} key={`skel-${i}`}>
+                    <div className="skeleton-card showcase-skeleton" style={isMobile ? { height: "320px" } : {}} />
                   </div>
                 ))}
           </div>
@@ -427,6 +485,7 @@ export default function Home() {
                 to="/shop"
                 className="btn btn-outline btn-lg"
                 id="showcase-view-all"
+                style={{ borderRadius: 0 }}
               >
                 View All <ArrowRight size={14} />
               </Link>
@@ -464,6 +523,7 @@ export default function Home() {
                 to="/about"
                 className="btn btn-secondary btn-lg"
                 id="about-cta"
+                style={{ borderRadius: 0 }}
               >
                 Our Story <ArrowRight size={14} />
               </Link>
@@ -500,8 +560,6 @@ export default function Home() {
         </div>
       </motion.section>
 
-
-
       {/* ════════════════════════════════════════════
           6. PROJECT HYPE MARQUEE
          ════════════════════════════════════════════ */}
@@ -536,22 +594,39 @@ export default function Home() {
         variants={fandomticStagger}
       >
         <div className="container">
-          <div className="features-row">
-            {FEATURES.map(({ icon: Icon, label, color }) => (
-              <motion.div
-                className={`feature-card feature-card-${color}`}
-                key={label}
-                variants={fandomticItem}
-                whileHover={{ y: -4 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <div className="feature-icon-wrap">
-                  <Icon size={20} />
+          {isMobile ? (
+            <div className="mobile-pills-row" style={{ padding: "0 0 16px 0", margin: 0 }}>
+              {FEATURES.map(({ icon: Icon, label, color }) => (
+                <div
+                  className={`feature-card feature-card-${color}`}
+                  key={label}
+                  style={{ flex: "0 0 180px", margin: 0, border: "2px solid var(--bauhaus-black)", display: "flex", gap: "8px", alignItems: "center", padding: "10px 14px", height: "auto" }}
+                >
+                  <div className="feature-icon-wrap" style={{ margin: 0, padding: "4px" }}>
+                    <Icon size={16} />
+                  </div>
+                  <span className="feature-label" style={{ fontSize: "0.75rem", whiteSpace: "nowrap" }}>{label}</span>
                 </div>
-                <span className="feature-label">{label}</span>
-              </motion.div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="features-row">
+              {FEATURES.map(({ icon: Icon, label, color }) => (
+                <motion.div
+                  className={`feature-card feature-card-${color}`}
+                  key={label}
+                  variants={fandomticItem}
+                  whileHover={{ y: -4 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <div className="feature-icon-wrap">
+                    <Icon size={20} />
+                  </div>
+                  <span className="feature-label">{label}</span>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </motion.section>
     </AnimatedPage>

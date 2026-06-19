@@ -32,8 +32,10 @@ import { formatImageUrl } from "../../lib/utils";
 import ProductReviews from "./ProductReviews";
 import { AccordionItem, FeatureAccordionItem } from "./ProductAccordions";
 import "./ProductDetail.css";
+import { useDevice } from "../../context/DeviceContext";
 
 export default function ProductDetail() {
+  const { isMobile } = useDevice();
   const { slug } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -222,25 +224,60 @@ export default function ProductDetail() {
           </Link>
 
           <div className="pdp-split-grid">
-            {/* Left Column: Image Stack */}
-            <div className="pdp-image-stack">
-              {displayImages.map((img: string, idx: number) => (
-                <motion.div
-                  key={idx}
-                  className="pdp-image-wrap"
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
-                >
-                  <img
-                    src={formatImageUrl(img)}
-                    alt={`${product.name} - view ${idx + 1}`}
-                    loading={idx === 0 ? "eager" : "lazy"}
-                  />
-                </motion.div>
-              ))}
-            </div>
+            {/* Left Column: Image Stack / Carousel */}
+            {isMobile ? (
+              <div className="pdp-image-carousel" style={{ position: 'relative', marginBottom: '24px' }}>
+                <div className="mobile-swipe-carousel" style={{ padding: 0, margin: 0, gap: 0 }}>
+                  {displayImages.map((img: string, idx: number) => (
+                    <div 
+                      key={idx} 
+                      className="mobile-swipe-item" 
+                      style={{ flex: '0 0 100%', width: '100%', scrollSnapAlign: 'center', position: 'relative' }}
+                    >
+                      <img
+                        src={formatImageUrl(img)}
+                        alt={`${product.name} - view ${idx + 1}`}
+                        style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover' }}
+                      />
+                    </div>
+                  ))}
+                </div>
+                {/* Dots indicator */}
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', marginTop: '12px' }}>
+                  {displayImages.map((_: any, idx: number) => (
+                    <div
+                      key={idx}
+                      style={{
+                        width: '8px',
+                        height: '8px',
+                        background: 'var(--bauhaus-black)',
+                        opacity: 0.3,
+                        borderRadius: '50%'
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="pdp-image-stack">
+                {displayImages.map((img: string, idx: number) => (
+                  <motion.div
+                    key={idx}
+                    className="pdp-image-wrap"
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
+                  >
+                    <img
+                      src={formatImageUrl(img)}
+                      alt={`${product.name} - view ${idx + 1}`}
+                      loading={idx === 0 ? "eager" : "lazy"}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            )}
 
             {/* Right Column: Sticky Product Info */}
             <div className="pdp-info-sticky">
@@ -763,7 +800,10 @@ export default function ProductDetail() {
         )}
 
         {/* Floating Glassmorphic CTA */}
-        <div className={`floating-action-bar ${isScrolled ? "visible" : ""}`}>
+        <div 
+          className={`floating-action-bar ${isScrolled ? "visible" : ""}`}
+          style={isMobile ? { bottom: "var(--mobile-nav-height)", borderTop: "3px solid var(--bauhaus-black)", background: "var(--bg-card)", boxShadow: "0 -4px 10px rgba(0, 0, 0, 0.05)", borderRadius: 0, padding: "8px 16px" } : {}}
+        >
           <div className="floating-info">
             {displayImages[0] && (
               <img

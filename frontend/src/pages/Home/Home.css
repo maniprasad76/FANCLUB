@@ -154,7 +154,9 @@
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  transition: opacity 1s ease-in-out, transform 4s ease-in-out;
+  transition:
+    opacity 1s ease-in-out,
+    transform 4s ease-in-out;
   transform: scale(1.05);
 }
 
@@ -178,7 +180,8 @@
 }
 
 @keyframes heroCtaPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: var(--shadow-md);
   }
@@ -249,7 +252,7 @@
   transform: rotate(-1deg) scale(1.02);
   position: relative;
   z-index: 10;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .text-marquee-container-accent .marquee-shape {

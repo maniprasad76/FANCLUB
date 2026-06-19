@@ -6,6 +6,8 @@ import {
   IsBoolean,
   IsDateString,
   Min,
+  MaxLength,
+  Matches,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -16,6 +18,8 @@ export enum DiscountTypeEnum {
 
 export class CreateCouponDto {
   @IsString()
+  @MaxLength(50)
+  @Matches(/^[A-Z0-9_-]+$/, { message: 'Coupon code can only contain uppercase letters, numbers, hyphens, and underscores' })
   code: string;
 
   @IsEnum(DiscountTypeEnum)
@@ -60,6 +64,8 @@ export class CreateCouponDto {
 export class UpdateCouponDto {
   @IsOptional()
   @IsString()
+  @MaxLength(50)
+  @Matches(/^[A-Z0-9_-]+$/, { message: 'Coupon code can only contain uppercase letters, numbers, hyphens, and underscores' })
   code?: string;
 
   @IsOptional()

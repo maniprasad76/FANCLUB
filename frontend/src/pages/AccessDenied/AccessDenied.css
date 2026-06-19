@@ -1,0 +1,106 @@
+.access-denied-page {
+  min-height: calc(100vh - var(--nav-height) - 200px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.access-denied-container {
+  max-width: 560px;
+  width: 100%;
+  text-align: center;
+}
+
+.access-denied-icon {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 2rem;
+  background: var(--bauhaus-red);
+  border: 3px solid var(--bauhaus-black);
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 6px 6px 0px 0px var(--bauhaus-black);
+  animation: access-denied-shake 0.6s ease-out;
+}
+
+.access-denied-icon svg {
+  width: 56px;
+  height: 56px;
+  color: var(--bauhaus-white);
+  stroke-width: 2.5;
+}
+
+.access-denied-code {
+  font-family: var(--font-mono);
+  font-size: 4rem;
+  font-weight: 900;
+  color: var(--bauhaus-red);
+  letter-spacing: 4px;
+  margin-bottom: 0.5rem;
+  line-height: 1;
+}
+
+.access-denied-title {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--bauhaus-black);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+}
+
+.access-denied-message {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text-muted-color, #666);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.access-denied-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.access-denied-actions .btn {
+  min-width: 160px;
+}
+
+@keyframes access-denied-shake {
+  0% { transform: translateX(0); }
+  15% { transform: translateX(-8px) rotate(-2deg); }
+  30% { transform: translateX(8px) rotate(2deg); }
+  45% { transform: translateX(-6px) rotate(-1deg); }
+  60% { transform: translateX(6px) rotate(1deg); }
+  75% { transform: translateX(-3px); }
+  100% { transform: translateX(0); }
+}
+
+@media (max-width: 480px) {
+  .access-denied-code {
+    font-size: 3rem;
+  }
+
+  .access-denied-title {
+    font-size: 1.25rem;
+  }
+
+  .access-denied-icon {
+    width: 96px;
+    height: 96px;
+  }
+
+  .access-denied-icon svg {
+    width: 44px;
+    height: 44px;
+  }
+}

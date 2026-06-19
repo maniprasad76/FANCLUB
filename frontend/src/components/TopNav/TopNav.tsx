@@ -1,20 +1,33 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion, useMotionTemplate, useScroll, useTransform } from 'framer-motion';
-import { Search, ShoppingBag, Heart, User, Menu, X, Loader2, Sun, Moon } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { useCart } from '../../context/CartContext';
-import { useTheme } from '../../context/ThemeContext';
-import { Magnetic } from '../Magnetic';
-import api from '../../lib/api';
-import CartDrawer from '../CartDrawer/CartDrawer';
-import './TopNav.css';
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import {
+  AnimatePresence,
+  motion,
+  useMotionTemplate,
+  useScroll,
+  useTransform,
+} from "framer-motion";
+import {
+  Search,
+  ShoppingBag,
+  Heart,
+  User,
+  Menu,
+  X,
+  Loader2,
+} from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import { useCart } from "../../context/CartContext";
+import { Magnetic } from "../Magnetic";
+import api from "../../lib/api";
+import CartDrawer from "../CartDrawer/CartDrawer";
+import "./TopNav.css";
 
 export default function TopNav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -33,8 +46,8 @@ export default function TopNav() {
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
@@ -45,7 +58,8 @@ export default function TopNav() {
 
     const delayDebounceFn = setTimeout(() => {
       setIsSearching(true);
-      api.get('/products', { params: { search: searchQuery, limit: 5 } })
+      api
+        .get("/products", { params: { search: searchQuery, limit: 5 } })
         .then((res) => {
           setSearchResults(res.data.products || []);
         })
@@ -65,7 +79,7 @@ export default function TopNav() {
     if (searchQuery.trim()) {
       navigate(`/shop?search=${encodeURIComponent(searchQuery)}`);
       setSearchOpen(false);
-      setSearchQuery('');
+      setSearchQuery("");
       setSearchResults([]);
     }
   };
@@ -73,7 +87,7 @@ export default function TopNav() {
   return (
     <>
       <motion.nav
-        className={`topnav ${scrolled ? 'scrolled' : ''}`}
+        className={`topnav ${scrolled ? "scrolled" : ""}`}
         id="top-nav"
         style={{
           backgroundColor: navBg,
@@ -90,34 +104,41 @@ export default function TopNav() {
             </Link>
           </div>
 
-          <div className="topnav-center desktop-only" onMouseLeave={() => setHoveredIndex(null)}>
+          <div
+            className="topnav-center desktop-only"
+            onMouseLeave={() => setHoveredIndex(null)}
+          >
             {[
-              { name: 'Shop', path: '/shop' },
-              { name: 'Fandom', path: '/fandom' },
-              { name: 'About', path: '/about' },
-              { name: 'Contact', path: '/contact' }
+              { name: "Shop", path: "/shop" },
+              { name: "Fandom", path: "/fandom" },
+              { name: "About", path: "/about" },
+              { name: "Contact", path: "/contact" },
             ].map((item, index) => {
               const isActive = location.pathname === item.path;
               return (
                 <Magnetic key={item.name}>
                   <Link
                     to={item.path}
-                    className={`nav-link interactive ${isActive ? 'active' : ''} ${hoveredIndex !== null && hoveredIndex !== index ? 'dimmed' : ''}`}
+                    className={`nav-link interactive ${isActive ? "active" : ""} ${hoveredIndex !== null && hoveredIndex !== index ? "dimmed" : ""}`}
                     onMouseEnter={() => setHoveredIndex(index)}
                   >
                     {item.name}
-                  <AnimatePresence>
-                    {hoveredIndex === index && (
-                      <motion.div
-                        layoutId="menu-hover-block"
-                        className="menu-hover-block"
-                        transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                      />
-                    )}
-                  </AnimatePresence>
+                    <AnimatePresence>
+                      {hoveredIndex === index && (
+                        <motion.div
+                          layoutId="menu-hover-block"
+                          className="menu-hover-block"
+                          transition={{
+                            type: "spring",
+                            stiffness: 350,
+                            damping: 30,
+                          }}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                        />
+                      )}
+                    </AnimatePresence>
                   </Link>
                 </Magnetic>
               );
@@ -125,21 +146,28 @@ export default function TopNav() {
           </div>
 
           <div className="topnav-right">
-
             <Magnetic>
-              <button className="btn-icon nav-icon-btn interactive" onClick={() => setSearchOpen(!searchOpen)} id="nav-search-btn">
+              <button
+                className="btn-icon nav-icon-btn interactive"
+                onClick={() => setSearchOpen(!searchOpen)}
+                id="nav-search-btn"
+              >
                 <Search size={22} />
               </button>
             </Magnetic>
             <div className="desktop-only-icons flex-align-center">
               <Magnetic>
-                <Link to="/wishlist" className="btn-icon nav-icon-btn interactive" id="nav-wishlist-btn">
+                <Link
+                  to="/wishlist"
+                  className="btn-icon nav-icon-btn interactive"
+                  id="nav-wishlist-btn"
+                >
                   <Heart size={22} />
                 </Link>
               </Magnetic>
               <Magnetic>
-                <button 
-                  className="btn-icon nav-icon-btn cart-btn interactive" 
+                <button
+                  className="btn-icon nav-icon-btn cart-btn interactive"
                   id="nav-cart-btn"
                   onClick={() => setIsCartOpen(true)}
                 >
@@ -150,18 +178,32 @@ export default function TopNav() {
               {user ? (
                 <div className="user-menu interactive">
                   <Magnetic>
-                    <Link to="/profile" className="btn-icon nav-icon-btn" id="nav-profile-btn">
+                    <Link
+                      to="/profile"
+                      className="btn-icon nav-icon-btn"
+                      id="nav-profile-btn"
+                    >
                       <User size={22} />
                     </Link>
                   </Magnetic>
                 </div>
               ) : (
                 <Magnetic>
-                  <Link to="/login" className="btn btn-sm btn-primary interactive" id="nav-login-btn">Sign In</Link>
+                  <Link
+                    to="/login"
+                    className="btn btn-sm btn-primary interactive"
+                    id="nav-login-btn"
+                  >
+                    Sign In
+                  </Link>
                 </Magnetic>
               )}
             </div>
-            <button className="topnav-menu-btn btn-icon" onClick={() => setMenuOpen(!menuOpen)} id="mobile-menu-btn">
+            <button
+              className="topnav-menu-btn btn-icon"
+              onClick={() => setMenuOpen(!menuOpen)}
+              id="mobile-menu-btn"
+            >
               {menuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
@@ -188,7 +230,15 @@ export default function TopNav() {
                   className="search-input"
                   id="search-input"
                 />
-                <button type="button" className="btn-icon" onClick={() => { setSearchOpen(false); setSearchQuery(''); setSearchResults([]); }}>
+                <button
+                  type="button"
+                  className="btn-icon"
+                  onClick={() => {
+                    setSearchOpen(false);
+                    setSearchQuery("");
+                    setSearchResults([]);
+                  }}
+                >
                   <X size={22} />
                 </button>
               </form>
@@ -203,24 +253,35 @@ export default function TopNav() {
                   ) : searchResults.length > 0 ? (
                     <div className="search-results-list">
                       {searchResults.map((product) => (
-                        <Link 
-                          key={product.id} 
-                          to={`/product/${product.slug}`} 
+                        <Link
+                          key={product.id}
+                          to={`/product/${product.slug}`}
                           className="search-result-item"
                           onClick={() => {
                             setSearchOpen(false);
-                            setSearchQuery('');
+                            setSearchQuery("");
                             setSearchResults([]);
                           }}
                         >
-                          <img src={product.images?.[0] || 'https://via.placeholder.com/50'} alt={product.name} className="search-result-img" />
+                          <img
+                            src={
+                              product.images?.[0] ||
+                              "https://via.placeholder.com/50"
+                            }
+                            alt={product.name}
+                            className="search-result-img"
+                          />
                           <div className="search-result-info">
-                            <h4 className="search-result-name">{product.name}</h4>
-                            <p className="search-result-price">₹{product.price}</p>
+                            <h4 className="search-result-name">
+                              {product.name}
+                            </h4>
+                            <p className="search-result-price">
+                              ₹{product.price}
+                            </p>
                           </div>
                         </Link>
                       ))}
-                      <button 
+                      <button
                         className="search-view-all"
                         onClick={(e) => handleSearch(e as any)}
                       >
@@ -228,7 +289,9 @@ export default function TopNav() {
                       </button>
                     </div>
                   ) : (
-                    <div className="search-no-results">No results found for "{searchQuery}"</div>
+                    <div className="search-no-results">
+                      No results found for "{searchQuery}"
+                    </div>
                   )}
                 </div>
               )}
@@ -242,21 +305,40 @@ export default function TopNav() {
         {menuOpen && (
           <motion.div
             className="mobile-menu open"
-            initial={{ x: '-100%' }}
-            animate={{ x: '0%' }}
-            exit={{ x: '-100%' }}
+            initial={{ x: "-100%" }}
+            animate={{ x: "0%" }}
+            exit={{ x: "-100%" }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="mobile-menu-links">
-              <Link to="/shop" onClick={() => setMenuOpen(false)}>Shop</Link>
-              <Link to="/fandom" onClick={() => setMenuOpen(false)}>Fandom</Link>
-              <Link to="/about" onClick={() => setMenuOpen(false)}>About</Link>
-              <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
-              <Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link>
+              <Link to="/shop" onClick={() => setMenuOpen(false)}>
+                Shop
+              </Link>
+              <Link to="/fandom" onClick={() => setMenuOpen(false)}>
+                Fandom
+              </Link>
+              <Link to="/about" onClick={() => setMenuOpen(false)}>
+                About
+              </Link>
+              <Link to="/contact" onClick={() => setMenuOpen(false)}>
+                Contact
+              </Link>
+              <Link to="/profile" onClick={() => setMenuOpen(false)}>
+                Profile
+              </Link>
               {user ? (
-                <button onClick={() => { logout(); setMenuOpen(false); }}>Sign Out</button>
+                <button
+                  onClick={() => {
+                    logout();
+                    setMenuOpen(false);
+                  }}
+                >
+                  Sign Out
+                </button>
               ) : (
-                <Link to="/login" onClick={() => setMenuOpen(false)}>Sign In</Link>
+                <Link to="/login" onClick={() => setMenuOpen(false)}>
+                  Sign In
+                </Link>
               )}
             </div>
           </motion.div>
