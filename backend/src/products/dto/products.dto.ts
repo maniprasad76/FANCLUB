@@ -64,3 +64,10 @@ export class ProductQueryDto {
   @IsOptional() @IsNumber() @Type(() => Number) limit?: number;
   @IsOptional() @IsString() @MaxLength(20) gender?: string;
 }
+
+export class BulkDeleteDto {
+  @IsArray()
+  @IsUUID('4', { each: true })
+  ids: string[];
+}
+

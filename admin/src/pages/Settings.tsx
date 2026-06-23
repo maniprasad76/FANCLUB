@@ -12,6 +12,7 @@ import { toast } from "react-hot-toast";
 import api from "../lib/api";
 import { StoreInfoCard } from "./StoreInfoCard";
 import { CheckoutSettings } from "./CheckoutSettings";
+import { compressImage } from "../lib/compress";
 
 export default function AdminSettings() {
   const [uploading, setUploading] = useState(false);
@@ -129,8 +130,11 @@ export default function AdminSettings() {
     setSuccessImage(false);
 
     try {
+      // Compress the image file to max 1000x1000px with 0.8 quality
+      const compressedFile = await compressImage(file, { maxWidth: 1000, maxHeight: 1000 });
+      
       const formData = new FormData();
-      formData.append("image", file);
+      formData.append("image", compressedFile);
 
       const res = await api.post("/settings/about-image/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -187,7 +191,14 @@ export default function AdminSettings() {
 
     try {
       const formData = new FormData();
-      formData.append("image", file);
+      
+      // If it's an image, compress it to max 1920x1080px with 0.8 quality
+      if (file.type.startsWith('image/')) {
+        const compressedFile = await compressImage(file, { maxWidth: 1920, maxHeight: 1080 });
+        formData.append("image", compressedFile);
+      } else {
+        formData.append("image", file);
+      }
 
       const res = await api.post("/settings/hero-images/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },

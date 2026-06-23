@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AdminAuthProvider, useAdminAuth } from './context/AdminAuthContext';
+import ErrorBoundary from './components/ErrorBoundary';
 import AdminLayout from './layouts/AdminLayout';
 import AdminLogin from './pages/AdminLogin';
 import Dashboard from './pages/Dashboard';
@@ -37,6 +38,7 @@ function App() {
   return (
     <BrowserRouter>
       <AdminAuthProvider>
+        <ErrorBoundary>
         <Routes>
           <Route path="/login" element={<LoginRoute />} />
           <Route element={<ProtectedRoutes />}>
@@ -88,6 +90,7 @@ function App() {
             },
           }} 
         />
+        </ErrorBoundary>
       </AdminAuthProvider>
     </BrowserRouter>
   );

@@ -16,7 +16,19 @@ import helmet from 'helmet';
 export function helmetConfig() {
   return helmet({
     // Prevents browsers from MIME-sniffing responses away from declared content-type
-    contentSecurityPolicy: false, // Disabled — API-only server doesn't serve HTML
+    // Restrictive CSP for API server — blocks injection on any rendered responses
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'none'"],
+        scriptSrc: ["'none'"],
+        styleSrc: ["'unsafe-inline'"], // Swagger UI needs inline styles in dev
+        imgSrc: ["'self'", 'data:'],
+        connectSrc: ["'self'"],
+        frameAncestors: ["'none'"],
+        formAction: ["'self'"],
+        baseUri: ["'self'"],
+      },
+    },
     crossOriginEmbedderPolicy: false, // Disabled — frontend loads images cross-origin
     crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow frontend to load API resources
 

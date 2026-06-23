@@ -22,6 +22,7 @@ import {
   CreateProductDto,
   UpdateProductDto,
   ProductQueryDto,
+  BulkDeleteDto,
 } from './dto/products.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
@@ -111,8 +112,8 @@ export class ProductsController {
   @UseInterceptors(CacheInvalidationInterceptor)
   @Audit('BULK_DELETE_PRODUCTS', 'PRODUCT')
   @Post('bulk-delete')
-  bulkDelete(@Body('ids') ids: string[]) {
-    return this.productsService.bulkDelete(ids);
+  bulkDelete(@Body() dto: BulkDeleteDto) {
+    return this.productsService.bulkDelete(dto.ids);
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)

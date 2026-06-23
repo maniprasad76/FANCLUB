@@ -14,6 +14,6 @@ export class ForgotPasswordDto {
   email: string;
 
   @IsOptional()
-  @IsString()
+  @IsUrl({ require_tld: false }, { message: 'redirectTo must be a valid URL' })
   redirectTo?: string;
 }

@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname, resolve } from 'path';
 import * as fs from 'fs';
 import { SettingsService } from './settings.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -91,18 +91,28 @@ export class SettingsController {
     return { success: true, url: imageUrl };
   }
 
+  /** Safe file deletion — prevents path traversal attacks */
+  private safeDeleteFile(filePath: string): void {
+    const uploadsDir = resolve(process.cwd(), 'public', 'uploads');
+    const resolved = resolve(process.cwd(), filePath.replace(/^\.?\//, ''));
+    if (!resolved.startsWith(uploadsDir)) {
+      // Path traversal attempt — refuse to delete
+      return;
+    }
+    try {
+      if (fs.existsSync(resolved)) fs.unlinkSync(resolved);
+    } catch (e) {
+      // File already deleted or inaccessible — safe to ignore
+    }
+  }
+
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Audit('DELETE_FOOTER_VIDEO', 'SETTING')
   @Delete('video')
   deleteFooterVideo() {
     const currentUrl = this.settingsService.getSetting('footer_video_url');
     if (currentUrl) {
-      const filePath = `.${currentUrl}`;
-      try {
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-      } catch (e) {
-        console.error('Could not delete video file', e);
-      }
+      this.safeDeleteFile(`.${currentUrl}`);
       this.settingsService.deleteSetting('footer_video_url');
     }
     return { success: true };
@@ -114,12 +124,7 @@ export class SettingsController {
   deleteAboutImage() {
     const currentUrl = this.settingsService.getSetting('about_image_url');
     if (currentUrl) {
-      const filePath = `.${currentUrl}`;
-      try {
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-      } catch (e) {
-        console.error('Could not delete image file', e);
-      }
+      this.safeDeleteFile(`.${currentUrl}`);
       this.settingsService.deleteSetting('about_image_url');
     }
     return { success: true };
@@ -167,12 +172,7 @@ export class SettingsController {
   deleteHeroImage(@Body('url') urlToDelete: string) {
     let currentUrls = this.settingsService.getSetting('hero_images_urls') || [];
     if (currentUrls.includes(urlToDelete)) {
-      const filePath = `.${urlToDelete}`;
-      try {
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-      } catch (e) {
-        console.error('Could not delete image file', e);
-      }
+      this.safeDeleteFile(`.${urlToDelete}`);
       currentUrls = currentUrls.filter((u: string) => u !== urlToDelete);
       this.settingsService.setSetting('hero_images_urls', currentUrls);
     }

@@ -7,6 +7,7 @@ import {
   UploadedFile,
   UseInterceptors,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -21,19 +22,29 @@ import { AdminGuard } from '../auth/guards/admin.guard';
 export class UploadController {
   constructor(private uploadService: UploadService) {}
 
+  private static readonly ALLOWED_BUCKETS = ['products', 'avatars'];
+
   @Post('signed-url')
   getSignedUploadUrl(
     @Body('bucket') bucket: string,
     @Body('filename') filename: string,
   ) {
-    return this.uploadService.getSignedUploadUrl(
-      bucket || 'products',
-      filename,
-    );
+    const safeBucket = bucket || 'products';
+    if (!UploadController.ALLOWED_BUCKETS.includes(safeBucket)) {
+      throw new BadRequestException(
+        `Invalid bucket. Allowed: ${UploadController.ALLOWED_BUCKETS.join(', ')}`,
+      );
+    }
+    return this.uploadService.getSignedUploadUrl(safeBucket, filename);
   }
 
   @Delete()
   deleteFile(@Query('bucket') bucket: string, @Query('path') path: string) {
+    if (!UploadController.ALLOWED_BUCKETS.includes(bucket)) {
+      throw new BadRequestException(
+        `Invalid bucket. Allowed: ${UploadController.ALLOWED_BUCKETS.join(', ')}`,
+      );
+    }
     return this.uploadService.deleteFile(bucket, path);
   }
 
@@ -55,6 +66,23 @@ export class UploadController {
         },
       }),
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+      fileFilter: (_req: any, file: Express.Multer.File, cb: any) => {
+        const allowedMimes = [
+          'image/jpeg',
+          'image/png',
+          'image/webp',
+          'image/gif',
+        ];
+        if (!allowedMimes.includes(file.mimetype)) {
+          return cb(
+            new BadRequestException(
+              'Only image files (JPEG, PNG, WebP, GIF) are allowed',
+            ),
+            false,
+          );
+        }
+        cb(null, true);
+      },
     }),
   )
   uploadImage(@UploadedFile() file: Express.Multer.File) {

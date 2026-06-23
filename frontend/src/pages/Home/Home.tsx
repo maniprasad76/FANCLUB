@@ -536,13 +536,7 @@ export default function Home() {
                 <img
                   src={formatImageUrl(aboutImage)}
                   alt="FAN Story"
-                  className="about-brand-logo"
-                  style={{
-                    objectFit: "cover",
-                    width: "100%",
-                    height: "100%",
-                    borderRadius: 0,
-                  }}
+                  className="about-image-custom"
                 />
               ) : (
                 <div

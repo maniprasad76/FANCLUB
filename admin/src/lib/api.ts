@@ -14,7 +14,7 @@ const api = axios.create({
 
 // Request interceptor: inject access_token as Authorization header (cross-domain fallback)
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('admin_access_token');
+  const token = sessionStorage.getItem('admin_access_token');
   if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -58,7 +58,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshToken = localStorage.getItem('admin_refresh_token');
+        const refreshToken = sessionStorage.getItem('admin_refresh_token');
         if (!refreshToken) throw new Error('No refresh token');
 
         const { data } = await axios.post(
@@ -68,22 +68,22 @@ api.interceptors.response.use(
         );
 
         if (data.session?.access_token) {
-          localStorage.setItem('admin_access_token', data.session.access_token);
+          sessionStorage.setItem('admin_access_token', data.session.access_token);
         }
         if (data.session?.refresh_token) {
-          localStorage.setItem('admin_refresh_token', data.session.refresh_token);
+          sessionStorage.setItem('admin_refresh_token', data.session.refresh_token);
         }
         if (data.user) {
-          localStorage.setItem('admin_user', JSON.stringify(data.user));
+          sessionStorage.setItem('admin_user', JSON.stringify(data.user));
         }
 
         processQueue(null);
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError);
-        localStorage.removeItem('admin_user');
-        localStorage.removeItem('admin_refresh_token');
-        localStorage.removeItem('admin_access_token');
+        sessionStorage.removeItem('admin_user');
+        sessionStorage.removeItem('admin_refresh_token');
+        sessionStorage.removeItem('admin_access_token');
         window.dispatchEvent(new CustomEvent('auth:session-expired'));
         return Promise.reject(error);
       } finally {
@@ -92,9 +92,9 @@ api.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
-      localStorage.removeItem('admin_user');
-      localStorage.removeItem('admin_refresh_token');
-      localStorage.removeItem('admin_access_token');
+      sessionStorage.removeItem('admin_user');
+      sessionStorage.removeItem('admin_refresh_token');
+      sessionStorage.removeItem('admin_access_token');
     } else if (error.response) {
       const status = error.response.status;
       

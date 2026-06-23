@@ -13,6 +13,7 @@ import { Throttle } from '@nestjs/throttler';
 import { NewsletterService } from './newsletter.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
+import { SubscribeDto } from './dto/subscribe.dto';
 
 @Controller('newsletter')
 export class NewsletterController {
@@ -21,8 +22,8 @@ export class NewsletterController {
   /** 3 subscriptions per minute — spam protection */
   @Throttle({ strict: { limit: 3, ttl: 60000 } })
   @Post()
-  subscribe(@Body('email') email: string) {
-    return this.newsletterService.subscribe(email);
+  subscribe(@Body() dto: SubscribeDto) {
+    return this.newsletterService.subscribe(dto.email);
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)

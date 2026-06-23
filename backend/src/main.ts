@@ -92,11 +92,6 @@ async function bootstrap() {
       // Allow requests with no origin (e.g., server-to-server or curl)
       if (!requestOrigin) return callback(null, true);
 
-      // Always allow any Vercel preview or production app
-      if (requestOrigin.endsWith('.vercel.app')) {
-        return callback(null, true);
-      }
-
       // Allow configured origins
       if (uniqueOrigins.includes(requestOrigin)) {
         return callback(null, true);
@@ -131,56 +126,60 @@ async function bootstrap() {
   });
 
   // ── Swagger / OpenAPI Documentation ──
-  // Interactive API docs served at /api/docs
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('FANCLUB API')
-    .setDescription(
-      'REST API for the FANCLUB e-commerce platform — fandom-inspired streetwear. ' +
-        'Covers authentication, products, orders, payments (Razorpay), cart, wishlist, ' +
-        'reviews, admin dashboard, and more.',
-    )
-    .setVersion('1.0.0')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        description: 'Enter your Supabase JWT access token',
+  // Only exposed in non-production environments to prevent API schema leakage
+  if (!isProduction) {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('FANCLUB API')
+      .setDescription(
+        'REST API for the FANCLUB e-commerce platform — fandom-inspired streetwear. ' +
+          'Covers authentication, products, orders, payments (Razorpay), cart, wishlist, ' +
+          'reviews, admin dashboard, and more.',
+      )
+      .setVersion('1.0.0')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'Enter your Supabase JWT access token',
+        },
+        'JWT-Auth',
+      )
+      .addTag('Auth', 'Authentication — signup, signin, OAuth, token refresh')
+      .addTag('Users', 'User profile and account management')
+      .addTag('Products', 'Product catalog — CRUD, filtering, featured')
+      .addTag('Categories', 'Product category management')
+      .addTag('Cart', 'Shopping cart operations')
+      .addTag('Orders', 'Order lifecycle — create, status updates, history')
+      .addTag(
+        'Payments',
+        'Razorpay payment gateway — orders, verification, webhooks',
+      )
+      .addTag('Reviews', 'Product reviews — create, list, moderate')
+      .addTag('Wishlist', 'Saved products wishlist')
+      .addTag('Upload', 'File upload to Supabase Storage')
+      .addTag('Newsletter', 'Email subscription management')
+      .addTag('Contact', 'Contact form submissions')
+      .addTag('Dashboard', 'Admin analytics — sales, KPIs, charts')
+      .addTag('Settings', 'Store configuration')
+      .addTag('Health', 'Health check endpoints')
+      .build();
+
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('api/docs', app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
+        docExpansion: 'none',
+        filter: true,
+        showRequestDuration: true,
       },
-      'JWT-Auth',
-    )
-    .addTag('Auth', 'Authentication — signup, signin, OAuth, token refresh')
-    .addTag('Users', 'User profile and account management')
-    .addTag('Products', 'Product catalog — CRUD, filtering, featured')
-    .addTag('Categories', 'Product category management')
-    .addTag('Cart', 'Shopping cart operations')
-    .addTag('Orders', 'Order lifecycle — create, status updates, history')
-    .addTag(
-      'Payments',
-      'Razorpay payment gateway — orders, verification, webhooks',
-    )
-    .addTag('Reviews', 'Product reviews — create, list, moderate')
-    .addTag('Wishlist', 'Saved products wishlist')
-    .addTag('Upload', 'File upload to Supabase Storage')
-    .addTag('Newsletter', 'Email subscription management')
-    .addTag('Contact', 'Contact form submissions')
-    .addTag('Dashboard', 'Admin analytics — sales, KPIs, charts')
-    .addTag('Settings', 'Store configuration')
-    .addTag('Health', 'Health check endpoints')
-    .build();
+      customSiteTitle: 'FANCLUB API Docs',
+    });
 
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, document, {
-    swaggerOptions: {
-      persistAuthorization: true,
-      docExpansion: 'none',
-      filter: true,
-      showRequestDuration: true,
-    },
-    customSiteTitle: 'FANCLUB API Docs',
-  });
-
-  logger.log(`📚 Swagger docs available at /api/docs`);
+    logger.log(`📚 Swagger docs available at /api/docs`);
+  } else {
+    logger.log(`📚 Swagger docs disabled in production`);
+  }
 
   const host =
     env === 'production' || process.env.RENDER ? '0.0.0.0' : 'localhost';

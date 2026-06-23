@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Upload, Loader2, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../lib/api';
+import { compressImage } from '../lib/compress';
 
 interface ImageUploadProps {
   value: string;
@@ -20,8 +21,11 @@ export default function ImageUpload({ value, onChange, label = 'Image', classNam
     setUploading(true);
 
     try {
+      // Compress the image file to max 1000x1000px with 0.8 quality
+      const compressedFile = await compressImage(file, { maxWidth: 1000, maxHeight: 1000 });
+      
       const formData = new FormData();
-      formData.append('image', file);
+      formData.append('image', compressedFile);
 
       const res = await api.post('/upload/image', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
