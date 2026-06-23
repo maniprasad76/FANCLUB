@@ -1,3 +1,6 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
 /* Google Fonts loaded via <link> in index.html for optimal performance */
 
 /* ============================================
