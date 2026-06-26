@@ -38,3 +38,6 @@ yarn-error.log*
 # Playwright
 **/playwright-report/
 **/test-results/
+
+# IDE / Agent temp files
+.claude/

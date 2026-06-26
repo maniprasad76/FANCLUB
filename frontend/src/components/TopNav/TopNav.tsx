@@ -99,7 +99,9 @@ export default function TopNav() {
         <div className="topnav-inner container">
           <div className="topnav-left">
             <Link to="/" className="topnav-logo" id="nav-logo">
-              <span className="logo-box">FAN</span>
+              <span className="logo-box">
+                FAN
+              </span>
               <span className="logo-text-out">CLUB</span>
             </Link>
           </div>

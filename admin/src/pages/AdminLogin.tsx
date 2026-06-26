@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 
+
 interface AdminLoginProps {
   onLogin: (email: string, password: string) => Promise<void>;
 }
@@ -49,14 +50,22 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
             <span style={{
-              background: 'var(--bauhaus-black)',
-              color: 'var(--bauhaus-white)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: 'var(--bauhaus-white, #ffffff)',
+              color: 'var(--bauhaus-red)',
               fontWeight: 900,
               fontSize: '1.5rem',
-              padding: '6px 12px',
+              padding: '4px 12px',
               letterSpacing: '2px',
-              fontFamily: 'var(--font-heading)',
-            }}>FAN</span>
+              fontFamily: 'var(--font-display)',
+              border: '3px solid var(--bauhaus-blue)',
+              boxShadow: '4px 4px 0px 0px var(--bauhaus-yellow)',
+              borderRadius: '4px',
+            }}>
+              FAN
+            </span>
             <span style={{
               fontWeight: 900,
               fontSize: '1.5rem',

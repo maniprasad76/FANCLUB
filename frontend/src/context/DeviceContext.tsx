@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
 
 export type DeviceType = "mobile" | "tablet" | "desktop";
 
@@ -12,16 +12,21 @@ interface DeviceContextType {
 const DeviceContext = createContext<DeviceContextType | undefined>(undefined);
 
 export function DeviceProvider({ children }: { children: React.ReactNode }) {
-  const [deviceType, setDeviceType] = useState<DeviceType>("desktop");
+  const [deviceType, setDeviceType] = useState<DeviceType>(() => {
+    // Initialize synchronously to avoid flash
+    if (typeof window === 'undefined') return 'desktop';
+    const width = window.innerWidth;
+    if (width < 768) return 'mobile';
+    if (width < 1024) return 'tablet';
+    return 'desktop';
+  });
 
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
       const ua = navigator.userAgent.toLowerCase();
       const isMobileUA =
-        /mobile|iphone|ipad|ipod|android|blackberry|opera mini|iemobile|webos/.test(
-          ua
-        );
+        /mobile|iphone|ipad|ipod|android|blackberry|opera mini|iemobile|webos/.test(ua);
 
       if (width < 768 || (isMobileUA && width < 1024)) {
         setDeviceType("mobile");
@@ -32,9 +37,7 @@ export function DeviceProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    handleResize();
-    
-    // Use resize event listener
+    // Use resize event listener with debounce
     let timeoutId: any;
     const debouncedResize = () => {
       clearTimeout(timeoutId);
@@ -48,12 +51,13 @@ export function DeviceProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const value = {
+  /* Memoize so consumers only re-render when deviceType actually changes */
+  const value = useMemo(() => ({
     deviceType,
     isMobile: deviceType === "mobile",
     isTablet: deviceType === "tablet",
     isDesktop: deviceType === "desktop",
-  };
+  }), [deviceType]);
 
   return (
     <DeviceContext.Provider value={value}>{children}</DeviceContext.Provider>

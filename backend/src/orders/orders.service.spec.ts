@@ -17,6 +17,7 @@ describe('OrdersService', () => {
   let paymentsService: any;
   let configService: any;
   let couponsService: any;
+  let eventEmitter: any;
 
   beforeEach(() => {
     prisma = {
@@ -53,7 +54,17 @@ describe('OrdersService', () => {
       validateCoupon: jest.fn(),
     };
 
-    service = new OrdersService(prisma, paymentsService, configService, couponsService);
+    eventEmitter = {
+      emit: jest.fn(),
+    };
+
+    service = new OrdersService(
+      prisma,
+      paymentsService,
+      configService,
+      couponsService,
+      eventEmitter,
+    );
   });
 
   // ─── STATUS TRANSITIONS ──────────────────────────────────────

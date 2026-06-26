@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import api from '../lib/api';
 import { useAuth } from './AuthContext';
 import { toast } from 'react-hot-toast';
@@ -63,18 +63,14 @@ function calcCount(items: CartItem[]) {
 export function CartProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth();
   const [items, setItems] = useState<CartItem[]>([]);
-  const [total, setTotal] = useState(0);
-  const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  /* ─── Recalculate totals whenever items change ─── */
-  useEffect(() => {
-    setTotal(calcTotal(items));
-    setCount(calcCount(items));
-  }, [items]);
+  /* ─── Derived values computed inline (no separate state needed) ─── */
+  const total = useMemo(() => calcTotal(items), [items]);
+  const count = useMemo(() => calcCount(items), [items]);
 
   /* ─── Fetch cart: server for logged-in, localStorage for guest ─── */
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     if (user) {
       setLoading(true);
       try {
@@ -91,7 +87,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } else {
       setItems(getGuestCart());
     }
-  };
+  }, [user]);
 
   /* ─── On user change: load appropriate cart ─── 
      Wait for auth to finish verifying before fetching server cart.
@@ -99,19 +95,32 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (authLoading) return;
     fetchCart();
-  }, [user, authLoading]);
+  }, [user, authLoading, fetchCart]);
 
   /* ─── ADD TO CART ─── */
-  const addToCart = async (productId: string, quantity: number, size?: string, color?: string) => {
+  const addToCart = useCallback(async (productId: string, quantity: number, size?: string, color?: string) => {
     if (user) {
-      // Server cart for logged-in users
-      setCount(prev => prev + quantity);
+      // Optimistic update: increment count immediately
+      setItems(prev => {
+        const existing = prev.find(item => item.productId === productId && item.size === size && item.color === color);
+        if (existing) {
+          return prev.map(item =>
+            item.productId === productId && item.size === size && item.color === color
+              ? { ...item, quantity: item.quantity + quantity }
+              : item
+          );
+        }
+        return prev; // Can't optimistically add without product details
+      });
+
       try {
         await api.post('/cart', { productId, quantity, size, color });
         toast.success('Added to cart!');
+        // Only fetch if we need the full server state (new item added)
         await fetchCart();
       } catch {
-        setCount(prev => prev - quantity);
+        // Revert optimistic update
+        await fetchCart();
         toast.error('Failed to add to cart');
       }
     } else {
@@ -152,21 +161,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
         toast.error('Failed to add to cart');
       }
     }
-  };
+  }, [user, fetchCart]);
 
   /* ─── UPDATE QUANTITY ─── */
-  const updateQuantity = async (itemId: string, quantity: number) => {
+  const updateQuantity = useCallback(async (itemId: string, quantity: number) => {
     if (user) {
-      const originalItems = [...items];
-      const updatedItems = items.map(item => item.id === itemId ? { ...item, quantity } : item);
-      setItems(updatedItems);
+      const originalItems = items;
+      // Optimistic update
+      setItems(prev => prev.map(item => item.id === itemId ? { ...item, quantity } : item));
 
       try {
         await api.put(`/cart/${itemId}`, { quantity });
-        await fetchCart();
       } catch {
         setItems(originalItems);
-        fetchCart();
         toast.error('Failed to update quantity');
       }
     } else {
@@ -175,22 +182,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
       saveGuestCart(updated);
       setItems([...updated]);
     }
-  };
+  }, [user, items]);
 
   /* ─── REMOVE ITEM ─── */
-  const removeItem = async (itemId: string) => {
+  const removeItem = useCallback(async (itemId: string) => {
     if (user) {
-      const originalItems = [...items];
-      const updatedItems = items.filter(item => item.id !== itemId);
-      setItems(updatedItems);
+      const originalItems = items;
+      // Optimistic update
+      setItems(prev => prev.filter(item => item.id !== itemId));
 
       try {
         await api.delete(`/cart/${itemId}`);
         toast.success('Item removed');
-        await fetchCart();
       } catch {
         setItems(originalItems);
-        fetchCart();
         toast.error('Failed to remove item');
       }
     } else {
@@ -200,12 +205,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setItems([...updated]);
       toast.success('Item removed');
     }
-  };
+  }, [user, items]);
 
   /* ─── CLEAR CART ─── */
-  const clearCart = async () => {
+  const clearCart = useCallback(async () => {
     if (user) {
-      const originalItems = [...items];
+      const originalItems = items;
+      // Optimistic update
       setItems([]);
 
       try {
@@ -213,7 +219,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
         toast.success('Cart cleared');
       } catch {
         setItems(originalItems);
-        fetchCart();
         toast.error('Failed to clear cart');
       }
     } else {
@@ -221,10 +226,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setItems([]);
       toast.success('Cart cleared');
     }
-  };
+  }, [user, items]);
+
+  /* ─── Memoize context value to prevent unnecessary re-renders ─── */
+  const contextValue = useMemo(() => ({
+    items, total, count, loading, addToCart, updateQuantity, removeItem, clearCart, fetchCart
+  }), [items, total, count, loading, addToCart, updateQuantity, removeItem, clearCart, fetchCart]);
 
   return (
-    <CartContext.Provider value={{ items, total, count, loading, addToCart, updateQuantity, removeItem, clearCart, fetchCart }}>
+    <CartContext.Provider value={contextValue}>
       {children}
     </CartContext.Provider>
   );

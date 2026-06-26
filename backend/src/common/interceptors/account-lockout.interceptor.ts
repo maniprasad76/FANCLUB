@@ -3,46 +3,37 @@ import {
   NestInterceptor,
   ExecutionContext,
   CallHandler,
-  HttpException,
-  HttpStatus,
+  UnauthorizedException,
   Logger,
 } from '@nestjs/common';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
-
-/**
- * AccountLockoutInterceptor — Brute-force login protection.
- *
- * Tracks failed login attempts per email address in an in-memory LRU map.
- * After MAX_ATTEMPTS failures within WINDOW_MS, temporarily locks out
- * further attempts and responds with 429 Too Many Requests.
- *
- * Design decisions:
- *   - In-memory (not Redis): simplicity for single-instance deploys.
- *     For multi-instance, swap to a shared store.
- *   - Auto-expires: entries are cleaned up after WINDOW_MS.
- *   - LRU eviction: map is capped at MAX_TRACKED_EMAILS to prevent
- *     memory exhaustion from distributed attacks.
- *
- * Apply to signin routes via @UseInterceptors(AccountLockoutInterceptor).
- */
+import { catchError, tap } from 'rxjs/operators';
+import { RedisService } from '../services/redis.service.js';
+import { AuthService } from '../../auth/auth.service.js';
 
 const MAX_ATTEMPTS = 5;
 const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
-const MAX_TRACKED_EMAILS = 10000; // Prevent memory exhaustion
 
 interface LockoutEntry {
   attempts: number;
-  firstAttempt: number;
+  lastAttempt: number;
   lockedUntil: number | null;
 }
 
 @Injectable()
 export class AccountLockoutInterceptor implements NestInterceptor {
   private readonly logger = new Logger(AccountLockoutInterceptor.name);
-  private readonly store = new Map<string, LockoutEntry>();
+  private readonly inMemoryStore = new Map<string, LockoutEntry>();
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
+  constructor(
+    private readonly redisService: RedisService,
+    private readonly authService: AuthService,
+  ) {}
+
+  async intercept(
+    context: ExecutionContext,
+    next: CallHandler,
+  ): Promise<Observable<unknown>> {
     const request = context.switchToHttp().getRequest();
     const email = request.body?.email?.toLowerCase();
 
@@ -50,41 +41,37 @@ export class AccountLockoutInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    // Clean expired entries periodically (every 100 requests)
-    if (this.store.size > MAX_TRACKED_EMAILS / 2) {
-      this.cleanup();
-    }
-
-    const entry = this.store.get(email);
     const now = Date.now();
+    const entry = await this.getEntry(email);
 
-    // Check if currently locked out
-    if (entry?.lockedUntil && now < entry.lockedUntil) {
-      const remainingSeconds = Math.ceil((entry.lockedUntil - now) / 1000);
-      this.logger.warn(
-        `🔒 Account locked — email=${email} remainingSeconds=${remainingSeconds}`,
-      );
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.TOO_MANY_REQUESTS,
-          message: `Too many failed login attempts. Please try again in ${remainingSeconds} seconds.`,
-          error: 'Too Many Requests',
-        },
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
+    // 1. Check if currently locked out
+    if (entry.lockedUntil && now < entry.lockedUntil) {
+      this.logger.warn(`🔒 Request blocked due to lockout — email=${email}`);
+      throw new UnauthorizedException('Invalid email or password. Please try again.');
     }
 
-    // If entry has expired window, reset it
-    if (entry && now - entry.firstAttempt > WINDOW_MS) {
-      this.store.delete(email);
+    // 2. Check if under progressive delay
+    if (entry.attempts > 0 && entry.attempts < MAX_ATTEMPTS) {
+      const delay = Math.pow(2, entry.attempts - 1) * 1000; // 1s, 2s, 4s, 8s
+      const allowedTime = entry.lastAttempt + delay;
+      if (now < allowedTime) {
+        this.logger.warn(
+          `⏳ Request blocked due to progressive delay — email=${email} delay=${delay}ms`,
+        );
+        throw new UnauthorizedException('Invalid email or password. Please try again.');
+      }
     }
 
     return next.handle().pipe(
+      tap(() => {
+        // Successful login: reset attempts
+        this.deleteEntry(email);
+      }),
       catchError((err) => {
         // Only track auth failures (401 Unauthorized)
         if (
-          err instanceof HttpException &&
-          err.getStatus() === HttpStatus.UNAUTHORIZED
+          err instanceof UnauthorizedException ||
+          (err && err.status === 401)
         ) {
           this.recordFailure(email, now);
         }
@@ -93,39 +80,88 @@ export class AccountLockoutInterceptor implements NestInterceptor {
     );
   }
 
-  private recordFailure(email: string, now: number): void {
-    const existing = this.store.get(email);
-
-    if (!existing) {
-      this.store.set(email, {
-        attempts: 1,
-        firstAttempt: now,
-        lockedUntil: null,
-      });
-      return;
+  private async getEntry(email: string): Promise<LockoutEntry> {
+    const client = this.redisService.getClient();
+    if (client) {
+      try {
+        const data = await client.get(`lockout:${email}`);
+        if (data) {
+          return JSON.parse(data);
+        }
+      } catch (err: any) {
+        this.logger.error(`Redis get error: ${err.message}`);
+      }
     }
+    return (
+      this.inMemoryStore.get(email) || {
+        attempts: 0,
+        lastAttempt: 0,
+        lockedUntil: null,
+      }
+    );
+  }
 
-    existing.attempts += 1;
+  private async setEntry(email: string, entry: LockoutEntry): Promise<void> {
+    const client = this.redisService.getClient();
+    if (client) {
+      try {
+        // Keep Redis key TTL slightly longer than window (e.g. 20 minutes)
+        await client.set(
+          `lockout:${email}`,
+          JSON.stringify(entry),
+          'EX',
+          1200,
+        );
+        return;
+      } catch (err: any) {
+        this.logger.error(`Redis set error: ${err.message}`);
+      }
+    }
+    this.inMemoryStore.set(email, entry);
+  }
 
-    if (existing.attempts >= MAX_ATTEMPTS) {
-      existing.lockedUntil = now + WINDOW_MS;
+  private async deleteEntry(email: string): Promise<void> {
+    const client = this.redisService.getClient();
+    if (client) {
+      try {
+        await client.del(`lockout:${email}`);
+        return;
+      } catch (err: any) {
+        this.logger.error(`Redis delete error: ${err.message}`);
+      }
+    }
+    this.inMemoryStore.delete(email);
+  }
+
+  private async recordFailure(email: string, now: number): Promise<void> {
+    const entry = await this.getEntry(email);
+    entry.attempts += 1;
+    entry.lastAttempt = now;
+
+    if (entry.attempts >= MAX_ATTEMPTS) {
+      entry.lockedUntil = now + WINDOW_MS;
       this.logger.warn(
         `🔒 Account locked after ${MAX_ATTEMPTS} failed attempts — email=${email}`,
       );
+
+      // Trigger password reset email asynchronously
+      this.authService
+        .forgotPassword(email)
+        .then(() => {
+          this.logger.log(`📧 Lockout reset email triggered successfully for ${email}`);
+        })
+        .catch((emailErr) => {
+          this.logger.error(
+            `❌ Failed to send lockout reset email to ${email}: ${emailErr.message}`,
+          );
+        });
+    } else {
+      const nextDelay = Math.pow(2, entry.attempts - 1);
+      this.logger.warn(
+        `⚠️ Failed login attempt ${entry.attempts} for ${email}. Next attempt delayed by ${nextDelay}s`,
+      );
     }
 
-    this.store.set(email, existing);
-  }
-
-  private cleanup(): void {
-    const now = Date.now();
-    for (const [email, entry] of this.store.entries()) {
-      // Remove entries whose window has expired AND lockout has expired
-      const windowExpired = now - entry.firstAttempt > WINDOW_MS;
-      const lockoutExpired = !entry.lockedUntil || now > entry.lockedUntil;
-      if (windowExpired && lockoutExpired) {
-        this.store.delete(email);
-      }
-    }
+    await this.setEntry(email, entry);
   }
 }

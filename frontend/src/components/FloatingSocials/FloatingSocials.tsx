@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { SOCIAL_LINKS } from '../../config';
 import './FloatingSocials.css';
 
 const WhatsAppIcon = ({ size = 20 }) => (
@@ -24,17 +25,12 @@ const FacebookIcon = ({ size = 20 }) => (
   <svg viewBox="0 0 320 512" fill="currentColor" width={size} height={size}><path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"/></svg>
 );
 
-const PinterestIcon = ({ size = 20 }) => (
-  <svg viewBox="0 0 496 512" fill="currentColor" width={size} height={size}><path d="M248 8C111.1 8 0 119.1 0 256c0 105.1 65 194.2 157.9 235.3-2.1-19.5-3.9-49.4.8-70.6 4.3-19.3 27.9-118.5 27.9-118.5s-7.1-14.3-7.1-35.4c0-33.2 19.3-58 43.3-58 20.3 0 30.2 15.3 30.2 33.6 0 20.5-13 51.1-19.8 79.5-5.6 23.7 11.9 43 35.3 43 42.4 0 75-44.7 75-109.1 0-57-41-96.9-99.5-96.9-67 0-106.3 50.3-106.3 102.1 0 20.1 7.7 41.7 17.4 53.4 1.9 2.3 2.2 4.3 1.6 6.7-1.9 7.9-6.2 25.3-7 28.5-1 4.1-3.4 5-7.5 3.1-28.1-13.1-45.7-54.3-45.7-87.3 0-70.8 51.5-135.7 148-135.7 78 0 138.6 55.6 138.6 129.7 0 77.6-48.9 140-116.7 140-22.8 0-44.2-11.8-51.6-25.8l-14 53.3c-5 19.1-18.6 42.9-27.7 57.5 21.6 6.6 44.5 10.2 68.3 10.2 136.9 0 248-111.1 248-248S384.9 8 248 8z"/></svg>
-);
-
 const socials = [
-  { id: 'whatsapp', icon: <WhatsAppIcon size={20} />, label: 'WhatsApp', color: '#25D366', url: 'https://wa.me/' },
-  { id: 'instagram', icon: <InstagramIcon size={20} />, label: 'Instagram', color: '#E1306C', url: 'https://instagram.com' },
-  { id: 'youtube', icon: <YoutubeIcon size={20} />, label: 'YouTube', color: '#FF0000', url: 'https://youtube.com' },
-  { id: 'twitter', icon: <TwitterIcon size={20} />, label: 'Twitter', color: '#000000', url: 'https://twitter.com' },
-  { id: 'facebook', icon: <FacebookIcon size={20} />, label: 'Facebook', color: '#1877F2', url: 'https://facebook.com' },
-  { id: 'pinterest', icon: <PinterestIcon size={20} />, label: 'Pinterest', color: '#E60023', url: 'https://pinterest.com' },
+  { id: 'whatsapp', icon: <WhatsAppIcon size={20} />, label: 'WhatsApp', color: '#25D366', url: SOCIAL_LINKS.whatsapp },
+  { id: 'instagram', icon: <InstagramIcon size={20} />, label: 'Instagram', color: '#E1306C', url: SOCIAL_LINKS.instagram },
+  { id: 'youtube', icon: <YoutubeIcon size={20} />, label: 'YouTube', color: '#FF0000', url: SOCIAL_LINKS.youtube },
+  { id: 'twitter', icon: <TwitterIcon size={20} />, label: 'Twitter', color: '#000000', url: SOCIAL_LINKS.twitter },
+  { id: 'facebook', icon: <FacebookIcon size={20} />, label: 'Facebook', color: '#1877F2', url: SOCIAL_LINKS.facebook },
 ];
 
 const FloatingSocials = () => {

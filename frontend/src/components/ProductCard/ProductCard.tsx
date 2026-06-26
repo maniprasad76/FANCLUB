@@ -1,5 +1,5 @@
+import { memo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { formatImageUrl } from "../../lib/utils";
 import "./ProductCard.css";
 
@@ -21,7 +21,15 @@ interface ProductCardProps {
   onWishlist?: (id: string) => void;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+/*
+ * Performance optimizations:
+ * 1. React.memo — prevents re-render when parent re-renders but props haven't changed
+ * 2. Removed framer-motion whileInView — was creating an IntersectionObserver per card,
+ *    causing scroll jank with 12+ cards. Parent grid handles entrance animations instead.
+ * 3. Removed motion.div wrapper entirely — pure DOM, no animation overhead per card
+ * 4. Added decoding="async" on images for non-blocking decode
+ */
+const ProductCard = memo(function ProductCard({ product }: ProductCardProps) {
   const navigate = useNavigate();
 
   const handleBuyNow = (e: React.MouseEvent) => {
@@ -30,13 +38,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <motion.div
-      className="modern-product-card"
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.1 }}
-      transition={{ duration: 0.4, ease: "easeOut" }}
-    >
+    <div className="modern-product-card">
       <Link to={`/product/${product.slug}`} className="mpc-link-wrapper">
         <div className="mpc-image-container">
           <img
@@ -47,6 +49,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             alt={product.name}
             className="mpc-image"
             loading="lazy"
+            decoding="async"
           />
 
           <div className="mpc-badges-top">
@@ -111,6 +114,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         </div>
       </Link>
-    </motion.div>
+    </div>
   );
-}
+});
+
+export default ProductCard;

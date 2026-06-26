@@ -164,6 +164,9 @@ export default function Register() {
                   height: "40px",
                   fontSize: "1.5rem",
                   padding: "0 10px",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
                 }}
               >
                 FAN

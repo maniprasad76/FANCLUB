@@ -126,8 +126,15 @@ export class PaymentsController {
   // ─────────────────────────────────────────────────────────
 
   /**
-   * Razorpay webhook — server-to-server callback.
+   * Razorpay webhook — server-to-server callback for real-time order/payment status updates.
    * Authenticated via HMAC signature in X-Razorpay-Signature header.
+   *
+   * Supported events:
+   *   - order.paid           → Confirms order is fully paid, updates order to CONFIRMED
+   *   - payment.authorized   → Marks payment as authorized (pre-capture)
+   *   - payment.captured     → Confirms payment captured, updates order to CONFIRMED
+   *   - payment.failed       → Marks payment as FAILED
+   *   - refund.processed     → Marks refund as COMPLETED
    */
 
   @SkipThrottle()

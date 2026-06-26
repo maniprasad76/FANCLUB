@@ -54,7 +54,12 @@ export default function AdminLayout() {
       {/* Mobile Header (Visible only on mobile) */}
       <div className="mobile-admin-header">
         <div className="sidebar-brand">
-          <span className="brand-logo">FAN</span>
+          <span className="brand-logo">
+            FAN
+          </span>
+          <span className="sidebar-brand-text">
+            <span className="text-gradient">Admin</span>
+          </span>
         </div>
         <button className="hamburger-btn" onClick={toggleSidebar}>
           <svg
@@ -95,14 +100,16 @@ export default function AdminLayout() {
               display: "inline-flex",
               alignItems: "center",
               justifyContent: "center",
+              gap: "6px",
               fontFamily: "var(--font-display)",
               fontSize: "1.1rem",
               fontWeight: 900,
               letterSpacing: "2px",
               color: "var(--bauhaus-red)",
-              background: "transparent",
+              background: "var(--bauhaus-white, #ffffff)",
               border: "3px solid var(--bauhaus-blue)",
               boxShadow: "3px 3px 0px 0px var(--bauhaus-yellow)",
+              borderRadius: "4px",
               padding: "0px 8px",
               height: "32px",
             }}

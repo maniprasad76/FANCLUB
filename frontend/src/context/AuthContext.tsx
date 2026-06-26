@@ -5,6 +5,7 @@ import {
   useEffect,
   useCallback,
   useRef,
+  useMemo,
   ReactNode,
 } from "react";
 import api from "../lib/api";
@@ -249,7 +250,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) return;
 
     const events = ["mousedown", "keydown", "touchstart", "scroll"];
-    const handler = () => resetInactivityTimer();
+    // Throttle: only reset timer at most once per 5 seconds to avoid excessive calls during scroll
+    let lastReset = 0;
+    const handler = () => {
+      const now = Date.now();
+      if (now - lastReset > 5000) {
+        lastReset = now;
+        resetInactivityTimer();
+      }
+    };
 
     events.forEach((e) => window.addEventListener(e, handler, { passive: true }));
     resetInactivityTimer(); // Start the timer
@@ -260,18 +269,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [user, resetInactivityTimer]);
 
+  /* ─── Memoize context value to prevent unnecessary consumer re-renders ─── */
+  const contextValue = useMemo(() => ({
+    user,
+    loading,
+    login,
+    register,
+    logout,
+    updateUser,
+    socialLogin,
+  }), [user, loading, login, register, logout, updateUser, socialLogin]);
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        login,
-        register,
-        logout,
-        updateUser,
-        socialLogin,
-      }}
-    >
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

@@ -8,6 +8,8 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { RazorpayService } from './razorpay.service';
 import { v4 as uuidv4 } from 'uuid';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { OrderConfirmedEvent } from '../common/services/notification.service.js';
 
 /**
  * PaymentsService — Gateway Orchestrator
@@ -31,6 +33,7 @@ export class PaymentsService {
   constructor(
     private prisma: PrismaService,
     private razorpayService: RazorpayService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   // ─────────────────────────────────────────────────────────
@@ -228,15 +231,24 @@ export class PaymentsService {
         data: { status: 'COMPLETED', gatewayRef: razorpayPaymentId },
       });
 
+      const order = await this.prisma.order.findUnique({
+        where: { id: payment.orderId },
+        select: { status: true },
+      });
+
       // Update order status
       await this.prisma.order.updateMany({
         where: { razorpayOrderId },
         data: { paymentId: razorpayPaymentId, status: 'CONFIRMED' },
       });
+
+      if (order && order.status !== 'CONFIRMED') {
+        await this.emitOrderConfirmedEvent(payment.orderId);
+      }
     } else {
       const order = await this.prisma.order.findFirst({
         where: { razorpayOrderId },
-        select: { userId: true },
+        select: { id: true, userId: true, status: true },
       });
 
       if (
@@ -251,6 +263,10 @@ export class PaymentsService {
         where: { razorpayOrderId },
         data: { paymentId: razorpayPaymentId, status: 'CONFIRMED' },
       });
+
+      if (order.status !== 'CONFIRMED') {
+        await this.emitOrderConfirmedEvent(order.id);
+      }
     }
 
     return {
@@ -306,7 +322,35 @@ export class PaymentsService {
 
     // Process events — re-throw on error so Razorpay will retry delivery
     try {
-      if (body.event === 'payment.captured') {
+      if (body.event === 'order.paid') {
+        // ── Real-time order status: order is fully paid ──
+        const order = body.payload?.order?.entity;
+        const payment = body.payload?.payment?.entity;
+        if (order?.id) {
+          this.logger.log(
+            `📦 order.paid webhook received — razorpayOrderId=${order.id}`,
+          );
+          await this.confirmPaymentByGatewayOrder(
+            'RAZORPAY',
+            order.id,
+            payment?.id || order.id,
+            payment?.method,
+          );
+        }
+      } else if (body.event === 'payment.authorized') {
+        // ── Pre-capture: payment authorized but not yet captured ──
+        const payment = body.payload?.payment?.entity;
+        if (payment?.order_id) {
+          this.logger.log(
+            `🔓 payment.authorized webhook — orderId=${payment.order_id} paymentId=${payment.id}`,
+          );
+          await this.markPaymentAuthorized(
+            payment.order_id,
+            payment.id,
+            payment.method,
+          );
+        }
+      } else if (body.event === 'payment.captured') {
         const payment = body.payload?.payment?.entity;
         if (payment?.order_id) {
           await this.confirmPaymentByGatewayOrder(
@@ -379,17 +423,36 @@ export class PaymentsService {
         data: { status: 'COMPLETED', gatewayRef: gatewayPaymentId },
       });
 
+      const order = await this.prisma.order.findUnique({
+        where: { id: payment.orderId },
+        select: { status: true },
+      });
+
       await this.prisma.order.update({
         where: { id: payment.orderId },
         data: { paymentId: gatewayPaymentId, status: 'CONFIRMED' },
       });
+
+      if (order && order.status !== 'CONFIRMED') {
+        await this.emitOrderConfirmedEvent(payment.orderId);
+      }
     } else if (!payment) {
       // Legacy fallback for orders without Payment records
       if (gateway === 'RAZORPAY') {
-        await this.prisma.order.updateMany({
+        const order = await this.prisma.order.findFirst({
           where: { razorpayOrderId: gatewayOrderId },
-          data: { paymentId: gatewayPaymentId, status: 'CONFIRMED' },
+          select: { id: true, status: true },
         });
+        if (order) {
+          await this.prisma.order.update({
+            where: { id: order.id },
+            data: { paymentId: gatewayPaymentId, status: 'CONFIRMED' },
+          });
+
+          if (order.status !== 'CONFIRMED') {
+            await this.emitOrderConfirmedEvent(order.id);
+          }
+        }
       }
     }
   }
@@ -409,6 +472,41 @@ export class PaymentsService {
         where: { paymentId: payment.id, type: 'CHARGE' },
         data: { status: 'FAILED' },
       });
+    }
+  }
+
+  /**
+   * Mark a payment as authorized (pre-capture).
+   * This is an intermediate state — the payment is approved but funds
+   * are not yet captured. Useful for tracking the payment lifecycle.
+   */
+  private async markPaymentAuthorized(
+    gatewayOrderId: string,
+    gatewayPaymentId: string,
+    method?: string,
+  ) {
+    const payment = await this.prisma.payment.findFirst({
+      where: { gatewayOrderId },
+    });
+
+    if (payment && payment.status === 'PENDING') {
+      await this.prisma.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: 'PROCESSING',
+          gatewayPaymentId,
+          method: method || payment.method,
+        },
+      });
+
+      await this.prisma.transaction.updateMany({
+        where: { paymentId: payment.id, type: 'CHARGE' },
+        data: { status: 'AUTHORIZED', gatewayRef: gatewayPaymentId },
+      });
+
+      this.logger.log(
+        `✅ Payment ${payment.id} authorized — awaiting capture`,
+      );
     }
   }
 
@@ -714,5 +812,46 @@ export class PaymentsService {
     ]);
 
     return { payments, total, page, pages: Math.ceil(total / limit) };
+  }
+
+  /**
+   * Helper to fetch order details and emit the order.confirmed event.
+   */
+  private async emitOrderConfirmedEvent(orderId: string) {
+    try {
+      const order = await this.prisma.order.findUnique({
+        where: { id: orderId },
+        include: {
+          user: true,
+          address: true,
+        },
+      });
+
+      if (!order) return;
+
+      const customerName = order.address?.name || order.user?.name || 'Customer';
+      const customerPhone = order.address?.phone || order.user?.phone || null;
+      const customerEmail = order.user?.email || '';
+
+      // Estimate delivery: 4 days from now formatted nicely
+      const deliveryDate = new Date(order.createdAt);
+      deliveryDate.setDate(deliveryDate.getDate() + 4);
+      const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
+      const estimatedDelivery = deliveryDate.toLocaleDateString('en-IN', options);
+
+      const eventPayload: OrderConfirmedEvent = {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        totalAmount: Number(order.totalAmount),
+        customerName,
+        customerPhone,
+        customerEmail,
+        estimatedDelivery,
+      };
+
+      this.eventEmitter.emit('order.confirmed', eventPayload);
+    } catch (err: any) {
+      this.logger.error(`Failed to emit order.confirmed event for order ${orderId}: ${err.message}`);
+    }
   }
 }

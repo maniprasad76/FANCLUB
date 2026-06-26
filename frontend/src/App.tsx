@@ -1,11 +1,10 @@
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect, useState, useRef, Suspense } from "react";
+import { useEffect, useState, useRef, Suspense, lazy } from "react";
 import { AnimatePresence } from "framer-motion";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { PageSkeleton } from "./components/SkeletonLoader";
 import { AuthProvider } from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
-import { ThemeProvider } from "./context/ThemeContext";
 import { DeviceProvider } from "./context/DeviceContext";
 import { Particles } from "./components/Particles";
 import TopNav from "./components/TopNav/TopNav";
@@ -14,35 +13,38 @@ import FooterVideo from "./components/FooterVideo/FooterVideo";
 import MobileBottomNav from "./components/MobileBottomNav/MobileBottomNav";
 import TopProgressBar from "./components/TopProgressBar";
 import ProtectedRoute from "./components/ProtectedRoute";
-import Home from "./pages/Home/Home";
-import Shop from "./pages/Shop/Shop";
-import ProductDetail from "./pages/ProductDetail/ProductDetail";
-import Cart from "./pages/Cart/Cart";
-import Checkout from "./pages/Checkout/Checkout";
-import OrderSuccess from "./pages/Checkout/OrderSuccess";
-import PaymentStatus from "./pages/Checkout/PaymentStatus";
-import Wishlist from "./pages/Wishlist/Wishlist";
-import Profile from "./pages/Profile/Profile";
-import Login from "./pages/Auth/Login";
-import Register from "./pages/Auth/Register";
-import ForgotPassword from "./pages/Auth/ForgotPassword";
-import ResetPassword from "./pages/Auth/ResetPassword";
-import Fandom from "./pages/Fandom/Fandom";
-import Contact from "./pages/Contact/Contact";
-import About from "./pages/About/About";
-import FAQ from "./pages/Support/FAQ";
-import Privacy from "./pages/Support/Privacy";
-import Returns from "./pages/Support/Returns";
-import Terms from "./pages/Support/Terms";
-import LaunchChecklist from "./pages/LaunchChecklist/LaunchChecklist";
-import NotFound from "./pages/NotFound";
-import AccessDenied from "./pages/AccessDenied/AccessDenied";
 import { Toaster } from "react-hot-toast";
 import "./App.css";
 import BrandIntro from "./components/BrandIntro/BrandIntro";
 import FloatingSocials from "./components/FloatingSocials/FloatingSocials";
 import OfflineIndicator from "./components/OfflineIndicator";
 import ScarcityToaster from "./components/ScarcityToaster/ScarcityToaster";
+
+/* ─── Lazy-loaded pages (code-split into separate chunks) ─── */
+const Home = lazy(() => import("./pages/Home/Home"));
+const Shop = lazy(() => import("./pages/Shop/Shop"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail/ProductDetail"));
+const Cart = lazy(() => import("./pages/Cart/Cart"));
+const Checkout = lazy(() => import("./pages/Checkout/Checkout"));
+const OrderSuccess = lazy(() => import("./pages/Checkout/OrderSuccess"));
+const PaymentStatus = lazy(() => import("./pages/Checkout/PaymentStatus"));
+const Wishlist = lazy(() => import("./pages/Wishlist/Wishlist"));
+const Profile = lazy(() => import("./pages/Profile/Profile"));
+const Login = lazy(() => import("./pages/Auth/Login"));
+const Register = lazy(() => import("./pages/Auth/Register"));
+const ForgotPassword = lazy(() => import("./pages/Auth/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/Auth/ResetPassword"));
+const Fandom = lazy(() => import("./pages/Fandom/Fandom"));
+const Contact = lazy(() => import("./pages/Contact/Contact"));
+const About = lazy(() => import("./pages/About/About"));
+const FAQ = lazy(() => import("./pages/Support/FAQ"));
+const Privacy = lazy(() => import("./pages/Support/Privacy"));
+const Returns = lazy(() => import("./pages/Support/Returns"));
+const Terms = lazy(() => import("./pages/Support/Terms"));
+const LaunchChecklist = lazy(() => import("./pages/LaunchChecklist/LaunchChecklist"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AccessDenied = lazy(() => import("./pages/AccessDenied/AccessDenied"));
+
 
 function AppShell() {
   const location = useLocation();
@@ -223,17 +225,15 @@ function App() {
       </AnimatePresence>
       <Particles />
       <DeviceProvider>
-        <ThemeProvider>
-          <AuthProvider>
-            <CartProvider>
-              <ErrorBoundary>
-                <Suspense fallback={<PageSkeleton />}>
-                  <AppShell />
-                </Suspense>
-              </ErrorBoundary>
-            </CartProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <AuthProvider>
+          <CartProvider>
+            <ErrorBoundary>
+              <Suspense fallback={<PageSkeleton />}>
+                <AppShell />
+              </Suspense>
+            </ErrorBoundary>
+          </CartProvider>
+        </AuthProvider>
       </DeviceProvider>
     </BrowserRouter>
   );

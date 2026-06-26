@@ -245,14 +245,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   font-family: var(--font-display);
   font-size: 1.1rem;
   font-weight: 900;
   letter-spacing: 2px;
   color: var(--bauhaus-red);
-  background: transparent;
+  background: var(--bauhaus-white, #ffffff);
   border: 3px solid var(--bauhaus-blue);
   box-shadow: 3px 3px 0px 0px var(--bauhaus-yellow);
+  border-radius: 4px;
   padding: 0px 8px;
   height: 32px;
 }

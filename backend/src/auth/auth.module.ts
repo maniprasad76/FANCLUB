@@ -6,6 +6,7 @@ import { AdminGuard } from './guards/admin.guard.js';
 import { OwnershipGuard } from './guards/ownership.guard.js';
 import { RolesGuard } from './guards/roles.guard.js';
 import { AdminSeederService } from './admin-seeder.service.js';
+import { AccountLockoutInterceptor } from '../common/interceptors/account-lockout.interceptor.js';
 
 @Module({
   controllers: [AuthController],
@@ -16,6 +17,7 @@ import { AdminSeederService } from './admin-seeder.service.js';
     OwnershipGuard,
     RolesGuard,
     AdminSeederService,
+    AccountLockoutInterceptor,
   ],
   exports: [AuthService, JwtAuthGuard, AdminGuard, OwnershipGuard, RolesGuard],
 })

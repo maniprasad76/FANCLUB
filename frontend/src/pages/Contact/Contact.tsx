@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import AnimatedPage from "../../components/AnimatedPage";
 import SEOHead from "../../components/SEOHead";
 import api from "../../lib/api";
+import { SOCIAL_LINKS } from "../../config";
 
 export default function Contact() {
   const [form, setForm] = useState({
@@ -203,7 +204,9 @@ export default function Contact() {
               </h3>
               <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
                 <a
-                  href="#"
+                  href={SOCIAL_LINKS.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
                     width: 48,
                     height: 48,
@@ -229,7 +232,9 @@ export default function Contact() {
                   </svg>
                 </a>
                 <a
-                  href="#"
+                  href={SOCIAL_LINKS.whatsapp}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
                     width: 48,
                     height: 48,
@@ -255,7 +260,9 @@ export default function Contact() {
                   </svg>
                 </a>
                 <a
-                  href="#"
+                  href={SOCIAL_LINKS.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
                     width: 48,
                     height: 48,
@@ -281,7 +288,9 @@ export default function Contact() {
                   </svg>
                 </a>
                 <a
-                  href="#"
+                  href={SOCIAL_LINKS.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
                     width: 48,
                     height: 48,
@@ -307,7 +316,9 @@ export default function Contact() {
                   </svg>
                 </a>
                 <a
-                  href="#"
+                  href={SOCIAL_LINKS.twitter}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
                     width: 48,
                     height: 48,

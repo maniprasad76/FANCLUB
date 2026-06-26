@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
   <!-- Yellow offset shadow -->
-  <rect x="22" y="22" width="96" height="96" fill="#F0C020" />
+  <rect x="22" y="22" width="96" height="96" fill="#F0C020" rx="8" ry="8" />
   
   <!-- White fill with blue border (the box) -->
-  <rect x="10" y="10" width="96" height="96" fill="#FFFFFF" stroke="#1040C0" stroke-width="6" />
+  <rect x="10" y="10" width="96" height="96" fill="#FFFFFF" stroke="#1040C0" stroke-width="6" rx="8" ry="8" />
   
-  <!-- TFI text in red -->
-  <text x="58" y="74" text-anchor="middle" font-family="'Arial Black', 'Impact', sans-serif" font-weight="900" font-size="46" fill="#D02020" letter-spacing="3">TFI</text>
+  <!-- FAN Typography -->
+  <text x="58" y="70" font-family="'Space Grotesk', 'Oufant', -apple-system, system-ui, sans-serif" font-size="34" font-weight="900" fill="#D02020" text-anchor="middle" letter-spacing="1">FAN</text>
 </svg>

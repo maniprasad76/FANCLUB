@@ -33,7 +33,7 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  filter: grayscale(60%) contrast(1.1);
+  filter: none; /* Full clarity and color */
 }
 
 .hero-gradient-overlay {
@@ -41,9 +41,9 @@
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(var(--bg-rgb), 0.4) 0%,
-    rgba(var(--bg-rgb), 0.6) 40%,
-    rgba(var(--bg-rgb), 0.92) 70%,
+    rgba(0, 0, 0, 0.15) 0%,
+    rgba(0, 0, 0, 0) 25%,
+    rgba(var(--bg-rgb), 0) 70%,
     rgba(var(--bg-rgb), 1) 100%
   );
   z-index: 1;

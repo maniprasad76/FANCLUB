@@ -9,11 +9,15 @@ import {
   HttpCode,
   HttpStatus,
   UnauthorizedException,
+  BadRequestException,
+  HttpException,
+  Logger,
 } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AccountLockoutInterceptor } from '../common/interceptors/account-lockout.interceptor';
 
 import type { Request } from 'express';
+import { z } from 'zod';
 import { AuthService } from './auth.service.js';
 import { SignInDto } from './dto/signin.dto.js';
 import { SignUpDto } from './dto/signup.dto.js';
@@ -21,9 +25,12 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
 import { RefreshTokenDto } from './dto/refresh-token.dto.js';
 import { JwtAuthGuard } from './guards/jwt-auth.guard.js';
 import { CurrentUser } from './decorators/current-user.decorator.js';
+import { SignUpSchema, SignInSchema } from './auth-validation.js';
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(private readonly authService: AuthService) {}
 
   // ─── POST /auth/signup ─────────────────────────────────────
@@ -32,31 +39,65 @@ export class AuthController {
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   async signUp(@Body() dto: SignUpDto) {
-    return this.authService.signUp(dto.email, dto.password, dto.name);
+    try {
+      const validated = SignUpSchema.parse(dto);
+      return this.authService.signUp(validated.email, validated.password, validated.name);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        this.logger.warn(`Sign-up validation failed: ${JSON.stringify(error.issues)}`);
+      } else {
+        this.logger.error(`Unexpected sign-up validation error: ${error}`);
+      }
+      throw new BadRequestException('Invalid registration details provided.');
+    }
   }
 
   // ─── POST /auth/signin ────────────────────────────────────
 
-  @Throttle({ strict: { limit: 5, ttl: 60000 } })
+  @Throttle({ strict: { limit: 10, ttl: 60000 } })
   @UseInterceptors(AccountLockoutInterceptor)
   @Post('signin')
   @HttpCode(HttpStatus.OK)
   async signIn(@Body() dto: SignInDto) {
-    return this.authService.signIn(dto.email, dto.password);
+    try {
+      const validated = SignInSchema.parse(dto);
+      return this.authService.signIn(validated.email, validated.password);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        this.logger.warn(`Sign-in validation failed: ${JSON.stringify(error.issues)}`);
+      } else {
+        this.logger.error(`Unexpected sign-in validation error: ${error}`);
+      }
+      throw new BadRequestException('Invalid email or password. Please try again.');
+    }
   }
 
   // ─── POST /auth/admin/signin ──────────────────────────────
 
-  @Throttle({ strict: { limit: 5, ttl: 60000 } })
+  @Throttle({ strict: { limit: 10, ttl: 60000 } })
   @UseInterceptors(AccountLockoutInterceptor)
   @Post('admin/signin')
   @HttpCode(HttpStatus.OK)
   async adminSignIn(@Body() dto: SignInDto) {
-    const result = await this.authService.signIn(dto.email, dto.password);
-    if (result.user.role !== 'ADMIN') {
-      throw new UnauthorizedException('Access restricted to administrators');
+    try {
+      const validated = SignInSchema.parse(dto);
+      const result = await this.authService.signIn(validated.email, validated.password);
+      if (result.user.role !== 'ADMIN') {
+        throw new UnauthorizedException('Access restricted to administrators');
+      }
+      return result;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      if (error instanceof z.ZodError) {
+        this.logger.warn(`Admin sign-in validation failed: ${JSON.stringify(error.issues)}`);
+        throw new BadRequestException('Invalid email or password. Please try again.');
+      } else {
+        this.logger.error(`Unexpected admin sign-in validation error: ${error}`);
+        throw new BadRequestException('Invalid email or password. Please try again.');
+      }
     }
-    return result;
   }
 
   // ─── POST /auth/forgot-password ───────────────────────────

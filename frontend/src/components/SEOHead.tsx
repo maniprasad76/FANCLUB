@@ -93,7 +93,6 @@ export default function SEOHead({
         'https://instagram.com/fanclub',
         'https://youtube.com/@fanclub',
         'https://twitter.com/fanclub',
-        'https://pinterest.com/fanclub',
       ],
       contactPoint: {
         '@type': 'ContactPoint',

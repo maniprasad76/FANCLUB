@@ -56,6 +56,9 @@ export default function ScarcityToaster() {
   const [currentToast, setCurrentToast] = useState<ToastData | null>(null);
   const [visible, setVisible] = useState(false);
 
+  const hideTimeoutRef = useRef<any>(null);
+  const nextToastTimeoutRef = useRef<any>(null);
+
   // History tracking refs to prevent duplicate types or products showing consecutively
   const productHistoryRef = useRef<string[]>([]);
   const typeHistoryRef = useRef<string[]>([]);
@@ -64,7 +67,7 @@ export default function ScarcityToaster() {
 
   // Fetch real products from backend to ensure alignment with active database
   useEffect(() => {
-    api.get('/products', { params: { limit: 100 } })
+    api.get('/products', { params: { limit: 20 } })
       .then(res => {
         if (res.data && Array.isArray(res.data.products) && res.data.products.length > 0) {
           const fetched = res.data.products.map((p: any) => ({
@@ -101,9 +104,6 @@ export default function ScarcityToaster() {
 
   // Scarcity notification loop
   useEffect(() => {
-    let hideTimeoutId: any;
-    let nextToastTimeoutId: any;
-
     const triggerNext = () => {
       if (products.length === 0) return;
 
@@ -244,22 +244,34 @@ export default function ScarcityToaster() {
       setVisible(true);
 
       // Hide toast after 6 seconds
-      hideTimeoutId = setTimeout(() => {
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = setTimeout(() => {
         setVisible(false);
       }, 6000);
 
       // Trigger the next one strictly 28 seconds later
-      nextToastTimeoutId = setTimeout(triggerNext, 28000);
+      if (nextToastTimeoutRef.current) clearTimeout(nextToastTimeoutRef.current);
+      nextToastTimeoutRef.current = setTimeout(triggerNext, 28000);
     };
 
     // Initial delay: wait 12 seconds before firing the very first toast so it doesn't clash with brand intro
-    nextToastTimeoutId = setTimeout(triggerNext, 12000);
+    if (nextToastTimeoutRef.current) clearTimeout(nextToastTimeoutRef.current);
+    nextToastTimeoutRef.current = setTimeout(triggerNext, 12000);
 
     return () => {
-      clearTimeout(hideTimeoutId);
-      clearTimeout(nextToastTimeoutId);
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+      if (nextToastTimeoutRef.current) clearTimeout(nextToastTimeoutRef.current);
     };
   }, [products, recentPurchases]);
+
+  const handleClose = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setVisible(false);
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+    }
+  };
 
   return (
     <div className="scarcity-toast-container">
@@ -284,10 +296,10 @@ export default function ScarcityToaster() {
 
             <button 
               className="scarcity-toast-close" 
-              onClick={() => setVisible(false)}
+              onClick={handleClose}
               aria-label="Dismiss notification"
             >
-              <X size={12} strokeWidth={2.5} />
+              <X size={16} strokeWidth={2.5} />
             </button>
           </motion.div>
         )}

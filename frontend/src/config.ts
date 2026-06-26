@@ -4,5 +4,4 @@ export const SOCIAL_LINKS = {
   facebook: "https://facebook.com/fanclub",
   youtube: "https://youtube.com/@fanclub",
   twitter: "https://twitter.com/fanclub",
-  pinterest: "https://pinterest.com/fanclub",
 };

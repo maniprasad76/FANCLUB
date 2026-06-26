@@ -16,6 +16,8 @@ import {
 } from './dto/orders.dto';
 import { Prisma } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { OrderConfirmedEvent } from '../common/services/notification.service.js';
 
 /** Shipping threshold & cost — single source of truth */
 const FREE_SHIPPING_THRESHOLD = 999;
@@ -43,6 +45,7 @@ export class OrdersService {
     private paymentsService: PaymentsService,
     private config: ConfigService,
     private couponsService: CouponsService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   /**
@@ -302,6 +305,9 @@ export class OrdersService {
       { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead },
     );
 
+    // Emit event for COD order confirmation (since COD status is CONFIRMED immediately)
+    await this.emitOrderConfirmedEvent(order.id);
+
     return order;
   }
 
@@ -406,11 +412,17 @@ export class OrdersService {
       });
     }
 
-    return this.prisma.order.update({
+    const updated = await this.prisma.order.update({
       where: { id },
       data: { status: dto.status as any, trackingId: dto.trackingId },
       include: { items: true },
     });
+
+    if (dto.status === OrderStatusEnum.CONFIRMED && order.status !== 'CONFIRMED') {
+      await this.emitOrderConfirmedEvent(updated.id);
+    }
+
+    return updated;
   }
 
   async adminFindAll(page = 1, limit = 20, status?: string) {
@@ -474,5 +486,47 @@ export class OrdersService {
         createdAt: order.createdAt,
       };
     });
+  }
+
+  /**
+   * Helper to fetch order details and emit the order.confirmed event.
+   */
+  private async emitOrderConfirmedEvent(orderId: string) {
+    try {
+      const order = await this.prisma.order.findUnique({
+        where: { id: orderId },
+        include: {
+          user: true,
+          address: true,
+        },
+      });
+
+      if (!order) return;
+
+      const customerName = order.address?.name || order.user?.name || 'Customer';
+      const customerPhone = order.address?.phone || order.user?.phone || null;
+      const customerEmail = order.user?.email || '';
+
+      // Estimate delivery: 4 days from now formatted nicely
+      const deliveryDate = new Date(order.createdAt);
+      deliveryDate.setDate(deliveryDate.getDate() + 4);
+      const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
+      const estimatedDelivery = deliveryDate.toLocaleDateString('en-IN', options);
+
+      const eventPayload: OrderConfirmedEvent = {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        totalAmount: Number(order.totalAmount),
+        customerName,
+        customerPhone,
+        customerEmail,
+        estimatedDelivery,
+      };
+
+      this.eventEmitter.emit('order.confirmed', eventPayload);
+    } catch (err: any) {
+      // Don't throw/fail order flow if notification dispatch has an issue
+      console.error(`Failed to emit order.confirmed event for order ${orderId}:`, err);
+    }
   }
 }

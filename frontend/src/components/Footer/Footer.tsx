@@ -75,7 +75,9 @@ export default function Footer() {
           {/* Brand & Socials Column */}
           <div className="footer-brand-column">
             <Link to="/" className="footer-logo">
-              <span className="logo-box">FAN</span>
+              <span className="logo-box">
+                FAN
+              </span>
               <div className="logo-text">
                 <span className="text-red">BE</span>
                 <span className="text-yellow">YOUR OWN</span>

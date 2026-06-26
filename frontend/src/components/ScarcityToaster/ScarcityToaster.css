@@ -132,14 +132,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   border: 2px solid var(--bauhaus-black);
   background: transparent;
   color: var(--bauhaus-black);
   transition: all var(--transition-fast);
-  margin-top: -4px;
-  margin-right: -8px;
+  margin-top: -6px;
+  margin-right: -6px;
+  padding: 0;
 }
 
 .scarcity-toast-close:hover {

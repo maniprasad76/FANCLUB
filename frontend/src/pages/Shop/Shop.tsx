@@ -90,9 +90,9 @@ export default function Shop() {
           {/* Header */}
           <motion.div
             className="shop-header fandomtic-panel"
-            initial={{ opacity: 0, y: 30, filter: 'blur(8px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="shop-header-copy">
               <h1 className="heading-lg">
@@ -305,9 +305,10 @@ export default function Shop() {
                   <motion.div
                     key="shop-loading"
                     className="product-grid"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -14 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
                   >
                     {Array.from({ length: 12 }).map((_, i) => (
                       <div key={i} className="product-card-skeleton" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -322,9 +323,10 @@ export default function Shop() {
                   <motion.div
                     key="shop-empty"
                     className="shop-empty"
-                    initial={{ opacity: 0, y: 24 }}
+                    initial={{ opacity: 0, y: 16 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -16 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.25 }}
                   >
                     <h3 className="heading-md">No products found</h3>
                     <p className="text-muted">Try adjusting your filters or search.</p>
@@ -333,21 +335,15 @@ export default function Shop() {
                   <motion.div
                     key={`shop-grid-${viewMode}-${page}-${category}-${search}-${sort}`}
                     className={viewMode === 'grid' ? 'product-grid' : 'product-list'}
-                    initial={{ opacity: 0, y: 22 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -14 }}
-                    transition={{ duration: 0.5 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.25 }}
                   >
-                    {products.map((p: any, index: number) => (
-                      <motion.div
-                        key={p.id}
-                        className="shop-product-item"
-                        initial={{ opacity: 0, y: 24, scale: 0.98 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{ duration: 0.55, delay: Math.min(index * 0.06, 0.45), ease: [0.22, 1, 0.36, 1] }}
-                      >
+                    {products.map((p: any) => (
+                      <div key={p.id} className="shop-product-item">
                         <ProductCard product={p} />
-                      </motion.div>
+                      </div>
                     ))}
                   </motion.div>
                 )}
