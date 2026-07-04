@@ -26,7 +26,7 @@ export default function MobileBottomNav() {
         >
           <div className="mobile-nav-icon-wrap">
             <Icon size={24} strokeWidth={2.5} />
-            {label === 'Cart' && count > 0 && <span className="mobile-cart-badge">{count}</span>}
+            {label === 'Cart' && <span className="mobile-cart-badge" style={{ visibility: count > 0 ? 'visible' : 'hidden' }}>{count}</span>}
           </div>
         </Link>
       ))}

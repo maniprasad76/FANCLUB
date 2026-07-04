@@ -7,13 +7,8 @@ import { useCart } from '../../context/CartContext';
 import { formatImageUrl } from '../../lib/utils';
 import './Cart.css';
 
-const FREE_SHIPPING_THRESHOLD = 999;
-
 export default function Cart() {
   const { items, total, count, updateQuantity, removeItem } = useCart();
-
-  const shippingRemaining = Math.max(0, FREE_SHIPPING_THRESHOLD - total);
-  const shippingProgress = Math.min(100, (total / FREE_SHIPPING_THRESHOLD) * 100);
 
   if (count === 0) {
     return (
@@ -44,24 +39,12 @@ export default function Cart() {
         <p className="text-muted">{count} items</p>
         <div className="cart-layout">
           <div className="cart-items">
-            {/* Free Shipping Progress Bar (Loss Aversion) */}
+            {/* Free Shipping & Tax Banner */}
             <div className="cart-shipping-progress">
-              {shippingRemaining > 0 ? (
-                <>
-                  <div className="shipping-progress-text">
-                    <Truck size={16} />
-                    <span>Add <strong>₹{shippingRemaining.toLocaleString('en-IN')}</strong> more for <strong>FREE shipping!</strong></span>
-                  </div>
-                  <div className="shipping-progress-bar">
-                    <div className="shipping-progress-fill" style={{ width: `${shippingProgress}%` }} />
-                  </div>
-                </>
-              ) : (
-                <div className="shipping-progress-text shipping-free">
-                  <Truck size={16} />
-                  <span>🎉 You've unlocked <strong>FREE shipping!</strong></span>
-                </div>
-              )}
+              <div className="shipping-progress-text shipping-free">
+                <Truck size={16} />
+                <span>🎉 <strong>FREE shipping</strong> and <strong>taxes included</strong> on all orders!</span>
+              </div>
             </div>
 
             <AnimatePresence>
@@ -74,7 +57,7 @@ export default function Cart() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
                 >
-                  <img src={formatImageUrl(item.product.images?.[0]) || 'https://placehold.co/120x150/1a1a2e/8b5cf6?text=FAN'} alt={item.product.name} className="cart-item-image" />
+                  <img src={formatImageUrl(item.product.images?.[0]) || 'https://placehold.co/120x150/1a1a2e/8b5cf6?text=FAN'} alt={item.product.name} className="cart-item-image" loading="lazy" decoding="async" />
                   <div className="cart-item-info">
                     <Link to={`/product/${item.product.slug}`} className="cart-item-name">{item.product.name}</Link>
                     {item.size && <span className="cart-item-variant">Size: {item.size}</span>}
@@ -108,8 +91,8 @@ export default function Cart() {
           <div className="cart-summary glass-card">
             <h3 className="heading-sm">Order Summary</h3>
             <div className="summary-row"><span>Subtotal</span><span>₹{total.toLocaleString('en-IN')}</span></div>
-            <div className="summary-row"><span>Shipping</span><span>{total >= 999 ? 'Free' : '₹99'}</span></div>
-            <div className="summary-row total"><span>Total</span><span>₹{(total >= 999 ? total : total + 99).toLocaleString('en-IN')}</span></div>
+            <div className="summary-row"><span>Shipping & Taxes</span><span>Free</span></div>
+            <div className="summary-row total"><span>Total</span><span>₹{total.toLocaleString('en-IN')}</span></div>
             <Link to="/checkout" className="btn btn-primary btn-lg" style={{ width: '100%' }} id="checkout-btn">
               Checkout <ArrowRight size={18} />
             </Link>

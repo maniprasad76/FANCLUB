@@ -231,8 +231,22 @@ export default function Checkout() {
     setSavingAddr(false);
   };
 
+  /* ── Lazy-load Razorpay SDK (only when checkout is initiated) ── */
+  const loadRazorpay = (): Promise<boolean> => new Promise((resolve) => {
+    if (window.Razorpay) { resolve(true); return; }
+    if (document.getElementById('razorpay-script')) { resolve(true); return; }
+    const script = document.createElement('script');
+    script.id = 'razorpay-script';
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+
   /* ── Open Razorpay modal ── */
-  const openRazorpayModal = (razorpayOrderId: string, amount: number, key: string): Promise<{ razorpayPaymentId: string; razorpayOrderId: string; signature: string }> => {
+  const openRazorpayModal = async (razorpayOrderId: string, amount: number, key: string): Promise<{ razorpayPaymentId: string; razorpayOrderId: string; signature: string }> => {
+    const loaded = await loadRazorpay();
+    if (!loaded) { throw new Error('Payment gateway unavailable. Please try again.'); }
     const sub = RAZORPAY_METHODS.find(m => m.id === onlineSubMethod);
     return new Promise((resolve, reject) => {
       const options: any = {
@@ -308,7 +322,6 @@ export default function Checkout() {
     setLoading(false);
   };
 
-  const shipping = total >= 999 ? 0 : 99;
 
   return (
     <AnimatedPage>
@@ -511,8 +524,8 @@ export default function Checkout() {
                 <span>-₹{discount.toLocaleString('en-IN')}</span>
               </div>
             )}
-            <div className="summary-row"><span>Shipping</span><span>{shipping === 0 ? 'Free' : `₹${shipping}`}</span></div>
-            <div className="summary-row total"><span>Total</span><span>₹{(total - discount + shipping).toLocaleString('en-IN')}</span></div>
+            <div className="summary-row"><span>Shipping & Taxes</span><span>Free (Inclusive)</span></div>
+            <div className="summary-row total"><span>Total</span><span>₹{(total - discount).toLocaleString('en-IN')}</span></div>
 
             <div className="selected-payment-preview">
               {paymentMethod === 'COD'
@@ -524,7 +537,7 @@ export default function Checkout() {
               {loading
                 ? <><Loader2 size={18} className="spin" /> Processing...</>
                 : paymentMethod === 'ONLINE'
-                  ? `Pay ₹${(total - discount + shipping).toLocaleString('en-IN')}`
+                  ? `Pay ₹${(total - discount).toLocaleString('en-IN')}`
                   : 'Place Order'}
             </button>
 

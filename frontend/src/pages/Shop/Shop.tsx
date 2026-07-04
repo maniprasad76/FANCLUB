@@ -65,7 +65,7 @@ export default function Shop() {
     <AnimatedPage>
       <SEOHead
         title={`${search ? `"${search}" results` : category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Shop All'} | FANCLUB — Fandom Streetwear`}
-        description={`Browse ${total} ${category || 'fandom-inspired'} products at FANCLUB. Premium streetwear from ₹499. Free shipping over ₹999. ${gender ? `For ${gender.toLowerCase()}.` : ''}`}
+        description={`Browse ${total} ${category || 'fandom-inspired'} products at FANCLUB. Premium streetwear from ₹499. Free shipping & taxes included. ${gender ? `For ${gender.toLowerCase()}.` : ''}`}
         keywords={`FANCLUB shop, ${category || 'streetwear'}, fandom fashion, buy online India, ${gender || 'unisex'}`}
         jsonLd={[
           buildCollectionSchema(

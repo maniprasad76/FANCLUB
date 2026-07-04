@@ -161,7 +161,7 @@ export function buildProductSchema(product: any) {
         '@type': 'OfferShippingDetails',
         shippingRate: {
           '@type': 'MonetaryAmount',
-          value: product.price >= 999 ? '0' : '99',
+          value: '0',
           currency: 'INR',
         },
         shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'IN' },

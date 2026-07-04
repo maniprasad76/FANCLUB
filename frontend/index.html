@@ -13,14 +13,19 @@
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="theme-color" content="#121212" />
 
+    <!-- Preload hero image for LCP -->
+    <link rel="preload" as="image" href="/assets/hero-banner.jpg" fetchpriority="high" />
+
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Preconnect to backend CDN serving product/hero images -->
+    <link rel="preconnect" href="https://fanclub-backend.onrender.com" crossorigin />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <!-- Preconnect to API/Supabase for faster data fetching -->
     <link rel="dns-prefetch" href="https://fanclub-backend.onrender.com" />
-    <link rel="preconnect" href="https://checkout.razorpay.com" />
+
     <!-- Non-blocking font loading: loads fonts without blocking first paint -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Oufant:wght@400;500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" media="print" onload="this.media='all'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Oufant:wght@400;500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" /></noscript>
@@ -45,7 +50,6 @@
   </head>
   <body>
     <div id="root"></div>
-    <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
 
     <script type="module" src="/src/main.tsx"></script>
   </body>

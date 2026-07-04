@@ -20,8 +20,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { OrderConfirmedEvent } from '../common/services/notification.service.js';
 
 /** Shipping threshold & cost — single source of truth */
-const FREE_SHIPPING_THRESHOLD = 999;
-const SHIPPING_COST = 99;
+const FREE_SHIPPING_THRESHOLD = 0;
+const SHIPPING_COST = 0;
 
 /**
  * Allowed order status transitions.

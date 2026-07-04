@@ -53,6 +53,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         src={formatImageUrl(item.product.images?.[0]) || 'https://placehold.co/100x120/f0f0f0/111?text=FAN'} 
                         alt={item.product.name} 
                         className="cart-item-img"
+                        loading="lazy"
+                        decoding="async"
                       />
                       <div className="cart-item-info">
                         <div className="cart-item-top">
@@ -88,7 +90,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   <span>Subtotal</span>
                   <span>₹{total.toLocaleString('en-IN')}</span>
                 </div>
-                <p className="cart-drawer-taxes">Taxes and shipping calculated at checkout.</p>
+                <p className="cart-drawer-taxes">All taxes & shipping included.</p>
                 <div className="cart-drawer-actions">
                   <Link to="/cart" className="btn btn-outline" onClick={onClose} style={{ flex: 1, textAlign: 'center' }}>
                     View Cart

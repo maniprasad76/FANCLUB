@@ -174,7 +174,7 @@ export default function TopNav() {
                   onClick={() => setIsCartOpen(true)}
                 >
                   <ShoppingBag size={22} />
-                  {count > 0 && <span className="cart-badge">{count}</span>}
+                  <span className="cart-badge" style={{ visibility: count > 0 ? 'visible' : 'hidden' }}>{count}</span>
                 </button>
               </Magnetic>
               {user ? (

@@ -89,7 +89,7 @@ const OrderSuccess: React.FC = () => {
               {orderItems.map((item: any, idx: number) => (
                 <div key={idx} className="success-item">
                   <div className="item-img-wrapper">
-                    <img src={formatImageUrl(item.image || item.product?.images?.[0])} alt={item.name || item.product?.name} />
+                    <img src={formatImageUrl(item.image || item.product?.images?.[0])} alt={item.name || item.product?.name} loading="lazy" decoding="async" />
                   </div>
                   <div className="item-info">
                     <h4>{item.name || item.product?.name}</h4>
@@ -114,8 +114,8 @@ const OrderSuccess: React.FC = () => {
                 <span>₹{((order.totalAmount || 0) - (order.shippingAmount || 0)).toLocaleString('en-IN')}</span>
               </div>
               <div className="total-row">
-                <span>Shipping</span>
-                <span>{(order.shippingAmount || 0) === 0 ? 'Free' : `₹${order.shippingAmount}`}</span>
+                <span>Shipping & Taxes</span>
+                <span>{(order.shippingAmount || 0) === 0 ? 'Free (Inclusive)' : `₹${order.shippingAmount}`}</span>
               </div>
               <div className="total-row">
                 <span>Payment</span>

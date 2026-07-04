@@ -86,6 +86,18 @@ export default function PaymentStatus() {
     }
   };
 
+  /* ── Lazy-load Razorpay SDK (only when retry is initiated) ── */
+  const loadRazorpay = (): Promise<boolean> => new Promise((resolve) => {
+    if ((window as any).Razorpay) { resolve(true); return; }
+    if (document.getElementById('razorpay-script')) { resolve(true); return; }
+    const script = document.createElement('script');
+    script.id = 'razorpay-script';
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+
   const handleRetry = async () => {
     if (!orderId) return;
     setRetrying(true);
@@ -93,6 +105,9 @@ export default function PaymentStatus() {
       const { data } = await api.post(`/payments/retry/${orderId}`);
 
       if (data.gateway === 'RAZORPAY' && data.razorpayOrderId) {
+        // Lazy-load Razorpay SDK before opening modal
+        const loaded = await loadRazorpay();
+        if (!loaded) { toast.error('Payment gateway unavailable'); setRetrying(false); return; }
         // Open Razorpay modal
         const options: any = {
           key: data.razorpayKey,

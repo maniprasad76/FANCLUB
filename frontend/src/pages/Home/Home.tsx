@@ -101,7 +101,7 @@ export default function Home() {
     <AnimatedPage className="home-page">
       <SEOHead
         title="FANCLUB — Fandom-Inspired Streetwear | Wear the Culture"
-        description="Premium streetwear celebrating Telugu Film Industry culture. Shop fandom-inspired t-shirts, hoodies & accessories. Free shipping over ₹999."
+        description="Premium streetwear celebrating Telugu Film Industry culture. Shop fandom-inspired t-shirts, hoodies & accessories. Free shipping & taxes included."
         keywords="FANCLUB, Telugu film merch, fandom fashion, anime streetwear, pop culture clothing, Tollywood merchandise"
       />
 
@@ -135,6 +135,7 @@ export default function Home() {
                   alt={`Hero ${idx + 1}`}
                   className={`hero-carousel-img full-screen ${idx === currentHeroIndex ? "active" : ""}`}
                   fetchPriority={idx === 0 ? "high" : "low"}
+                  loading={idx === 0 ? "eager" : "lazy"}
                   decoding={idx === 0 ? "sync" : "async"}
                 />
               );
@@ -154,6 +155,9 @@ export default function Home() {
               className="hero-media"
               src="/assets/hero-banner.jpg"
               alt="FANCLUB"
+              fetchPriority="high"
+              loading="eager"
+              decoding="sync"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
               }}
