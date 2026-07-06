@@ -26,6 +26,7 @@ import { DashboardModule } from './dashboard/dashboard.module.js';
 import { SettingsModule } from './settings/settings.module.js';
 import { HealthModule } from './health/health.module.js';
 import { CouponsModule } from './coupons/coupons.module.js';
+import { LoyaltyModule } from './loyalty/loyalty.module.js';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor.js';
 import { SanitizePipe } from './common/pipes/sanitize.pipe';
@@ -98,6 +99,7 @@ import { SecurityAuditInterceptor } from './common/interceptors/security-audit.i
     HealthModule,
     AuditModule,
     CouponsModule,
+    LoyaltyModule,
   ],
   providers: [
     // Global rate-limit guard — applies the 'default' tier to all routes

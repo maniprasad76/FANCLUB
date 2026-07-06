@@ -44,6 +44,7 @@ const Terms = lazy(() => import("./pages/Support/Terms"));
 const LaunchChecklist = lazy(() => import("./pages/LaunchChecklist/LaunchChecklist"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AccessDenied = lazy(() => import("./pages/AccessDenied/AccessDenied"));
+const LoyaltyClub = lazy(() => import("./pages/LoyaltyClub/LoyaltyClub"));
 
 
 function AppShell() {
@@ -145,6 +146,14 @@ function AppShell() {
             <Route path="/returns" element={<Returns />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/access-denied" element={<AccessDenied />} />
+            <Route
+              path="/loyalty"
+              element={
+                <ProtectedRoute>
+                  <LoyaltyClub />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/launch-checklist" element={<LaunchChecklist />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { User, Package, MapPin, LogOut, Edit2 } from "lucide-react";
+import { User, Package, MapPin, LogOut, Edit2, Crown, Fan, Gift } from "lucide-react";
 import AnimatedPage from "../../components/AnimatedPage";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../lib/api";
@@ -13,6 +13,7 @@ export default function Profile() {
   const [addresses, setAddresses] = useState<any[]>([]);
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ name: "" });
+  const [loyalty, setLoyalty] = useState<any>(null);
 
   useEffect(() => {
     if (!user) {
@@ -32,6 +33,10 @@ export default function Profile() {
       .catch((err: any) => {
         if (err.response?.status === 401) navigate("/login?redirect=/profile");
       });
+    api
+      .get("/loyalty/progress")
+      .then((r) => setLoyalty(r.data))
+      .catch(() => {});
   }, [user]);
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -113,6 +118,80 @@ export default function Profile() {
           </div>
 
           <div className="profile-main">
+            {/* Loyalty Club Card */}
+            {loyalty && (
+              <Link to="/loyalty" style={{ textDecoration: "none", color: "inherit" }}>
+                <div
+                  className="profile-section glass-card"
+                  style={{
+                    background: "rgba(255, 215, 0, 0.03)",
+                    border: "3px solid var(--bauhaus-black)",
+                    boxShadow: "6px 6px 0px 0px var(--bauhaus-black)",
+                    cursor: "pointer",
+                    transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: 4,
+                      background: "linear-gradient(90deg, #FFD700, #FF6B35, #e63946)",
+                    }}
+                  />
+                  <h3 className="heading-sm" style={{ marginBottom: 12 }}>
+                    <Crown size={18} style={{ color: "#FFD700" }} /> Fan Loyalty Club
+                    {loyalty.rewardUnlocked && !loyalty.rewardClaimed && (
+                      <span className="badge badge-success" style={{ marginLeft: 8, fontSize: "0.65rem" }}>
+                        <Gift size={10} style={{ marginRight: 3 }} />
+                        Reward Ready!
+                      </span>
+                    )}
+                  </h3>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
+                    {Array.from({ length: loyalty.requiredOrders }, (_, i) => (
+                      <Fan
+                        key={i}
+                        size={20}
+                        strokeWidth={i < loyalty.completedOrders ? 2.5 : 1}
+                        style={{
+                          color: i < loyalty.completedOrders ? "#FFD700" : "var(--text-muted)",
+                          opacity: i < loyalty.completedOrders ? 1 : 0.3,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontWeight: 800,
+                        fontSize: "0.85rem",
+                        letterSpacing: "1px",
+                      }}
+                    >
+                      {loyalty.completedOrders}/{loyalty.requiredOrders} Stamps
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "0.7rem",
+                        color: "var(--text-muted)",
+                        textTransform: "uppercase",
+                        letterSpacing: "1px",
+                      }}
+                    >
+                      View Details →
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            )}
+
             {/* Orders */}
             <div className="profile-section glass-card">
               <h3 className="heading-sm">

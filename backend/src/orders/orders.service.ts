@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentsService } from '../payments/payments.service';
+import { LoyaltyService } from '../loyalty/loyalty.service';
 import { ConfigService } from '@nestjs/config';
 import { CouponsService } from '../coupons/coupons.service';
 import {
@@ -46,6 +47,7 @@ export class OrdersService {
     private config: ConfigService,
     private couponsService: CouponsService,
     private eventEmitter: EventEmitter2,
+    private loyaltyService: LoyaltyService,
   ) {}
 
   /**
@@ -420,6 +422,16 @@ export class OrdersService {
 
     if (dto.status === OrderStatusEnum.CONFIRMED && order.status !== 'CONFIRMED') {
       await this.emitOrderConfirmedEvent(updated.id);
+    }
+
+    // ── Loyalty Integration ──
+    // Award stamp when order reaches DELIVERED
+    if (dto.status === OrderStatusEnum.DELIVERED) {
+      await this.loyaltyService.incrementProgress(updated.id);
+    }
+    // Reverse stamp when a previously-delivered order is cancelled
+    if (dto.status === OrderStatusEnum.CANCELLED) {
+      await this.loyaltyService.decrementProgress(updated.id);
     }
 
     return updated;

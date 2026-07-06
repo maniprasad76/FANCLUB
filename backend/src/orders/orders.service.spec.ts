@@ -58,12 +58,18 @@ describe('OrdersService', () => {
       emit: jest.fn(),
     };
 
+    const loyaltyService = {
+      incrementProgress: jest.fn(),
+      decrementProgress: jest.fn(),
+    };
+
     service = new OrdersService(
       prisma,
       paymentsService,
       configService,
       couponsService,
       eventEmitter,
+      loyaltyService as any,
     );
   });
 

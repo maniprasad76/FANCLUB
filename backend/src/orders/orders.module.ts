@@ -4,9 +4,10 @@ import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
 import { PaymentsModule } from '../payments/payments.module';
 import { CouponsModule } from '../coupons/coupons.module.js';
+import { LoyaltyModule } from '../loyalty/loyalty.module.js';
 
 @Module({
-  imports: [ConfigModule, PaymentsModule, CouponsModule],
+  imports: [ConfigModule, PaymentsModule, CouponsModule, LoyaltyModule],
   controllers: [OrdersController],
   providers: [OrdersService],
   exports: [OrdersService],

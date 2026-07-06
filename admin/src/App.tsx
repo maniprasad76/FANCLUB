@@ -16,6 +16,7 @@ import Contacts from './pages/Contacts';
 import Settings from './pages/Settings';
 import AuditLogs from './pages/AuditLogs';
 import Coupons from './pages/Coupons';
+import LoyaltyAdmin from './pages/LoyaltyAdmin';
 import './App.css';
 import { Toaster } from 'react-hot-toast';
 
@@ -56,6 +57,7 @@ function App() {
             <Route path="/audit-logs" element={<AuditLogs />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/coupons" element={<Coupons />} />
+            <Route path="/loyalty" element={<LoyaltyAdmin />} />
           </Route>
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

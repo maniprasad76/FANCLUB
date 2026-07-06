@@ -1,0 +1,95 @@
+/* ── Fan Stamp Component ── */
+.fan-stamp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: default;
+}
+
+.fan-stamp-icon {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.fan-stamp-icon svg {
+  width: 32px;
+  height: 32px;
+  transition: all 0.3s ease;
+}
+
+/* Empty stamp */
+.fan-stamp.empty .fan-stamp-icon {
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px dashed var(--border-color, #333);
+}
+.fan-stamp.empty .fan-stamp-icon svg {
+  color: var(--text-muted, #666);
+  opacity: 0.35;
+}
+
+/* Filled stamp */
+.fan-stamp.filled .fan-stamp-icon {
+  background: linear-gradient(135deg, #FFD700 0%, #FF6B35 100%);
+  border: 3px solid var(--bauhaus-black, #121212);
+  box-shadow:
+    4px 4px 0px 0px var(--bauhaus-black, #121212),
+    0 0 20px rgba(255, 215, 0, 0.3);
+}
+.fan-stamp.filled .fan-stamp-icon svg {
+  color: var(--bauhaus-black, #121212);
+  opacity: 1;
+}
+
+/* Most recent stamp — pulse */
+.fan-stamp.latest .fan-stamp-icon {
+  animation: stampPulse 2s ease-in-out infinite;
+}
+
+/* Stamp label */
+.fan-stamp-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted, #888);
+}
+.fan-stamp.filled .fan-stamp-label {
+  color: var(--text-primary, #fff);
+}
+
+@keyframes stampPulse {
+  0%, 100% {
+    box-shadow:
+      4px 4px 0px 0px var(--bauhaus-black, #121212),
+      0 0 20px rgba(255, 215, 0, 0.3);
+  }
+  50% {
+    box-shadow:
+      4px 4px 0px 0px var(--bauhaus-black, #121212),
+      0 0 35px rgba(255, 215, 0, 0.6),
+      0 0 60px rgba(255, 107, 53, 0.2);
+  }
+}
+
+/* Responsive: smaller stamps on mobile */
+@media (max-width: 640px) {
+  .fan-stamp-icon {
+    width: 40px;
+    height: 40px;
+  }
+  .fan-stamp-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+  .fan-stamp-label {
+    font-size: 0.55rem;
+  }
+}

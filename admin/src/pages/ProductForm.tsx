@@ -14,7 +14,7 @@ export default function ProductForm() {
   const [form, setForm] = useState({
     name: '', slug: '', description: '', price: 0, comparePrice: 0,
     images: [''], sizes: ['S', 'M', 'L', 'XL'], colors: ['Black', 'White'],
-    categoryId: '', stock: 0, featured: false, bestseller: false, newArrival: false, tags: [''],
+    categoryId: '', stock: 0, featured: false, bestseller: false, newArrival: false, loyaltyEligible: false, tags: [''],
     gender: 'UNISEX'
   });
 
@@ -126,6 +126,7 @@ export default function ProductForm() {
             { key: 'featured', label: 'Featured' },
             { key: 'bestseller', label: 'Bestseller' },
             { key: 'newArrival', label: 'New Arrival' },
+            { key: 'loyaltyEligible', label: 'Loyalty Eligible' },
           ].map(({ key, label }) => (
             <label key={key} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontWeight: 700, fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
               <div
@@ -133,7 +134,7 @@ export default function ProductForm() {
                 style={{
                   width: 22, height: 22,
                   border: '2px solid var(--bauhaus-black)',
-                  background: (form as any)[key] ? 'var(--bauhaus-red)' : 'var(--bauhaus-white)',
+                  background: (form as any)[key] ? (key === 'loyaltyEligible' ? '#FFD700' : 'var(--bauhaus-red)') : 'var(--bauhaus-white)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   cursor: 'pointer',
                   boxShadow: '2px 2px 0px 0px var(--bauhaus-black)',
