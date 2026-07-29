@@ -235,13 +235,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // stale sessions on shared/public computers.
   const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
   const inactivityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const logoutRef = useRef(logout);
+  logoutRef.current = logout; // Always points to latest logout fn
 
   const resetInactivityTimer = useCallback(() => {
     if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
     if (user) {
       inactivityTimerRef.current = setTimeout(() => {
         toast.error("Session timed out due to inactivity.");
-        logout();
+        logoutRef.current();
       }, INACTIVITY_TIMEOUT);
     }
   }, [user]);

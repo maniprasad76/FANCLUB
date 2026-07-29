@@ -8,10 +8,11 @@ import {
   UseInterceptors,
   UseGuards,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname, basename } from 'path';
 import * as fs from 'fs';
 import { UploadService } from './upload.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -20,6 +21,8 @@ import { AdminGuard } from '../auth/guards/admin.guard';
 @UseGuards(JwtAuthGuard, AdminGuard)
 @Controller('upload')
 export class UploadController {
+  private readonly logger = new Logger(UploadController.name);
+
   constructor(private uploadService: UploadService) {}
 
   private static readonly ALLOWED_BUCKETS = ['products', 'avatars'];
@@ -48,6 +51,11 @@ export class UploadController {
     return this.uploadService.deleteFile(bucket, path);
   }
 
+  /**
+   * @deprecated Use POST /upload/signed-url instead.
+   * Disk-based uploads are ephemeral on Cloud Run and will be lost on redeploy.
+   * This endpoint is kept for backward compatibility only.
+   */
   @Post('image')
   @UseInterceptors(
     FileInterceptor('image', {
@@ -60,13 +68,37 @@ export class UploadController {
           cb(null, uploadPath);
         },
         filename: (req, file, cb) => {
+          // SECURITY: Sanitize filename to prevent path traversal
+          const safeBase = basename(file.originalname)
+            .replace(/\.\.[\\/]/g, '')     // Strip path traversal sequences
+            .replace(/[^a-zA-Z0-9._-]/g, '_'); // Allow only safe characters
+
+          // SECURITY: Reject double extensions (e.g., file.php.jpg)
+          const parts = safeBase.split('.');
+          if (parts.length > 2) {
+            return cb(
+              new BadRequestException('Invalid filename: double extensions are not allowed'),
+              '',
+            );
+          }
+
+          const ext = extname(safeBase).toLowerCase();
+          const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+          if (!allowedExts.includes(ext)) {
+            return cb(
+              new BadRequestException(`Invalid file extension: ${ext}`),
+              '',
+            );
+          }
+
           const uniqueSuffix =
             Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, 'image-' + uniqueSuffix + extname(file.originalname));
+          cb(null, 'image-' + uniqueSuffix + ext);
         },
       }),
-      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB (reduced from 10MB)
       fileFilter: (_req: any, file: Express.Multer.File, cb: any) => {
+        // SECURITY: Validate MIME type
         const allowedMimes = [
           'image/jpeg',
           'image/png',
@@ -81,12 +113,35 @@ export class UploadController {
             false,
           );
         }
+
+        // SECURITY: Validate extension matches MIME type
+        const ext = extname(file.originalname).toLowerCase();
+        const mimeExtMap: Record<string, string[]> = {
+          'image/jpeg': ['.jpg', '.jpeg'],
+          'image/png': ['.png'],
+          'image/webp': ['.webp'],
+          'image/gif': ['.gif'],
+        };
+        const validExts = mimeExtMap[file.mimetype] || [];
+        if (!validExts.includes(ext)) {
+          return cb(
+            new BadRequestException(
+              `File extension ${ext} does not match content type ${file.mimetype}`,
+            ),
+            false,
+          );
+        }
+
         cb(null, true);
       },
     }),
   )
   uploadImage(@UploadedFile() file: Express.Multer.File) {
-    if (!file) throw new Error('No file uploaded');
+    if (!file) throw new BadRequestException('No file uploaded');
+
+    this.logger.warn(
+      `⚠️ Deprecated disk upload used. Migrate to POST /upload/signed-url for Supabase Storage.`,
+    );
 
     const imageUrl = `/public/uploads/${file.filename}`;
     return { success: true, url: imageUrl };

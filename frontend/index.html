@@ -13,6 +13,9 @@
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="theme-color" content="#121212" />
 
+    <!-- Content Security Policy — defense-in-depth XSS mitigation -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://checkout.razorpay.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://*.supabase.co https://*.onrender.com https://*.razorpay.com https://api.razorpay.com https://lux.razorpay.com wss://*.supabase.co; frame-src https://api.razorpay.com https://checkout.razorpay.com;" />
+
     <!-- Preload hero image for LCP -->
     <link rel="preload" as="image" href="/assets/hero-banner.jpg" fetchpriority="high" />
 
@@ -36,7 +39,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:title" content="FANCLUB — Wear the Culture" />
     <meta property="og:description" content="Cinema, Anime, Cartoons & Inspirations brought to life through fashion. Premium streetwear inspired by screen culture." />
-    <meta property="og:image" content="/favicon.png" />
+    <meta property="og:image" content="https://fan-frontend-kappa.vercel.app/favicon.png" />
     <meta property="og:url" content="https://fan-frontend-kappa.vercel.app/" />
 
     <!-- Twitter Card defaults -->
@@ -44,7 +47,7 @@
     <meta name="twitter:site" content="@fanclub" />
     <meta name="twitter:title" content="FANCLUB — Wear the Culture" />
     <meta name="twitter:description" content="Cinema-inspired streetwear celebrating screen culture." />
-    <meta name="twitter:image" content="/favicon.png" />
+    <meta name="twitter:image" content="https://fan-frontend-kappa.vercel.app/favicon.png" />
 
     <title>FANCLUB — Wear the Culture</title>
   </head>

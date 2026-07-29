@@ -483,7 +483,7 @@ export default function AdminSettings() {
                 {(() => {
                   let base =
                     import.meta.env.VITE_API_URL?.replace("/api", "") ||
-                    "https://fanclub-backend.onrender.com";
+                    "http://localhost:3001";
                   if (
                     base.includes("localhost") &&
                     typeof window !== "undefined"
@@ -694,7 +694,7 @@ export default function AdminSettings() {
                     (() => {
                       let base =
                         import.meta.env.VITE_API_URL?.replace("/api", "") ||
-                        "https://fanclub-backend.onrender.com";
+                        "http://localhost:3001";
                       if (
                         base.includes("localhost") &&
                         typeof window !== "undefined"
@@ -902,7 +902,7 @@ export default function AdminSettings() {
                           (() => {
                             let base =
                               import.meta.env.VITE_API_URL?.replace("/api", "") ||
-                              "https://fanclub-backend.onrender.com";
+                              "http://localhost:3001";
                             if (base.includes("localhost") && typeof window !== "undefined")
                               base = base.replace("localhost", window.location.hostname);
                             return base;
@@ -922,7 +922,7 @@ export default function AdminSettings() {
                           (() => {
                             let base =
                               import.meta.env.VITE_API_URL?.replace("/api", "") ||
-                              "https://fanclub-backend.onrender.com";
+                              "http://localhost:3001";
                             if (base.includes("localhost") && typeof window !== "undefined")
                               base = base.replace("localhost", window.location.hostname);
                             return base;

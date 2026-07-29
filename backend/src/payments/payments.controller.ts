@@ -144,6 +144,10 @@ export class PaymentsController {
     @Headers('x-razorpay-signature') signature: string,
     @Body() body: any,
   ) {
+    // SECURITY: Reject webhooks without a signature header
+    if (!signature) {
+      throw new BadRequestException('Missing webhook signature');
+    }
     const rawBody = req.rawBody?.toString() || JSON.stringify(body);
     return this.paymentsService.handleRazorpayWebhook(rawBody, signature, body);
   }

@@ -7,7 +7,9 @@ import {
   Param,
   Query,
   UseGuards,
+  ParseUUIDPipe,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto/orders.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -35,6 +37,7 @@ export class OrdersController {
     return this.ordersService.findUserOrders(authId, +page, +limit);
   }
 
+  @Throttle({ strict: { limit: 10, ttl: 60000 } })
   @Get('public/recent')
   findPublicRecentPurchases() {
     return this.ordersService.getPublicRecentPurchases();
@@ -42,7 +45,7 @@ export class OrdersController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findById(@Param('id') id: string, @CurrentUser() user: UserProfile) {
+  findById(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: UserProfile) {
     return this.ordersService.findById(id, user);
   }
 
@@ -58,7 +61,7 @@ export class OrdersController {
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Put(':id/status')
-  updateStatus(@Param('id') id: string, @Body() dto: UpdateOrderStatusDto) {
+  updateStatus(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateOrderStatusDto) {
     return this.ordersService.updateStatus(id, dto);
   }
 }

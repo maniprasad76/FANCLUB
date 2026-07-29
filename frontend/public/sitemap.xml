@@ -2,72 +2,72 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Homepage -->
   <url>
-    <loc>https://tfi-frontend-kappa.vercel.app/</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://fan-frontend-kappa.vercel.app/</loc>
+    <lastmod>2026-07-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <!-- Shop -->
   <url>
-    <loc>https://tfi-frontend-kappa.vercel.app/shop</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://fan-frontend-kappa.vercel.app/shop</loc>
+    <lastmod>2026-07-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
-  <!-- Cinema -->
+  <!-- Fandom -->
   <url>
-    <loc>https://tfi-frontend-kappa.vercel.app/cinema</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://fan-frontend-kappa.vercel.app/fandom</loc>
+    <lastmod>2026-07-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- About -->
   <url>
-    <loc>https://tfi-frontend-kappa.vercel.app/about</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://fan-frontend-kappa.vercel.app/about</loc>
+    <lastmod>2026-07-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <!-- Contact -->
   <url>
-    <loc>https://tfi-frontend-kappa.vercel.app/contact</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://fan-frontend-kappa.vercel.app/contact</loc>
+    <lastmod>2026-07-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <!-- FAQ -->
   <url>
-    <loc>https://tfi-frontend-kappa.vercel.app/faq</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://fan-frontend-kappa.vercel.app/faq</loc>
+    <lastmod>2026-07-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <!-- Privacy Policy -->
   <url>
-    <loc>https://tfi-frontend-kappa.vercel.app/privacy</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://fan-frontend-kappa.vercel.app/privacy</loc>
+    <lastmod>2026-07-28</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
 
   <!-- Terms of Service -->
   <url>
-    <loc>https://tfi-frontend-kappa.vercel.app/terms</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://fan-frontend-kappa.vercel.app/terms</loc>
+    <lastmod>2026-07-28</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
 
   <!-- Returns Policy -->
   <url>
-    <loc>https://tfi-frontend-kappa.vercel.app/returns</loc>
-    <lastmod>2026-05-26</lastmod>
+    <loc>https://fan-frontend-kappa.vercel.app/returns</loc>
+    <lastmod>2026-07-28</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

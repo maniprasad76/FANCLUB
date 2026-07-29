@@ -1,4 +1,4 @@
-# TFI Club — Robots.txt
+# FANCLUB — Robots.txt
 User-agent: *
 Allow: /
 Disallow: /admin
@@ -13,6 +13,7 @@ Disallow: /reset-password
 Disallow: /order-success
 Disallow: /payment-status
 Disallow: /launch-checklist
+Disallow: /access-denied
 
 # Sitemap
-Sitemap: https://tfi-frontend-kappa.vercel.app/sitemap.xml
+Sitemap: https://fan-frontend-kappa.vercel.app/sitemap.xml

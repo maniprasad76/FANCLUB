@@ -12,7 +12,7 @@ export default function FooterVideo() {
     try {
       const res = await api.get('/settings/video');
       if (res.data?.url) {
-        let baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://fanclub-backend.onrender.com';
+        let baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3001';
         if (baseUrl.includes('localhost') && typeof window !== 'undefined') {
           baseUrl = baseUrl.replace('localhost', window.location.hostname);
         }

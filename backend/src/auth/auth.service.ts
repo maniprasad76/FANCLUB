@@ -241,11 +241,43 @@ export class AuthService {
   ): Promise<ForgotPasswordResult> {
     const client = this.supabaseService.getClient();
 
+    // SECURITY: Validate redirectTo against allowed origins to prevent open redirect
+    let safeRedirectTo: string | undefined;
+    if (redirectTo) {
+      const allowedOrigins = [
+        this.configService.get<string>('FRONTEND_URL'),
+        this.configService.get<string>('ADMIN_URL'),
+      ].filter(Boolean) as string[];
+
+      try {
+        const redirectUrl = new URL(redirectTo);
+        const isAllowed = allowedOrigins.some((origin) => {
+          try {
+            return new URL(origin!).origin === redirectUrl.origin;
+          } catch {
+            return false;
+          }
+        });
+
+        if (isAllowed) {
+          safeRedirectTo = redirectTo;
+        } else {
+          this.logger.warn(
+            `⚠️ Blocked unauthorized redirectTo in forgot-password: ${redirectTo}`,
+          );
+        }
+      } catch {
+        this.logger.warn(
+          `⚠️ Blocked malformed redirectTo in forgot-password: ${redirectTo}`,
+        );
+      }
+    }
+
     try {
       const { error } = await client.auth.resetPasswordForEmail(
         email.toLowerCase(),
         {
-          redirectTo: redirectTo || undefined,
+          redirectTo: safeRedirectTo,
         },
       );
 
