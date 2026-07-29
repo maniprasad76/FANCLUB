@@ -31,8 +31,22 @@ export default function Shop() {
   const minPrice = searchParams.get('minPrice') || '';
   const maxPrice = searchParams.get('maxPrice') || '';
 
+  const fetchWithRetry = async (url: string, config?: any, retries = 3, delay = 800): Promise<any> => {
+    for (let i = 0; i <= retries; i++) {
+      try {
+        return await api.get(url, config);
+      } catch (err: any) {
+        if (err?.response?.status === 429 && i < retries) {
+          await new Promise(res => setTimeout(res, delay * Math.pow(2, i)));
+          continue;
+        }
+        throw err;
+      }
+    }
+  };
+
   useEffect(() => {
-    api.get('/categories').then(r => setCategories(r.data)).catch(() => {});
+    fetchWithRetry('/categories').then(r => setCategories(r.data)).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -45,7 +59,7 @@ export default function Shop() {
     if (color) params.color = color;
     if (minPrice) params.minPrice = minPrice;
     if (maxPrice) params.maxPrice = maxPrice;
-    api.get('/products', { params }).then(r => {
+    fetchWithRetry('/products', { params }).then(r => {
       setProducts(r.data.products);
       setTotal(r.data.total);
       setPages(r.data.pages);

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useEffect, useState, useRef, Suspense, lazy } from "react";
 import { AnimatePresence } from "framer-motion";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -131,6 +131,23 @@ function AppShell() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            {/* /orders → redirect to /profile (orders are shown in profile tab) */}
+            <Route
+              path="/orders"
+              element={
+                <ProtectedRoute>
+                  <Navigate to="/profile" replace />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders/:id"
+              element={
+                <ProtectedRoute>
+                  <Navigate to="/profile" replace />
                 </ProtectedRoute>
               }
             />

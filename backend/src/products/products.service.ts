@@ -188,7 +188,7 @@ export class ProductsService implements OnModuleInit {
       // Clean up dependent non-order records
       await this.prisma.$transaction([
         this.prisma.cartItem.deleteMany({ where: { productId: id } }),
-        this.prisma.wishlistItem.deleteMany({ where: { productId: id } }),
+        this.prisma.wishlist.deleteMany({ where: { productId: id } }),
         this.prisma.review.deleteMany({ where: { productId: id } }),
       ]);
       return await this.prisma.product.delete({ where: { id } });
@@ -205,7 +205,7 @@ export class ProductsService implements OnModuleInit {
     try {
       await this.prisma.$transaction([
         this.prisma.cartItem.deleteMany({ where: { productId: { in: ids } } }),
-        this.prisma.wishlistItem.deleteMany({ where: { productId: { in: ids } } }),
+        this.prisma.wishlist.deleteMany({ where: { productId: { in: ids } } }),
         this.prisma.review.deleteMany({ where: { productId: { in: ids } } }),
       ]);
       return await this.prisma.product.deleteMany({ where: { id: { in: ids } } });

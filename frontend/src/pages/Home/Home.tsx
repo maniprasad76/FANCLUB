@@ -63,13 +63,29 @@ export default function Home() {
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
+  /* Retry helper with exponential backoff for 429s */
+  const fetchWithRetry = useCallback(async (url: string, retries = 3, delay = 800): Promise<any> => {
+    for (let i = 0; i <= retries; i++) {
+      try {
+        return await api.get(url);
+      } catch (err: any) {
+        const status = err?.response?.status;
+        if (status === 429 && i < retries) {
+          await new Promise(res => setTimeout(res, delay * Math.pow(2, i)));
+          continue;
+        }
+        throw err;
+      }
+    }
+  }, []);
+
   /* fetch products & config */
   const fetchData = useCallback(async () => {
     try {
       const [featuredRes, dropsRes, aboutImgRes, heroImgRes] =
         await Promise.all([
-          api.get("/products/featured"),
-          api.get("/products?sort=newest&limit=12"),
+          fetchWithRetry("/products/featured").catch(() => ({ data: {} })),
+          fetchWithRetry("/products?sort=newest&limit=12").catch(() => ({ data: {} })),
           api.get("/settings/about-image").catch(() => ({ data: {} })),
           api.get("/settings/hero-images").catch(() => ({ data: {} })),
         ]);
@@ -80,7 +96,7 @@ export default function Home() {
     } catch {
       /* silent — skeletons will show */
     }
-  }, []);
+  }, [fetchWithRetry]);
 
   useEffect(() => {
     fetchData();

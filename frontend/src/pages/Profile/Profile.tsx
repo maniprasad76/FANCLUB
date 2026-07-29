@@ -75,11 +75,15 @@ export default function Profile() {
             </div>
             {editing ? (
               <form onSubmit={handleUpdate} className="profile-form">
+                <label htmlFor="profile-name" className="sr-only">Name</label>
                 <input
+                  id="profile-name"
+                  name="name"
                   className="input-field"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="Name"
+                  autoComplete="name"
                 />
 
                 <div className="profile-form-actions">

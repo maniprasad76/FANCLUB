@@ -9,7 +9,7 @@ import {
   UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { Throttle } from '@nestjs/throttler';
+import { Throttle, SkipThrottle } from '@nestjs/throttler';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto/orders.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -37,7 +37,7 @@ export class OrdersController {
     return this.ordersService.findUserOrders(authId, +page, +limit);
   }
 
-  @Throttle({ strict: { limit: 10, ttl: 60000 } })
+  @SkipThrottle()
   @Get('public/recent')
   findPublicRecentPurchases() {
     return this.ordersService.getPublicRecentPurchases();
