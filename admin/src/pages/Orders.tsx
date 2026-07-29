@@ -62,7 +62,7 @@ export default function Orders() {
 
   return (
     <div id="admin-orders">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div className="admin-page-header">
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
             <ShoppingCart size={24} style={{ color: 'var(--bauhaus-red)' }} />

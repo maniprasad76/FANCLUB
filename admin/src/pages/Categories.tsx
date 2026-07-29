@@ -29,7 +29,7 @@ export default function Categories() {
 
   return (
     <div id="admin-categories">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div className="admin-page-header">
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
             <FolderOpen size={24} style={{ color: 'var(--bauhaus-yellow)' }} />
@@ -42,7 +42,7 @@ export default function Categories() {
 
       {showForm && (
         <form onSubmit={handleSubmit} className="glass" style={{ padding: 24, marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
             <div><label style={labelStyle}>Name</label><input className="input" placeholder="Category name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required /></div>
             <div><label style={labelStyle}>Slug</label><input className="input" placeholder="category-slug" value={form.slug} onChange={e => setForm({...form, slug: e.target.value})} required /></div>
           </div>

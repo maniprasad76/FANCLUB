@@ -66,7 +66,7 @@ export default function ProductForm() {
 
       <form onSubmit={handleSubmit} className="glass" style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 20 }}>
         {/* Name & Slug */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
           <div><label style={labelStyle}>Name</label><input className="input" value={form.name} onChange={e => updateField('name', e.target.value)} required /></div>
           <div><label style={labelStyle}>Slug</label><input className="input" value={form.slug} onChange={e => updateField('slug', e.target.value)} required /></div>
         </div>
