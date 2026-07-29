@@ -663,6 +663,9 @@
 }
 
 @media (max-width: 768px) {
+  .pdp-page {
+    padding-bottom: 160px; /* Accounts for bottom nav + floating action bar */
+  }
   .floating-action-bar {
     bottom: var(--safe-bottom);
     padding: 12px 16px;
