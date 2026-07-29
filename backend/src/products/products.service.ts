@@ -16,7 +16,7 @@ export class ProductsService implements OnModuleInit {
       await this.prisma.$executeRawUnsafe(`
         CREATE INDEX IF NOT EXISTS products_search_idx 
         ON products 
-        USING gin(to_tsvector('english', name || ' ' || description || ' ' || array_to_string(tags, ' ')));
+        USING gin(to_tsvector('english'::regconfig, coalesce(name, '') || ' ' || coalesce(description, '')));
       `);
     } catch (err) {
       console.warn(
