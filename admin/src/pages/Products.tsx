@@ -25,15 +25,24 @@ export default function Products() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this product?')) return;
-    await api.delete(`/products/${id}`);
-    fetchProducts();
+    try {
+      await api.delete(`/products/${id}`);
+      fetchProducts();
+    } catch {
+      fetchProducts();
+    }
   };
 
   const handleBulkDelete = async () => {
     if (!selectedIds.length || !confirm(`Delete ${selectedIds.length} selected products?`)) return;
-    await api.post('/products/bulk-delete', { ids: selectedIds });
-    setSelectedIds([]);
-    fetchProducts();
+    try {
+      await api.post('/products/bulk-delete', { ids: selectedIds });
+      setSelectedIds([]);
+      fetchProducts();
+    } catch {
+      setSelectedIds([]);
+      fetchProducts();
+    }
   };
 
   const toggleSelectAll = () => {
@@ -50,7 +59,7 @@ export default function Products() {
 
   return (
     <div id="admin-products">
-      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div className="admin-page-header">
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
             <Package size={24} style={{ color: 'var(--bauhaus-blue)' }} />
@@ -61,13 +70,13 @@ export default function Products() {
         <Link to="/products/new" className="btn btn-primary"><Plus size={16} /> Add Product</Link>
       </div>
 
-      <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ position: 'relative', maxWidth: 360, flex: 1 }}>
-          <Search size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+      <div className="admin-toolbar">
+        <div className="admin-search-wrapper">
+          <Search size={18} className="admin-search-icon" />
           <input className="input" placeholder="Search products..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} style={{ paddingLeft: 40 }} />
         </div>
         {selectedIds.length > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className="admin-bulk-actions">
             <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{selectedIds.length} selected</span>
             <button className="btn btn-danger btn-sm" onClick={handleBulkDelete}>
               <Trash2 size={16} /> Delete Selected

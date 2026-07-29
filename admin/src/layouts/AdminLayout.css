@@ -319,3 +319,73 @@
     display: block;
   }
 }
+
+/* ============================================
+   ADMIN COMPONENT RESPONSIVE UTILITIES
+   ============================================ */
+.admin-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.admin-toolbar {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-search-wrapper {
+  position: relative;
+  max-width: 360px;
+  flex: 1;
+  min-width: 240px;
+}
+
+.admin-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.admin-bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .admin-page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-page-header .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .admin-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-search-wrapper {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .admin-bulk-actions {
+    justify-content: space-between;
+    width: 100%;
+  }
+}

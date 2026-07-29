@@ -180,11 +180,41 @@ export class ProductsService implements OnModuleInit {
   }
 
   async delete(id: string) {
-    return this.prisma.product.delete({ where: { id } });
+    const product = await this.prisma.product.findUnique({ where: { id } });
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+    try {
+      // Clean up dependent non-order records
+      await this.prisma.$transaction([
+        this.prisma.cartItem.deleteMany({ where: { productId: id } }),
+        this.prisma.wishlistItem.deleteMany({ where: { productId: id } }),
+        this.prisma.review.deleteMany({ where: { productId: id } }),
+      ]);
+      return await this.prisma.product.delete({ where: { id } });
+    } catch {
+      // Fallback to soft delete if product is linked to existing order history
+      return await this.prisma.product.update({
+        where: { id },
+        data: { isActive: false },
+      });
+    }
   }
 
   async bulkDelete(ids: string[]) {
-    return this.prisma.product.deleteMany({ where: { id: { in: ids } } });
+    try {
+      await this.prisma.$transaction([
+        this.prisma.cartItem.deleteMany({ where: { productId: { in: ids } } }),
+        this.prisma.wishlistItem.deleteMany({ where: { productId: { in: ids } } }),
+        this.prisma.review.deleteMany({ where: { productId: { in: ids } } }),
+      ]);
+      return await this.prisma.product.deleteMany({ where: { id: { in: ids } } });
+    } catch {
+      return await this.prisma.product.updateMany({
+        where: { id: { in: ids } },
+        data: { isActive: false },
+      });
+    }
   }
 
   // Admin: all products including inactive
