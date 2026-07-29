@@ -30,6 +30,7 @@ import { CacheInvalidationInterceptor } from '../common/interceptors/cache-inval
 import { Audit } from '../audit/decorators/audit.decorator.js';
 
 @ApiTags('Products')
+@SkipThrottle()
 @Controller('products')
 export class ProductsController {
   constructor(private productsService: ProductsService) {}

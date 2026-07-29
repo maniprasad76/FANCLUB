@@ -10,6 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
+import { SkipThrottle } from '@nestjs/throttler';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/categories.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -17,6 +18,7 @@ import { AdminGuard } from '../auth/guards/admin.guard';
 import { CacheInvalidationInterceptor } from '../common/interceptors/cache-invalidation.interceptor';
 import { Audit } from '../audit/decorators/audit.decorator.js';
 
+@SkipThrottle()
 @Controller('categories')
 export class CategoriesController {
   constructor(private categoriesService: CategoriesService) {}
