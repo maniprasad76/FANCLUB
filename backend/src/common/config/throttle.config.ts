@@ -13,7 +13,7 @@
 export const THROTTLE_DEFAULT = {
   name: 'default',
   ttl: 60000, // 60 seconds
-  limit: 100,
+  limit: 200,
 };
 
 export const THROTTLE_STRICT = {

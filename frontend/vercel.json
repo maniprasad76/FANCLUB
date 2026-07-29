@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/_vercel/:match*", "destination": "/_vercel/:match*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [

@@ -86,6 +86,17 @@ export default function Home() {
     fetchData();
   }, [fetchData]);
 
+  /* Preload hero-banner only on the Home page */
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = '/assets/hero-banner.jpg';
+    link.setAttribute('fetchpriority', 'high');
+    document.head.appendChild(link);
+    return () => { document.head.removeChild(link); };
+  }, []);
+
   useEffect(() => {
     if (heroImages.length > 1) {
       const interval = setInterval(() => {

@@ -15,6 +15,18 @@ const api = axios.create({
   withCredentials: true, // Send httpOnly cookies with every request
 });
 
+// ── Request deduplication for concurrent identical GET requests ──
+// Prevents multiple components firing the same GET simultaneously
+const inflightRequests = new Map<string, Promise<any>>();
+
+function getDedupeKey(config: any): string | null {
+  // Only deduplicate GET requests
+  if (config.method?.toLowerCase() !== 'get') return null;
+  const url = config.baseURL ? `${config.baseURL}${config.url}` : config.url;
+  const params = config.params ? JSON.stringify(config.params) : '';
+  return `GET:${url}:${params}`;
+}
+
 // Request interceptor: inject access_token as Authorization header (cross-domain fallback)
 api.interceptors.request.use((config) => {
   const token = sessionStorage.getItem('access_token');
@@ -44,10 +56,40 @@ function processQueue(error: any) {
   failedQueue = [];
 }
 
+/**
+ * Retry a request with exponential backoff on 429 (Too Many Requests).
+ * Uses Retry-After header if available, otherwise 1s/2s/4s backoff.
+ */
+async function retryWithBackoff(error: any, maxRetries = 3): Promise<any> {
+  const config = error.config;
+  if (!config) return Promise.reject(error);
+
+  config._retryCount = (config._retryCount || 0) + 1;
+
+  if (config._retryCount > maxRetries) {
+    return Promise.reject(error);
+  }
+
+  // Use Retry-After header if the server provides it, else exponential backoff
+  const retryAfter = error.response?.headers?.['retry-after'];
+  const delay = retryAfter
+    ? parseInt(retryAfter, 10) * 1000
+    : Math.min(1000 * Math.pow(2, config._retryCount - 1), 8000);
+
+  await new Promise((resolve) => setTimeout(resolve, delay));
+
+  return api(config);
+}
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    // ── 429 Rate Limit: auto-retry with backoff ──
+    if (error.response?.status === 429 && (!originalRequest._retryCount || originalRequest._retryCount < 3)) {
+      return retryWithBackoff(error);
+    }
 
     // Only attempt refresh on 401 errors, and not on auth endpoints themselves
     if (
@@ -130,6 +172,7 @@ api.interceptors.response.use(
           detail: { url: error.config?.url, method: error.config?.method },
         }));
       } else if (status === 429) {
+        // Only show toast after all retries are exhausted
         toast.error('Too many requests. Please try again later.');
       } else if (status >= 500) {
         toast.error('An unexpected server error occurred. Please try again later.');
@@ -139,5 +182,24 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+/**
+ * Wrapper around api.get() that deduplicates concurrent identical GET requests.
+ * If a request to the same URL+params is already in-flight, the same promise is returned.
+ */
+const originalGet = api.get.bind(api);
+api.get = function deduplicatedGet(url: string, config?: any) {
+  const dedupeKey = getDedupeKey({ method: 'get', baseURL: API_URL, url, ...config });
+  if (dedupeKey && inflightRequests.has(dedupeKey)) {
+    return inflightRequests.get(dedupeKey)!;
+  }
+
+  const promise = originalGet(url, config).finally(() => {
+    if (dedupeKey) inflightRequests.delete(dedupeKey);
+  });
+
+  if (dedupeKey) inflightRequests.set(dedupeKey, promise);
+  return promise;
+} as typeof api.get;
 
 export default api;
