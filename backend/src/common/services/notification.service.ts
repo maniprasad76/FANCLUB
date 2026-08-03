@@ -119,9 +119,7 @@ export class NotificationService {
     message: string,
   ): Promise<void> {
     // ── STUB: Log the message payload for now ──
-    this.logger.log(
-      `📱 [STUB] WhatsApp message to ${phone}:\n${message}`,
-    );
+    this.logger.log(`📱 [STUB] WhatsApp message to ${phone}:\n${message}`);
 
     // When ready, uncomment and configure:
     // const apiUrl = process.env.WHATSAPP_API_URL;

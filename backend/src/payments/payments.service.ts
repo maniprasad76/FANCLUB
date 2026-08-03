@@ -504,9 +504,7 @@ export class PaymentsService {
         data: { status: 'AUTHORIZED', gatewayRef: gatewayPaymentId },
       });
 
-      this.logger.log(
-        `✅ Payment ${payment.id} authorized — awaiting capture`,
-      );
+      this.logger.log(`✅ Payment ${payment.id} authorized — awaiting capture`);
     }
   }
 
@@ -829,15 +827,23 @@ export class PaymentsService {
 
       if (!order) return;
 
-      const customerName = order.address?.name || order.user?.name || 'Customer';
+      const customerName =
+        order.address?.name || order.user?.name || 'Customer';
       const customerPhone = order.address?.phone || order.user?.phone || null;
       const customerEmail = order.user?.email || '';
 
       // Estimate delivery: 4 days from now formatted nicely
       const deliveryDate = new Date(order.createdAt);
       deliveryDate.setDate(deliveryDate.getDate() + 4);
-      const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
-      const estimatedDelivery = deliveryDate.toLocaleDateString('en-IN', options);
+      const options: Intl.DateTimeFormatOptions = {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      };
+      const estimatedDelivery = deliveryDate.toLocaleDateString(
+        'en-IN',
+        options,
+      );
 
       const eventPayload: OrderConfirmedEvent = {
         orderId: order.id,
@@ -851,7 +857,9 @@ export class PaymentsService {
 
       this.eventEmitter.emit('order.confirmed', eventPayload);
     } catch (err: any) {
-      this.logger.error(`Failed to emit order.confirmed event for order ${orderId}: ${err.message}`);
+      this.logger.error(
+        `Failed to emit order.confirmed event for order ${orderId}: ${err.message}`,
+      );
     }
   }
 }

@@ -422,7 +422,10 @@ export class OrdersService {
       include: { items: true },
     });
 
-    if (dto.status === OrderStatusEnum.CONFIRMED && order.status !== 'CONFIRMED') {
+    if (
+      dto.status === OrderStatusEnum.CONFIRMED &&
+      order.status !== 'CONFIRMED'
+    ) {
       await this.orderNotification.emitOrderConfirmed(updated.id);
     }
 
@@ -501,5 +504,4 @@ export class OrdersService {
       };
     });
   }
-
 }

@@ -163,9 +163,17 @@ export class SettingsController {
     if (!file) throw new Error('No file uploaded');
 
     const imageUrl = `/public/uploads/${file.filename}`;
-    const currentUrls = this.settingsService.getSetting('hero_images_urls') || [];
-    this.settingsService.setSetting('hero_images_urls', [...currentUrls, imageUrl]);
-    return { success: true, url: imageUrl, urls: this.settingsService.getSetting('hero_images_urls') };
+    const currentUrls =
+      this.settingsService.getSetting('hero_images_urls') || [];
+    this.settingsService.setSetting('hero_images_urls', [
+      ...currentUrls,
+      imageUrl,
+    ]);
+    return {
+      success: true,
+      url: imageUrl,
+      urls: this.settingsService.getSetting('hero_images_urls'),
+    };
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)

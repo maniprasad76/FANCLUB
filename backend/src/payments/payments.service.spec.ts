@@ -13,7 +13,11 @@ describe('PaymentsService', () => {
       },
     };
 
-    service = new PaymentsService(prisma, {} as any, { emit: jest.fn() } as any);
+    service = new PaymentsService(
+      prisma,
+      {} as any,
+      { emit: jest.fn() } as any,
+    );
   });
 
   it('does not create payment orders for another user order', async () => {

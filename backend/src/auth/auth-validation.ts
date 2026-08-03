@@ -51,39 +51,48 @@ export function sanitizeDisplayName(val: any): string {
 export const SignUpSchema = z.object({
   email: z.preprocess(
     (val) => sanitizeEmail(val),
-    z.string().email('Invalid email format').max(100, 'Email too long')
+    z.string().email('Invalid email format').max(100, 'Email too long'),
   ),
   password: z.preprocess(
     (val) => sanitizePassword(val),
-    z.string()
+    z
+      .string()
       .min(8, 'Password too short')
       .max(128, 'Password too long')
       .refine(
         (val) => /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\d\W])/.test(val),
-        'Password complexity not met'
-      )
+        'Password complexity not met',
+      ),
   ),
   name: z.preprocess(
     (val) => sanitizeDisplayName(val),
-    z.string().min(2, 'Name too short').max(100, 'Name too long')
+    z.string().min(2, 'Name too short').max(100, 'Name too long'),
   ),
   username: z.preprocess(
     (val) => sanitizeUsername(val),
-    z.string().min(3, 'Username too short').max(30, 'Username too long').optional()
+    z
+      .string()
+      .min(3, 'Username too short')
+      .max(30, 'Username too long')
+      .optional(),
   ),
   displayName: z.preprocess(
     (val) => sanitizeDisplayName(val),
-    z.string().min(2, 'Display name too short').max(100, 'Display name too long').optional()
+    z
+      .string()
+      .min(2, 'Display name too short')
+      .max(100, 'Display name too long')
+      .optional(),
   ),
 });
 
 export const SignInSchema = z.object({
   email: z.preprocess(
     (val) => sanitizeEmail(val),
-    z.string().email('Invalid email format').max(100, 'Email too long')
+    z.string().email('Invalid email format').max(100, 'Email too long'),
   ),
   password: z.preprocess(
     (val) => sanitizePassword(val),
-    z.string().min(1, 'Password is required')
+    z.string().min(1, 'Password is required'),
   ),
 });

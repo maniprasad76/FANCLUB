@@ -8,6 +8,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/review.dto';
@@ -25,7 +26,7 @@ export class ReviewsController {
   }
 
   /** 5 reviews per minute — abuse protection */
-
+  @Throttle({ strict: { limit: 5, ttl: 60000 } })
   @UseGuards(JwtAuthGuard)
   @Post()
   create(@CurrentUser('authId') authId: string, @Body() dto: CreateReviewDto) {
@@ -44,10 +45,7 @@ export class ReviewsController {
    */
   @UseGuards(JwtAuthGuard)
   @Delete(':id/mine')
-  deleteMyReview(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  deleteMyReview(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.reviewsService.deleteByOwner(id, userId);
   }
 

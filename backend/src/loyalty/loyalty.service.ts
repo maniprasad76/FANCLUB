@@ -19,8 +19,8 @@ const MOTIVATION_MESSAGES: Record<number, string> = {
   8: '🔥 Amazing! Keep collecting Fan Stamps.',
   7: '🔥 Amazing! Keep collecting Fan Stamps.',
   6: '🔥 Amazing! Keep collecting Fan Stamps.',
-  5: '💪 You\'re halfway there.',
-  4: '💪 You\'re halfway there.',
+  5: "💪 You're halfway there.",
+  4: "💪 You're halfway there.",
   3: '🚀 Just 3 more orders remaining.',
   2: '🚀 Just 2 more orders remaining.',
   1: '❤️ One final order to unlock your reward!',
@@ -342,11 +342,23 @@ export class LoyaltyService {
     }
 
     // Validate size/color if provided
-    if (dto.size && product.sizes.length > 0 && !product.sizes.includes(dto.size)) {
-      throw new BadRequestException(`Size "${dto.size}" is not available for this product.`);
+    if (
+      dto.size &&
+      product.sizes.length > 0 &&
+      !product.sizes.includes(dto.size)
+    ) {
+      throw new BadRequestException(
+        `Size "${dto.size}" is not available for this product.`,
+      );
     }
-    if (dto.color && product.colors.length > 0 && !product.colors.includes(dto.color)) {
-      throw new BadRequestException(`Color "${dto.color}" is not available for this product.`);
+    if (
+      dto.color &&
+      product.colors.length > 0 &&
+      !product.colors.includes(dto.color)
+    ) {
+      throw new BadRequestException(
+        `Color "${dto.color}" is not available for this product.`,
+      );
     }
 
     // Generate unique coupon code

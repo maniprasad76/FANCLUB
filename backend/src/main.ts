@@ -57,7 +57,10 @@ async function bootstrap() {
   app.use(cookieParser());
 
   const parseOrigins = (urlStr: string): string[] =>
-    (urlStr || '').split(',').map(s => s.trim()).filter(s => s.length > 0);
+    (urlStr || '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
 
   const allowedOrigins = [
     ...parseOrigins(frontendUrl),

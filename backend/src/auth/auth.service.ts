@@ -253,7 +253,7 @@ export class AuthService {
         const redirectUrl = new URL(redirectTo);
         const isAllowed = allowedOrigins.some((origin) => {
           try {
-            return new URL(origin!).origin === redirectUrl.origin;
+            return new URL(origin).origin === redirectUrl.origin;
           } catch {
             return false;
           }

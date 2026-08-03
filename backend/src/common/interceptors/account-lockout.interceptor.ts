@@ -47,7 +47,9 @@ export class AccountLockoutInterceptor implements NestInterceptor {
     // 1. Check if currently locked out
     if (entry.lockedUntil && now < entry.lockedUntil) {
       this.logger.warn(`🔒 Request blocked due to lockout — email=${email}`);
-      throw new UnauthorizedException('Invalid email or password. Please try again.');
+      throw new UnauthorizedException(
+        'Invalid email or password. Please try again.',
+      );
     }
 
     // 2. Check if under progressive delay
@@ -58,7 +60,9 @@ export class AccountLockoutInterceptor implements NestInterceptor {
         this.logger.warn(
           `⏳ Request blocked due to progressive delay — email=${email} delay=${delay}ms`,
         );
-        throw new UnauthorizedException('Invalid email or password. Please try again.');
+        throw new UnauthorizedException(
+          'Invalid email or password. Please try again.',
+        );
       }
     }
 
@@ -106,12 +110,7 @@ export class AccountLockoutInterceptor implements NestInterceptor {
     if (client) {
       try {
         // Keep Redis key TTL slightly longer than window (e.g. 20 minutes)
-        await client.set(
-          `lockout:${email}`,
-          JSON.stringify(entry),
-          'EX',
-          1200,
-        );
+        await client.set(`lockout:${email}`, JSON.stringify(entry), 'EX', 1200);
         return;
       } catch (err: any) {
         this.logger.error(`Redis set error: ${err.message}`);
@@ -148,7 +147,9 @@ export class AccountLockoutInterceptor implements NestInterceptor {
       this.authService
         .forgotPassword(email)
         .then(() => {
-          this.logger.log(`📧 Lockout reset email triggered successfully for ${email}`);
+          this.logger.log(
+            `📧 Lockout reset email triggered successfully for ${email}`,
+          );
         })
         .catch((emailErr) => {
           this.logger.error(

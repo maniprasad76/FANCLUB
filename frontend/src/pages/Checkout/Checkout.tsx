@@ -125,29 +125,6 @@ export default function Checkout() {
     // and bounces authenticated users who have items.
     if (!cartLoading && items.length === 0) { navigate('/cart'); return; }
 
-    // Merge any guest cart items into the server cart after login
-    const guestCart = (() => {
-      try { return JSON.parse(localStorage.getItem('fan_guest_cart') || '[]'); }
-      catch { return []; }
-    })();
-
-    if (guestCart.length > 0) {
-      // Merge each guest cart item into server cart, then clear guest cart
-      Promise.all(
-        guestCart.map((item: any) =>
-          api.post('/cart', {
-            productId: item.productId,
-            quantity: item.quantity,
-            size: item.size,
-            color: item.color,
-          }).catch(() => {}) // Ignore individual merge failures (e.g. inactive product)
-        )
-      ).then(() => {
-        localStorage.removeItem('fan_guest_cart');
-        fetchCart();
-      });
-    }
-
     api.get('/users/me/profile').then(r => {
       const addrs = r.data.addresses || [];
       setAddresses(addrs);

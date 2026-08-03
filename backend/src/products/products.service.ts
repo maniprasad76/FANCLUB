@@ -208,7 +208,9 @@ export class ProductsService implements OnModuleInit {
         this.prisma.wishlist.deleteMany({ where: { productId: { in: ids } } }),
         this.prisma.review.deleteMany({ where: { productId: { in: ids } } }),
       ]);
-      return await this.prisma.product.deleteMany({ where: { id: { in: ids } } });
+      return await this.prisma.product.deleteMany({
+        where: { id: { in: ids } },
+      });
     } catch {
       return await this.prisma.product.updateMany({
         where: { id: { in: ids } },

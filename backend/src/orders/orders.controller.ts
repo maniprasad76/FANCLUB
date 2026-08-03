@@ -45,7 +45,10 @@ export class OrdersController {
 
   @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findById(@Param('id', ParseUUIDPipe) id: string, @CurrentUser() user: UserProfile) {
+  findById(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: UserProfile,
+  ) {
     return this.ordersService.findById(id, user);
   }
 
@@ -61,7 +64,10 @@ export class OrdersController {
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Put(':id/status')
-  updateStatus(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateOrderStatusDto) {
+  updateStatus(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateOrderStatusDto,
+  ) {
     return this.ordersService.updateStatus(id, dto);
   }
 }

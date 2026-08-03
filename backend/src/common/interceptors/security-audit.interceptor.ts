@@ -83,9 +83,7 @@ export class SecurityAuditInterceptor implements NestInterceptor {
               targetId: request.params?.id || null,
               targetType: 'API_ENDPOINT',
               ipAddress:
-                request.ip ||
-                request.headers['x-forwarded-for'] ||
-                'unknown',
+                request.ip || request.headers['x-forwarded-for'] || 'unknown',
               userAgent: request.headers['user-agent'] || 'unknown',
               changes: {
                 method: request.method,

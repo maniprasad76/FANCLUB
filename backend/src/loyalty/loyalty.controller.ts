@@ -34,10 +34,7 @@ export class LoyaltyController {
 
   @UseGuards(JwtAuthGuard)
   @Post('claim')
-  claimReward(
-    @CurrentUser('id') userId: string,
-    @Body() dto: ClaimRewardDto,
-  ) {
+  claimReward(@CurrentUser('id') userId: string, @Body() dto: ClaimRewardDto) {
     return this.loyaltyService.claimReward(userId, dto);
   }
 

@@ -40,8 +40,7 @@ export class OrderNotificationHelper {
 
       const customerName =
         order.address?.name || order.user?.name || 'Customer';
-      const customerPhone =
-        order.address?.phone || order.user?.phone || null;
+      const customerPhone = order.address?.phone || order.user?.phone || null;
       const customerEmail = order.user?.email || '';
 
       // Estimate delivery: 4 days from now formatted nicely

@@ -148,7 +148,12 @@ export class PaymentsController {
     if (!signature) {
       throw new BadRequestException('Missing webhook signature');
     }
-    const rawBody = req.rawBody?.toString() || JSON.stringify(body);
+    const rawBody = req.rawBody?.toString();
+    if (!rawBody) {
+      throw new BadRequestException(
+        'Missing raw request body for webhook verification',
+      );
+    }
     return this.paymentsService.handleRazorpayWebhook(rawBody, signature, body);
   }
 

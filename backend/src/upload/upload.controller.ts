@@ -70,14 +70,16 @@ export class UploadController {
         filename: (req, file, cb) => {
           // SECURITY: Sanitize filename to prevent path traversal
           const safeBase = basename(file.originalname)
-            .replace(/\.\.[\\/]/g, '')     // Strip path traversal sequences
+            .replace(/\.\.[\\/]/g, '') // Strip path traversal sequences
             .replace(/[^a-zA-Z0-9._-]/g, '_'); // Allow only safe characters
 
           // SECURITY: Reject double extensions (e.g., file.php.jpg)
           const parts = safeBase.split('.');
           if (parts.length > 2) {
             return cb(
-              new BadRequestException('Invalid filename: double extensions are not allowed'),
+              new BadRequestException(
+                'Invalid filename: double extensions are not allowed',
+              ),
               '',
             );
           }

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, ReactNode } from 'react';
 import api from '../lib/api';
 import { useAuth } from './AuthContext';
 import { toast } from 'react-hot-toast';
@@ -91,10 +91,35 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   /* ─── On user change: load appropriate cart ─── 
      Wait for auth to finish verifying before fetching server cart.
-     This prevents firing a request with an expired JWT cookie. */
+     If guest cart has items when user logs in, merge guest cart into server cart first. */
   useEffect(() => {
     if (authLoading) return;
-    fetchCart();
+
+    if (user) {
+      const guestCart = getGuestCart();
+      if (guestCart.length > 0) {
+        setLoading(true);
+        Promise.all(
+          guestCart.map(item =>
+            api.post('/cart', {
+              productId: item.productId,
+              quantity: item.quantity,
+              size: item.size,
+              color: item.color,
+            }).catch(() => {})
+          )
+        ).then(() => {
+          localStorage.removeItem(GUEST_CART_KEY);
+          fetchCart();
+        }).catch(() => {
+          fetchCart();
+        });
+      } else {
+        fetchCart();
+      }
+    } else {
+      setItems(getGuestCart());
+    }
   }, [user, authLoading, fetchCart]);
 
   /* ─── ADD TO CART ─── */
@@ -164,25 +189,34 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [user, fetchCart]);
 
   /* ─── UPDATE QUANTITY ─── */
+  const updateDebounceTimers = useRef<{ [itemId: string]: any }>({});
+
   const updateQuantity = useCallback(async (itemId: string, quantity: number) => {
     if (user) {
-      const originalItems = items;
-      // Optimistic update
+      // Instant optimistic UI update
       setItems(prev => prev.map(item => item.id === itemId ? { ...item, quantity } : item));
 
-      try {
-        await api.put(`/cart/${itemId}`, { quantity });
-      } catch {
-        setItems(originalItems);
-        toast.error('Failed to update quantity');
+      // Clear existing debounce timer for this item if user clicks rapidly
+      if (updateDebounceTimers.current[itemId]) {
+        clearTimeout(updateDebounceTimers.current[itemId]);
       }
+
+      // Debounce API call by 300ms
+      updateDebounceTimers.current[itemId] = setTimeout(async () => {
+        try {
+          await api.put(`/cart/${itemId}`, { quantity });
+        } catch {
+          fetchCart();
+          toast.error('Failed to update quantity');
+        }
+      }, 300);
     } else {
       const guestItems = getGuestCart();
       const updated = guestItems.map(item => item.id === itemId ? { ...item, quantity } : item);
       saveGuestCart(updated);
       setItems([...updated]);
     }
-  }, [user, items]);
+  }, [user, fetchCart]);
 
   /* ─── REMOVE ITEM ─── */
   const removeItem = useCallback(async (itemId: string) => {

@@ -41,10 +41,16 @@ export class AuthController {
   async signUp(@Body() dto: SignUpDto) {
     try {
       const validated = SignUpSchema.parse(dto);
-      return this.authService.signUp(validated.email, validated.password, validated.name);
+      return this.authService.signUp(
+        validated.email,
+        validated.password,
+        validated.name,
+      );
     } catch (error) {
       if (error instanceof z.ZodError) {
-        this.logger.warn(`Sign-up validation failed: ${JSON.stringify(error.issues)}`);
+        this.logger.warn(
+          `Sign-up validation failed: ${JSON.stringify(error.issues)}`,
+        );
       } else {
         this.logger.error(`Unexpected sign-up validation error: ${error}`);
       }
@@ -64,11 +70,15 @@ export class AuthController {
       return this.authService.signIn(validated.email, validated.password);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        this.logger.warn(`Sign-in validation failed: ${JSON.stringify(error.issues)}`);
+        this.logger.warn(
+          `Sign-in validation failed: ${JSON.stringify(error.issues)}`,
+        );
       } else {
         this.logger.error(`Unexpected sign-in validation error: ${error}`);
       }
-      throw new BadRequestException('Invalid email or password. Please try again.');
+      throw new BadRequestException(
+        'Invalid email or password. Please try again.',
+      );
     }
   }
 
@@ -81,7 +91,10 @@ export class AuthController {
   async adminSignIn(@Body() dto: SignInDto) {
     try {
       const validated = SignInSchema.parse(dto);
-      const result = await this.authService.signIn(validated.email, validated.password);
+      const result = await this.authService.signIn(
+        validated.email,
+        validated.password,
+      );
       if (result.user.role !== 'ADMIN') {
         throw new UnauthorizedException('Access restricted to administrators');
       }
@@ -91,11 +104,19 @@ export class AuthController {
         throw error;
       }
       if (error instanceof z.ZodError) {
-        this.logger.warn(`Admin sign-in validation failed: ${JSON.stringify(error.issues)}`);
-        throw new BadRequestException('Invalid email or password. Please try again.');
+        this.logger.warn(
+          `Admin sign-in validation failed: ${JSON.stringify(error.issues)}`,
+        );
+        throw new BadRequestException(
+          'Invalid email or password. Please try again.',
+        );
       } else {
-        this.logger.error(`Unexpected admin sign-in validation error: ${error}`);
-        throw new BadRequestException('Invalid email or password. Please try again.');
+        this.logger.error(
+          `Unexpected admin sign-in validation error: ${error}`,
+        );
+        throw new BadRequestException(
+          'Invalid email or password. Please try again.',
+        );
       }
     }
   }
