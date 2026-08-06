@@ -25,7 +25,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
-    "seed": "node scripts/direct-seed.js"
+    "prisma:push": "prisma db push",
+    "seed": "node scripts/direct-seed.js",
+    "seed:settings": "node scripts/backfill-settings.js"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^3.1.2",

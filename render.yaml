@@ -4,7 +4,8 @@ services:
     env: node
     rootDir: backend
     buildCommand: npm ci --include=dev && npm run build
-    preDeployCommand: npm run prisma:migrate
+    # Repo has no prisma/migrations/ folder — schema is applied via `db push`
+    preDeployCommand: npm run prisma:push
     startCommand: npm run start:prod
     envVars:
       - key: NODE_VERSION

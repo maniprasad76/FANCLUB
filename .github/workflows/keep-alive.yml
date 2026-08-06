@@ -17,7 +17,7 @@ jobs:
         run: |
           echo "🏓 Pinging backend at $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
           response=$(curl -fsS -o /dev/null -w "%{http_code}" \
-            https://tfi-backend-3n2s.onrender.com/api/health) || true
+            https://fanclub-backend.onrender.com/api/health) || true
           echo "Response code: $response"
           if [ "$response" = "200" ]; then
             echo "✅ Backend is healthy!"

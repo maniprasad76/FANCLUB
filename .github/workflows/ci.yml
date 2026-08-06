@@ -9,14 +9,13 @@ on:
 # ─────────────────────────────────────────────────────────────────
 # HOW ENV VARS WORK HERE:
 #
-# .env.production is committed to the repo (not in .gitignore),
-# so Vite automatically picks it up during `npm run build`.
-# Values from your project:
-#   VITE_API_URL        = https://tfi-backend-3n2s.onrender.com/api
-#   VITE_SUPABASE_URL   = https://cgoapgkfkytvwmdcqdju.supabase.co
-#   VITE_SUPABASE_ANON_KEY = <anon public key — safe to commit>
+# .env files are gitignored — only .env.example templates are committed.
+# `npm run build` runs with env-var fallbacks baked into the code:
+#   VITE_API_URL          → falls back to http://localhost:3001/api
+#   VITE_SUPABASE_URL/KEY → placeholder values in lib/supabase.ts
 #
-# No GitHub Secrets needed for these public values.
+# Production env vars are configured in the Vercel dashboard, so the
+# CI build is only a compile/typecheck gate, not a prod bundle.
 # ─────────────────────────────────────────────────────────────────
 
 jobs:
@@ -90,9 +89,8 @@ jobs:
       - name: Security Audit
         run: npm audit --audit-level=high
 
-      # Vite automatically loads .env.production during `npm run build`
-      # which already contains the correct production API URL and Supabase keys
-      - name: Build (uses .env.production automatically)
+      # Builds with env-var fallbacks (no .env committed) — compile/typecheck gate
+      - name: Build (compile gate)
         run: npm run build
 
       - name: Build Size Report
@@ -130,9 +128,8 @@ jobs:
       - name: Security Audit
         run: npm audit --audit-level=high
 
-      # Vite automatically loads .env.production during `npm run build`
-      # which already contains the correct production API URL and Supabase keys
-      - name: Build (uses .env.production automatically)
+      # Builds with env-var fallbacks (no .env committed) — compile/typecheck gate
+      - name: Build (compile gate)
         run: npm run build
 
       - name: Build Size Report
