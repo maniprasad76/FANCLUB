@@ -16,4 +16,4 @@ Disallow: /launch-checklist
 Disallow: /access-denied
 
 # Sitemap
-Sitemap: https://fan-frontend-kappa.vercel.app/sitemap.xml
+Sitemap: https://tfi-frontend-kappa.vercel.app/sitemap.xml
