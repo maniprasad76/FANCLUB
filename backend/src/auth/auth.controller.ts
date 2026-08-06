@@ -59,8 +59,11 @@ export class AuthController {
   }
 
   // ─── POST /auth/signin ────────────────────────────────────
+  // Rate limit is per ip:email (see EmailAwareThrottlerGuard) so shared IPs
+  // don't cause cross-account lockouts. Per-account brute-force protection is
+  // enforced by AccountLockoutInterceptor (5 fails → 15 min lockout).
 
-  @Throttle({ strict: { limit: 10, ttl: 60000 } })
+  @Throttle({ strict: { limit: 30, ttl: 60000 } })
   @UseInterceptors(AccountLockoutInterceptor)
   @Post('signin')
   @HttpCode(HttpStatus.OK)
@@ -84,7 +87,7 @@ export class AuthController {
 
   // ─── POST /auth/admin/signin ──────────────────────────────
 
-  @Throttle({ strict: { limit: 10, ttl: 60000 } })
+  @Throttle({ strict: { limit: 30, ttl: 60000 } })
   @UseInterceptors(AccountLockoutInterceptor)
   @Post('admin/signin')
   @HttpCode(HttpStatus.OK)

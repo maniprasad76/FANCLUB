@@ -4,7 +4,7 @@ import { z } from 'zod';
  * Sanitization Helpers
  */
 
-export function sanitizeEmail(val: any): string {
+function sanitizeEmail(val: any): string {
   if (typeof val !== 'string') return '';
   return val
     .replace(/<[^>]*>/g, '') // Strip HTML tags
@@ -14,7 +14,7 @@ export function sanitizeEmail(val: any): string {
     .toLowerCase();
 }
 
-export function sanitizePassword(val: any): string {
+function sanitizePassword(val: any): string {
   if (typeof val !== 'string') return '';
   // Strip HTML and script tags to prevent stored/logged XSS, but preserve special characters
   return val
@@ -24,7 +24,7 @@ export function sanitizePassword(val: any): string {
     .trim();
 }
 
-export function sanitizeUsername(val: any): string {
+function sanitizeUsername(val: any): string {
   if (typeof val !== 'string') return '';
   return val
     .replace(/<[^>]*>/g, '')
@@ -34,7 +34,7 @@ export function sanitizeUsername(val: any): string {
     .trim();
 }
 
-export function sanitizeDisplayName(val: any): string {
+function sanitizeDisplayName(val: any): string {
   if (typeof val !== 'string') return '';
   return val
     .replace(/<[^>]*>/g, '')

@@ -1,12 +1,13 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD, APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
 import appConfig from './common/config/app.config';
 import { THROTTLE_CONFIG } from './common/config/throttle.config';
+import { EmailAwareThrottlerGuard } from './common/guards/email-aware-throttler.guard';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { SupabaseModule } from './supabase/supabase.module.js';
@@ -102,10 +103,12 @@ import { SecurityAuditInterceptor } from './common/interceptors/security-audit.i
     LoyaltyModule,
   ],
   providers: [
-    // Global rate-limit guard — applies the 'default' tier to all routes
+    // Global rate-limit guard — applies the 'default' tier to all routes.
+    // Email-aware: auth routes key on ip:email so shared IPs don't cause
+    // cross-account lockouts (MED 12).
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: EmailAwareThrottlerGuard,
     },
     {
       provide: APP_FILTER,

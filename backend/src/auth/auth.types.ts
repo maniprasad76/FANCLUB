@@ -14,7 +14,7 @@ export interface UserProfile {
 }
 
 /** Session tokens — returned after login, register, refresh */
-export interface SessionTokens {
+interface SessionTokens {
   access_token: string;
   refresh_token?: string;
 }
@@ -25,10 +25,18 @@ export interface AuthResult {
   session: SessionTokens;
 }
 
-/** Sign-up result — session may be null if auto-login fails */
+/**
+ * Sign-up result.
+ *
+ * Email confirmation is REQUIRED (email_confirm: false) and the API never
+ * reveals whether an account already exists. Both success and duplicate
+ * signups return the same shape with `message` and no session — this prevents
+ * account enumeration via the signup endpoint.
+ */
 export interface SignUpResult {
-  user: UserProfile;
-  session: SessionTokens | null;
+  user?: UserProfile;
+  session?: SessionTokens | null;
+  message: string;
 }
 
 /** OAuth sync result — only returns access_token (no refresh) */

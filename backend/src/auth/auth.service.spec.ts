@@ -1,16 +1,11 @@
-import {
-  UnauthorizedException,
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
+import { UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 /**
  * AuthService Unit Tests
  *
  * Tests cover:
- *   - signUp: happy path, duplicate email, race condition handling
+ *   - signUp: happy path, duplicate email (enumeration-safe), race condition
  *   - signIn: happy path, invalid credentials, email enumeration prevention
  *   - refreshToken: happy path, expired token
  *   - logout: success, graceful failure
@@ -61,8 +56,10 @@ describe('AuthService', () => {
   // ─── SIGN UP ─────────────────────────────────────────────────
 
   describe('signUp', () => {
-    it('creates a new user and returns session tokens', async () => {
-      prisma.user.findUnique.mockResolvedValue(null); // No existing user
+    const GENERIC_MESSAGE =
+      'Registration successful. Please check your email to confirm your account.';
+
+    it('creates a new user with email_confirm: false and no session (enumeration-safe)', async () => {
       mockClient.auth.admin.createUser.mockResolvedValue({
         data: { user: { id: 'auth-123' } },
         error: null,
@@ -75,12 +72,6 @@ describe('AuthService', () => {
         avatar: null,
         role: 'USER',
       });
-      mockClient.auth.signInWithPassword.mockResolvedValue({
-        data: {
-          session: { access_token: 'at-123', refresh_token: 'rt-123' },
-        },
-        error: null,
-      });
 
       const result = await service.signUp(
         'Test@Example.com',
@@ -88,42 +79,63 @@ describe('AuthService', () => {
         'Test User',
       );
 
-      expect(result.user.email).toBe('test@example.com');
-      expect(result.user.role).toBe('USER');
-      expect(result.session?.access_token).toBe('at-123');
-      expect(prisma.user.findUnique).toHaveBeenCalledWith({
-        where: { email: 'test@example.com' },
+      // User must NOT get a session — email confirmation is required first
+      expect(result.user).toBeUndefined();
+      expect(result.session).toBeUndefined();
+      expect(result.message).toBe(GENERIC_MESSAGE);
+
+      // Supabase user must be created with email_confirm: false
+      expect(mockClient.auth.admin.createUser).toHaveBeenCalledWith({
+        email: 'test@example.com',
+        password: 'password123',
+        email_confirm: false,
+        user_metadata: { name: 'Test User' },
+      });
+
+      // Local user created
+      expect(prisma.user.create).toHaveBeenCalledWith({
+        data: {
+          email: 'test@example.com',
+          name: 'Test User',
+          authId: 'auth-123',
+          role: 'USER',
+        },
       });
     });
 
-    it('throws CONFLICT if email already exists in local DB', async () => {
-      prisma.user.findUnique.mockResolvedValue({ id: 'existing' });
-
-      await expect(
-        service.signUp('test@example.com', 'password', 'Test'),
-      ).rejects.toThrow(HttpException);
-
-      await expect(
-        service.signUp('test@example.com', 'password', 'Test'),
-      ).rejects.toMatchObject({
-        status: HttpStatus.CONFLICT,
-      });
-    });
-
-    it('throws CONFLICT if Supabase says email already registered', async () => {
-      prisma.user.findUnique.mockResolvedValue(null);
+    it('returns generic success (does NOT throw) if email already registered', async () => {
       mockClient.auth.admin.createUser.mockResolvedValue({
         data: { user: null },
         error: { message: 'User already registered' },
       });
 
-      await expect(
-        service.signUp('test@example.com', 'password', 'Test'),
-      ).rejects.toThrow(HttpException);
+      const result = await service.signUp(
+        'test@example.com',
+        'password',
+        'Test',
+      );
+
+      // Same message as a fresh signup — no account enumeration
+      expect(result.message).toBe(GENERIC_MESSAGE);
+      expect(prisma.user.create).not.toHaveBeenCalled();
     });
 
-    it('handles race condition — cleans up orphaned Supabase user on Prisma P2002', async () => {
-      prisma.user.findUnique.mockResolvedValue(null);
+    it('returns generic success if Supabase says email already exists', async () => {
+      mockClient.auth.admin.createUser.mockResolvedValue({
+        data: { user: null },
+        error: { message: 'A user with this email already exists' },
+      });
+
+      const result = await service.signUp(
+        'test@example.com',
+        'password',
+        'Test',
+      );
+
+      expect(result.message).toBe(GENERIC_MESSAGE);
+    });
+
+    it('handles race condition — cleans up orphaned Supabase user on Prisma P2002 and returns generic success', async () => {
       mockClient.auth.admin.createUser.mockResolvedValue({
         data: { user: { id: 'auth-orphan' } },
         error: null,
@@ -133,14 +145,30 @@ describe('AuthService', () => {
       prisma.user.create.mockRejectedValue(prismaError);
       mockClient.auth.admin.deleteUser.mockResolvedValue({});
 
-      await expect(
-        service.signUp('test@example.com', 'password', 'Test'),
-      ).rejects.toThrow(HttpException);
+      const result = await service.signUp(
+        'test@example.com',
+        'password',
+        'Test',
+      );
+
+      // Generic success — not an enumeration-friendly error
+      expect(result.message).toBe(GENERIC_MESSAGE);
 
       // Verify cleanup was attempted
       expect(mockClient.auth.admin.deleteUser).toHaveBeenCalledWith(
         'auth-orphan',
       );
+    });
+
+    it('throws BadRequestException on generic Supabase errors without leaking details', async () => {
+      mockClient.auth.admin.createUser.mockResolvedValue({
+        data: { user: null },
+        error: { message: 'invalid email format' },
+      });
+
+      await expect(
+        service.signUp('not-an-email', 'password', 'Test'),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 

@@ -1,10 +1,4 @@
-import {
-  IsString,
-  IsNotEmpty,
-  IsEmail,
-  IsOptional,
-  IsUrl,
-} from 'class-validator';
+import { IsNotEmpty, IsEmail, IsOptional, IsUrl } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class ForgotPasswordDto {

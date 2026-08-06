@@ -4,7 +4,6 @@ import {
   BadRequestException,
   UnauthorizedException,
   HttpException,
-  HttpStatus,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SupabaseService } from '../supabase/supabase.service';
@@ -30,6 +29,19 @@ export class AuthService {
 
   // ─── SIGN UP ────────────────────────────────────────────────
 
+  /**
+   * Create a new account.
+   *
+   * HIGH 6 hardening:
+   *   • `email_confirm: false` — the account is inactive until the user
+   *     verifies their email. Prevents creating accounts on emails you
+   *     don't control (account-takeover on unclaimed inboxes).
+   *   • Uniform response — signups never reveal whether the email already
+   *     exists. A duplicate signup returns the SAME "check your email"
+   *     message as a fresh signup, eliminating account enumeration.
+   *   • No session is issued here — the user confirms via the emailed link
+   *     and is logged in by Supabase on confirmation.
+   */
   async signUp(
     email: string,
     password: string,
@@ -37,62 +49,42 @@ export class AuthService {
   ): Promise<SignUpResult> {
     const client = this.supabaseService.getClient();
     const normalizedEmail = email.toLowerCase();
+    const genericMessage =
+      'Registration successful. Please check your email to confirm your account.';
 
     try {
-      // Check if user already exists in local DB
-      const existingUser = await this.prisma.user.findUnique({
-        where: { email: normalizedEmail },
-      });
-
-      if (existingUser) {
-        throw new HttpException(
-          {
-            statusCode: HttpStatus.CONFLICT,
-            message:
-              'An account with this email already exists. Please sign in instead.',
-          },
-          HttpStatus.CONFLICT,
-        );
-      }
-
-      // Create user in Supabase Auth
+      // NOTE: We deliberately do NOT pre-check the local DB for existing
+      // accounts — that check itself is the enumeration vector.
       const { data: authData, error: authError } =
         await client.auth.admin.createUser({
           email: normalizedEmail,
           password,
-          email_confirm: true, // Auto-confirm email for smooth UX
+          email_confirm: false, // Require email verification before sign-in
           user_metadata: { name },
         });
 
       if (authError) {
-        this.logger.error(`Supabase signup error: ${authError.message}`);
-
+        this.logger.warn(
+          `Supabase signup rejected for ${normalizedEmail}: ${authError.message}`,
+        );
+        // Duplicate email — respond identically to a fresh signup.
         if (
           authError.message.includes('already registered') ||
           authError.message.includes('already exists')
         ) {
-          throw new HttpException(
-            {
-              statusCode: HttpStatus.CONFLICT,
-              message:
-                'An account with this email already exists. Please sign in instead.',
-            },
-            HttpStatus.CONFLICT,
-          );
+          return { message: genericMessage };
         }
-        throw new BadRequestException(authError.message);
+        throw new BadRequestException('Registration failed. Please try again.');
       }
 
       if (!authData.user) {
-        throw new BadRequestException('Failed to create user account');
+        throw new BadRequestException('Registration failed. Please try again.');
       }
 
-      // Create user in local Prisma DB — handle race condition (double-click /
-      // concurrent requests) where two signUp calls pass the findUnique check
-      // above, both create Supabase users, and then race on the Prisma insert.
-      let dbUser;
+      // Create the local Prisma user. They cannot sign in until Supabase
+      // confirms their email (email_confirm: false).
       try {
-        dbUser = await this.prisma.user.create({
+        await this.prisma.user.create({
           data: {
             email: normalizedEmail,
             name,
@@ -101,13 +93,12 @@ export class AuthService {
           },
         });
       } catch (prismaError: any) {
-        // Prisma P2002 = unique constraint violation (email or authId already taken)
+        // P2002 = unique constraint (email or authId). A concurrent signup won
+        // the race — clean up the orphan Supabase user and reply generically.
         if (prismaError?.code === 'P2002') {
           this.logger.warn(
             `Race condition detected for ${normalizedEmail} — cleaning up orphaned Supabase user ${authData.user.id}`,
           );
-
-          // Roll back the Supabase user we just created to avoid orphans
           try {
             await client.auth.admin.deleteUser(authData.user.id);
           } catch (cleanupError) {
@@ -115,52 +106,20 @@ export class AuthService {
               `Failed to clean up orphaned Supabase user ${authData.user.id}: ${(cleanupError as Error).message}`,
             );
           }
-
-          throw new HttpException(
-            {
-              statusCode: HttpStatus.CONFLICT,
-              message:
-                'An account with this email already exists. Please sign in instead.',
-            },
-            HttpStatus.CONFLICT,
-          );
+          return { message: genericMessage };
         }
-
-        // Re-throw any other Prisma error
         throw prismaError;
       }
 
-      this.logger.log(`New user registered: ${normalizedEmail}`);
+      this.logger.log(
+        `New user registered (pending email confirmation): ${normalizedEmail}`,
+      );
 
-      // Sign in immediately to get session tokens
-      const { data: signInData, error: signInError } =
-        await client.auth.signInWithPassword({
-          email: normalizedEmail,
-          password,
-        });
-
-      const session = signInData?.session
-        ? {
-            access_token: signInData.session.access_token,
-            refresh_token: signInData.session.refresh_token,
-          }
-        : null;
-
-      return {
-        user: {
-          id: dbUser.id,
-          email: dbUser.email,
-          name: dbUser.name,
-          phone: dbUser.phone,
-          avatar: dbUser.avatar,
-          role: dbUser.role,
-        },
-        session,
-      };
+      return { message: genericMessage };
     } catch (error) {
       if (error instanceof HttpException) throw error;
       this.logger.error(`signUp error: ${(error as Error).message}`);
-      throw new BadRequestException('Registration failed');
+      throw new BadRequestException('Registration failed. Please try again.');
     }
   }
 

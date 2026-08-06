@@ -16,7 +16,7 @@ import type { Request } from 'express';
  * Intercepts HTTP responses and detects:
  * - 401 Unauthorized → unauthenticated access attempts
  * - 403 Forbidden    → insufficient permissions
- * - 404 from ownership checks → potential IDOR attempts (logged by OwnershipGuard directly)
+ * - 404 from ownership checks → potential IDOR attempts (handled by service-layer ownership checks)
  *
  * This interceptor captures the error, emits an audit event, then re-throws
  * so the normal exception filter handles the response.

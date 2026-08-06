@@ -10,19 +10,19 @@
  * overridden per-controller or per-route with @Throttle().
  */
 
-export const THROTTLE_DEFAULT = {
+const THROTTLE_DEFAULT = {
   name: 'default',
   ttl: 60000, // 60 seconds
   limit: 200,
 };
 
-export const THROTTLE_STRICT = {
+const THROTTLE_STRICT = {
   name: 'strict',
   ttl: 60000,
   limit: 5,
 };
 
-export const THROTTLE_WEBHOOK = {
+const THROTTLE_WEBHOOK = {
   name: 'webhook',
   ttl: 60000,
   limit: 200,
