@@ -24,8 +24,8 @@ export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}
 
   @Get('video')
-  getFooterVideo() {
-    return { url: this.settingsService.getSetting('footer_video_url') };
+  async getFooterVideo() {
+    return { url: await this.settingsService.getSetting('footer_video_url') };
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
@@ -34,14 +34,14 @@ export class SettingsController {
   @UseInterceptors(
     FileInterceptor('video', {
       storage: diskStorage({
-        destination: (req, file, cb) => {
+        destination: (_req, _file, cb) => {
           const uploadPath = './public/uploads';
           if (!fs.existsSync(uploadPath)) {
             fs.mkdirSync(uploadPath, { recursive: true });
           }
           cb(null, uploadPath);
         },
-        filename: (req, file, cb) => {
+        filename: (_req, file, cb) => {
           const uniqueSuffix =
             Date.now() + '-' + Math.round(Math.random() * 1e9);
           cb(null, 'footer-video-' + uniqueSuffix + extname(file.originalname));
@@ -50,17 +50,17 @@ export class SettingsController {
       limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
     }),
   )
-  uploadFooterVideo(@UploadedFile() file: Express.Multer.File) {
+  async uploadFooterVideo(@UploadedFile() file: Express.Multer.File) {
     if (!file) throw new Error('No file uploaded');
 
     const videoUrl = `/public/uploads/${file.filename}`;
-    this.settingsService.setSetting('footer_video_url', videoUrl);
+    await this.settingsService.setSetting('footer_video_url', videoUrl);
     return { success: true, url: videoUrl };
   }
 
   @Get('about-image')
-  getAboutImage() {
-    return { url: this.settingsService.getSetting('about_image_url') };
+  async getAboutImage() {
+    return { url: await this.settingsService.getSetting('about_image_url') };
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
@@ -69,14 +69,14 @@ export class SettingsController {
   @UseInterceptors(
     FileInterceptor('image', {
       storage: diskStorage({
-        destination: (req, file, cb) => {
+        destination: (_req, _file, cb) => {
           const uploadPath = './public/uploads';
           if (!fs.existsSync(uploadPath)) {
             fs.mkdirSync(uploadPath, { recursive: true });
           }
           cb(null, uploadPath);
         },
-        filename: (req, file, cb) => {
+        filename: (_req, file, cb) => {
           const uniqueSuffix =
             Date.now() + '-' + Math.round(Math.random() * 1e9);
           cb(null, 'about-image-' + uniqueSuffix + extname(file.originalname));
@@ -85,11 +85,11 @@ export class SettingsController {
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
     }),
   )
-  uploadAboutImage(@UploadedFile() file: Express.Multer.File) {
+  async uploadAboutImage(@UploadedFile() file: Express.Multer.File) {
     if (!file) throw new Error('No file uploaded');
 
     const imageUrl = `/public/uploads/${file.filename}`;
-    this.settingsService.setSetting('about_image_url', imageUrl);
+    await this.settingsService.setSetting('about_image_url', imageUrl);
     return { success: true, url: imageUrl };
   }
 
@@ -111,11 +111,12 @@ export class SettingsController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Audit('DELETE_FOOTER_VIDEO', 'SETTING')
   @Delete('video')
-  deleteFooterVideo() {
-    const currentUrl = this.settingsService.getSetting('footer_video_url');
+  async deleteFooterVideo() {
+    const currentUrl =
+      await this.settingsService.getSetting('footer_video_url');
     if (currentUrl) {
       this.safeDeleteFile(`.${currentUrl}`);
-      this.settingsService.deleteSetting('footer_video_url');
+      await this.settingsService.deleteSetting('footer_video_url');
     }
     return { success: true };
   }
@@ -123,18 +124,20 @@ export class SettingsController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Audit('DELETE_ABOUT_IMAGE', 'SETTING')
   @Delete('about-image')
-  deleteAboutImage() {
-    const currentUrl = this.settingsService.getSetting('about_image_url');
+  async deleteAboutImage() {
+    const currentUrl = await this.settingsService.getSetting('about_image_url');
     if (currentUrl) {
       this.safeDeleteFile(`.${currentUrl}`);
-      this.settingsService.deleteSetting('about_image_url');
+      await this.settingsService.deleteSetting('about_image_url');
     }
     return { success: true };
   }
 
   @Get('hero-images')
-  getHeroImages() {
-    return { urls: this.settingsService.getSetting('hero_images_urls') || [] };
+  async getHeroImages() {
+    return {
+      urls: (await this.settingsService.getSetting('hero_images_urls')) || [],
+    };
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
@@ -143,14 +146,14 @@ export class SettingsController {
   @UseInterceptors(
     FileInterceptor('image', {
       storage: diskStorage({
-        destination: (req, file, cb) => {
+        destination: (_req, _file, cb) => {
           const uploadPath = './public/uploads';
           if (!fs.existsSync(uploadPath)) {
             fs.mkdirSync(uploadPath, { recursive: true });
           }
           cb(null, uploadPath);
         },
-        filename: (req, file, cb) => {
+        filename: (_req, file, cb) => {
           const uniqueSuffix =
             Date.now() + '-' + Math.round(Math.random() * 1e9);
           cb(null, 'hero-image-' + uniqueSuffix + extname(file.originalname));
@@ -159,39 +162,40 @@ export class SettingsController {
       limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
     }),
   )
-  uploadHeroImage(@UploadedFile() file: Express.Multer.File) {
+  async uploadHeroImage(@UploadedFile() file: Express.Multer.File) {
     if (!file) throw new Error('No file uploaded');
 
     const imageUrl = `/public/uploads/${file.filename}`;
     const currentUrls =
-      this.settingsService.getSetting('hero_images_urls') || [];
-    this.settingsService.setSetting('hero_images_urls', [
+      (await this.settingsService.getSetting('hero_images_urls')) || [];
+    await this.settingsService.setSetting('hero_images_urls', [
       ...currentUrls,
       imageUrl,
     ]);
     return {
       success: true,
       url: imageUrl,
-      urls: this.settingsService.getSetting('hero_images_urls'),
+      urls: await this.settingsService.getSetting('hero_images_urls'),
     };
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Audit('DELETE_HERO_IMAGE', 'SETTING')
   @Delete('hero-images')
-  deleteHeroImage(@Body('url') urlToDelete: string) {
-    let currentUrls = this.settingsService.getSetting('hero_images_urls') || [];
+  async deleteHeroImage(@Body('url') urlToDelete: string) {
+    let currentUrls =
+      (await this.settingsService.getSetting('hero_images_urls')) || [];
     if (currentUrls.includes(urlToDelete)) {
       this.safeDeleteFile(`.${urlToDelete}`);
       currentUrls = currentUrls.filter((u: string) => u !== urlToDelete);
-      this.settingsService.setSetting('hero_images_urls', currentUrls);
+      await this.settingsService.setSetting('hero_images_urls', currentUrls);
     }
     return { success: true, urls: currentUrls };
   }
 
   @Get('cod')
-  getCodStatus() {
-    const status = this.settingsService.getSetting('cod_enabled');
+  async getCodStatus() {
+    const status = await this.settingsService.getSetting('cod_enabled');
     // Default to true if not explicitly set to false
     return { enabled: status !== false };
   }
@@ -199,8 +203,8 @@ export class SettingsController {
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Audit('TOGGLE_COD_STATUS', 'SETTING')
   @Post('cod')
-  toggleCod(@Body('enabled') enabled: boolean) {
-    this.settingsService.setSetting('cod_enabled', enabled);
+  async toggleCod(@Body('enabled') enabled: boolean) {
+    await this.settingsService.setSetting('cod_enabled', enabled);
     return { success: true, enabled };
   }
 }

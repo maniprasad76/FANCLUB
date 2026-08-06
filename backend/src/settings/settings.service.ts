@@ -1,38 +1,38 @@
 import { Injectable } from '@nestjs/common';
-import * as fs from 'fs';
-import * as path from 'path';
+import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
+/**
+ * SettingsService — DB-backed store configuration (CRIT 3).
+ *
+ * Previously settings were persisted to `data/settings.json`, which is
+ * lost on ephemeral filesystems (Cloud Run, Render, Vercel serverless).
+ * Now every key/value lives in the `settings` table so it survives
+ * redeploys and scales across instances.
+ */
 @Injectable()
 export class SettingsService {
-  private readonly file = path.join(process.cwd(), 'data', 'settings.json');
+  constructor(private readonly prisma: PrismaService) {}
 
-  private getSettings(): Record<string, any> {
-    if (!fs.existsSync(this.file)) return {};
-    return JSON.parse(fs.readFileSync(this.file, 'utf-8'));
+  async getSetting(key: string): Promise<any> {
+    const row = await this.prisma.setting.findUnique({ where: { key } });
+    return row ? row.value : null;
   }
 
-  getSetting(key: string): any {
-    const settings = this.getSettings();
-    return settings[key] || null;
+  async getSettings(): Promise<Record<string, any>> {
+    const rows = await this.prisma.setting.findMany();
+    return rows.reduce((acc, row) => ({ ...acc, [row.key]: row.value }), {});
   }
 
-  setSetting(key: string, value: any): void {
-    const settings = this.getSettings();
-    settings[key] = value;
-
-    // Ensure dir exists
-    if (!fs.existsSync(path.dirname(this.file))) {
-      fs.mkdirSync(path.dirname(this.file), { recursive: true });
-    }
-    fs.writeFileSync(this.file, JSON.stringify(settings, null, 2));
+  async setSetting(key: string, value: any): Promise<void> {
+    await this.prisma.setting.upsert({
+      where: { key },
+      create: { key, value: value as Prisma.InputJsonValue },
+      update: { value: value as Prisma.InputJsonValue },
+    });
   }
 
-  deleteSetting(key: string): void {
-    const settings = this.getSettings();
-    delete settings[key];
-    if (!fs.existsSync(path.dirname(this.file))) {
-      fs.mkdirSync(path.dirname(this.file), { recursive: true });
-    }
-    fs.writeFileSync(this.file, JSON.stringify(settings, null, 2));
+  async deleteSetting(key: string): Promise<void> {
+    await this.prisma.setting.deleteMany({ where: { key } });
   }
 }

@@ -126,6 +126,7 @@ model CartItem {
 model Order {
   id                   String                @id @default(uuid())
   orderNumber          String                @unique @default(uuid())
+  idempotencyKey       String?               @unique
   userId               String
   totalAmount          Decimal               @db.Decimal(10, 2)
   shippingAmount       Decimal               @default(0) @db.Decimal(10, 2)
@@ -139,6 +140,7 @@ model Order {
   status               OrderStatus           @default(PENDING)
   trackingId           String?
   notes                String?
+  expiresAt            DateTime?             @db.Timestamptz(6)
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
   items                OrderItem[]
@@ -151,6 +153,7 @@ model Order {
   @@index([status])
   @@index([createdAt])
   @@index([razorpayOrderId])
+  @@index([expiresAt])
   @@map("orders")
 }
 
@@ -295,6 +298,14 @@ model Contact {
   createdAt DateTime @default(now())
 
   @@map("contacts")
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
 }
 
 enum Role {
