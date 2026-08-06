@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { OnEvent } from '@nestjs/event-emitter';
 
 /**
@@ -19,16 +20,20 @@ export interface OrderConfirmedEvent {
  * NotificationService — Provider-agnostic notification dispatcher.
  *
  * Listens for order lifecycle events and dispatches notifications.
- * Currently logs WhatsApp notification payloads to stdout.
  *
- * To activate real WhatsApp delivery:
- *   1. Set WHATSAPP_API_URL and WHATSAPP_API_TOKEN env vars
- *   2. Replace the stub in sendWhatsAppMessage() with your SDK call
- *      (Meta Cloud API, Twilio, Gupshup, etc.)
+ * Transport is config-driven (CRIT 4):
+ *   NOTIFICATION_PROVIDER=console   → log the message payload (default, dev-safe)
+ *   NOTIFICATION_PROVIDER=http      → POST to WHATSAPP_API_URL with
+ *                                     `Authorization: Bearer WHATSAPP_API_TOKEN`
+ *                                     body: { to: phone, body: message }
+ *
+ * Delivery is best-effort: failures are logged and never break the order flow.
  */
 @Injectable()
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
+
+  constructor(private readonly configService: ConfigService) {}
 
   // ─────────────────────────────────────────────────────────
   // EVENT LISTENERS
@@ -92,44 +97,57 @@ export class NotificationService {
   }
 
   // ─────────────────────────────────────────────────────────
-  // TRANSPORT LAYER (Swap this with your WhatsApp SDK)
+  // TRANSPORT LAYER
   // ─────────────────────────────────────────────────────────
 
   /**
    * Send a WhatsApp message to the given phone number.
    *
-   * 🔌 PLUG YOUR PROVIDER HERE:
-   *
-   * Meta Cloud API example:
-   *   await axios.post(
-   *     `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`,
-   *     { messaging_product: 'whatsapp', to: phone, type: 'text', text: { body: message } },
-   *     { headers: { Authorization: `Bearer ${token}` } },
-   *   );
-   *
-   * Twilio example:
-   *   await twilioClient.messages.create({
-   *     from: 'whatsapp:+14155238886',
-   *     to: `whatsapp:${phone}`,
-   *     body: message,
-   *   });
+   * Config-driven (CRIT 4):
+   *   - NOTIFICATION_PROVIDER=http + WHATSAPP_API_URL + WHATSAPP_API_TOKEN
+   *     → real HTTP delivery to any provider that accepts
+   *       { to, body } with a Bearer token (Meta Cloud API, Twilio, Gupshup…)
+   *   - otherwise → logs the payload (safe default, no external dependency)
    */
   private async sendWhatsAppMessage(
     phone: string,
     message: string,
   ): Promise<void> {
-    // ── STUB: Log the message payload for now ──
-    this.logger.log(`📱 [STUB] WhatsApp message to ${phone}:\n${message}`);
+    const provider = this.configService.get<string>(
+      'NOTIFICATION_PROVIDER',
+      'console',
+    );
 
-    // When ready, uncomment and configure:
-    // const apiUrl = process.env.WHATSAPP_API_URL;
-    // const apiToken = process.env.WHATSAPP_API_TOKEN;
-    // if (!apiUrl || !apiToken) {
-    //   this.logger.warn('WhatsApp API not configured — skipping');
-    //   return;
-    // }
-    // await axios.post(apiUrl, { to: phone, body: message }, {
-    //   headers: { Authorization: `Bearer ${apiToken}` },
-    // });
+    if (provider.toLowerCase() !== 'http') {
+      this.logger.log(`📱 [console] WhatsApp message to ${phone}:\n${message}`);
+      return;
+    }
+
+    const apiUrl = this.configService.get<string>('WHATSAPP_API_URL');
+    const apiToken = this.configService.get<string>('WHATSAPP_API_TOKEN');
+
+    if (!apiUrl || !apiToken) {
+      this.logger.warn(
+        'NOTIFICATION_PROVIDER=http but WHATSAPP_API_URL/WHATSAPP_API_TOKEN missing — falling back to console',
+      );
+      this.logger.log(`📱 [console] WhatsApp message to ${phone}:\n${message}`);
+      return;
+    }
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiToken}`,
+      },
+      body: JSON.stringify({ to: phone, body: message }),
+    });
+
+    if (!response.ok) {
+      const detail = await response.text().catch(() => '');
+      throw new Error(
+        `WhatsApp API responded ${response.status} ${response.statusText} ${detail.slice(0, 200)}`,
+      );
+    }
   }
 }

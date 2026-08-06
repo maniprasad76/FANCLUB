@@ -11,16 +11,23 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async findAll(page = 1, limit = 20) {
-    const skip = (page - 1) * limit;
+    const safeLimit = Math.min(100, Math.max(1, limit));
+    const safePage = Math.max(1, page);
+    const skip = (safePage - 1) * safeLimit;
     const [users, total] = await Promise.all([
       this.prisma.user.findMany({
         skip,
-        take: limit,
+        take: safeLimit,
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.user.count(),
     ]);
-    return { users, total, page, pages: Math.ceil(total / limit) };
+    return {
+      users,
+      total,
+      page: safePage,
+      pages: Math.ceil(total / safeLimit),
+    };
   }
 
   async findByAuthId(authId: string) {

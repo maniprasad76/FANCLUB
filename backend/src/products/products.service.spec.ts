@@ -45,7 +45,12 @@ describe('ProductsService', () => {
         update: jest.fn(),
         delete: jest.fn(),
         deleteMany: jest.fn(),
+        updateMany: jest.fn(),
       },
+      cartItem: { deleteMany: jest.fn() },
+      wishlist: { deleteMany: jest.fn() },
+      review: { deleteMany: jest.fn() },
+      $transaction: jest.fn((txs) => Promise.all(txs)),
     };
 
     service = new ProductsService(prisma);
@@ -245,6 +250,7 @@ describe('ProductsService', () => {
 
   describe('delete', () => {
     it('deletes a product by ID', async () => {
+      prisma.product.findUnique.mockResolvedValue(mockProduct);
       prisma.product.delete.mockResolvedValue(mockProduct);
 
       await service.delete('prod-1');
@@ -252,6 +258,14 @@ describe('ProductsService', () => {
       expect(prisma.product.delete).toHaveBeenCalledWith({
         where: { id: 'prod-1' },
       });
+    });
+
+    it('throws NotFoundException for non-existent product', async () => {
+      prisma.product.findUnique.mockResolvedValue(null);
+
+      await expect(service.delete('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

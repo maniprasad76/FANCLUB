@@ -58,7 +58,7 @@ export class RedisFallbackCacheStore implements KeyvStoreAdapter {
     return this.memoryStore.delete(key);
   }
 
-  on(event: string, listener: (...arguments_: any[]) => void): this {
+  on(_event: string, _listener: (...arguments_: any[]) => void): this {
     return this;
   }
 

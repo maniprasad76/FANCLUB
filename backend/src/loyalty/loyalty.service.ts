@@ -455,7 +455,9 @@ export class LoyaltyService {
   // ── Admin Methods ──
 
   async adminGetAllProgress(page = 1, limit = 20, search?: string) {
-    const skip = (page - 1) * limit;
+    const safeLimit = Math.min(100, Math.max(1, limit));
+    const safePage = Math.max(1, page);
+    const skip = (safePage - 1) * safeLimit;
     const where: any = {};
 
     if (search) {
@@ -495,8 +497,8 @@ export class LoyaltyService {
             : 'IN_PROGRESS',
       })),
       total,
-      page,
-      pages: Math.ceil(total / limit),
+      page: safePage,
+      pages: Math.ceil(total / safeLimit),
     };
   }
 

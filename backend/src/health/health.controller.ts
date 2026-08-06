@@ -40,13 +40,14 @@ export class HealthController {
         timestamp: new Date().toISOString(),
         uptime: Math.round(process.uptime()),
       };
-    } catch (error: any) {
+    } catch {
+      // Do NOT leak error.message — it may contain connection strings or
+      // internal host details (MED 19).
       return {
         status: 'degraded',
         instance: os.hostname(),
         version: '1.0.0',
         database: 'disconnected',
-        error: error.message,
         timestamp: new Date().toISOString(),
         uptime: Math.round(process.uptime()),
       };

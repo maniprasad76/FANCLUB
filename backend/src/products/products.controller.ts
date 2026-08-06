@@ -31,7 +31,6 @@ import { CacheInvalidationInterceptor } from '../common/interceptors/cache-inval
 import { Audit } from '../audit/decorators/audit.decorator.js';
 
 @ApiTags('Products')
-@SkipThrottle()
 @Controller('products')
 export class ProductsController {
   constructor(private productsService: ProductsService) {}
@@ -48,6 +47,7 @@ export class ProductsController {
     return this.productsService.findAll(query);
   }
 
+  @SkipThrottle()
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(600000) // 10 minutes — featured products change rarely
   @Get('featured')
@@ -55,6 +55,7 @@ export class ProductsController {
     return this.productsService.getFeatured();
   }
 
+  @SkipThrottle()
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(600000) // 10 minutes
   @Get('bestsellers')
@@ -62,6 +63,7 @@ export class ProductsController {
     return this.productsService.getBestsellers();
   }
 
+  @SkipThrottle()
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(600000) // 10 minutes
   @Get('new-arrivals')
@@ -69,6 +71,7 @@ export class ProductsController {
     return this.productsService.getNewArrivals();
   }
 
+  @SkipThrottle()
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(300000) // 5 minutes
   @Get('slug/:slug')
@@ -76,6 +79,7 @@ export class ProductsController {
     return this.productsService.findBySlug(slug);
   }
 
+  @SkipThrottle()
   @Get('slug/:slug/related')
   getRelated(@Param('slug') slug: string) {
     return this.productsService.getRelated(slug);

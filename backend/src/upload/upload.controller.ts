@@ -60,14 +60,14 @@ export class UploadController {
   @UseInterceptors(
     FileInterceptor('image', {
       storage: diskStorage({
-        destination: (req, file, cb) => {
+        destination: (_req, _file, cb) => {
           const uploadPath = './public/uploads';
           if (!fs.existsSync(uploadPath)) {
             fs.mkdirSync(uploadPath, { recursive: true });
           }
           cb(null, uploadPath);
         },
-        filename: (req, file, cb) => {
+        filename: (_req, file, cb) => {
           // SECURITY: Sanitize filename to prevent path traversal
           const safeBase = basename(file.originalname)
             .replace(/\.\.[\\/]/g, '') // Strip path traversal sequences

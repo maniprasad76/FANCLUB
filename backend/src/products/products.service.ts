@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CreateProductDto,
@@ -9,6 +14,8 @@ import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ProductsService implements OnModuleInit {
+  private readonly logger = new Logger(ProductsService.name);
+
   constructor(private prisma: PrismaService) {}
 
   async onModuleInit() {
@@ -19,16 +26,15 @@ export class ProductsService implements OnModuleInit {
         USING gin(to_tsvector('english'::regconfig, coalesce(name, '') || ' ' || coalesce(description, '')));
       `);
     } catch (err) {
-      console.warn(
-        'Could not create products_search_idx:',
-        (err as Error).message,
+      this.logger.warn(
+        `Could not create products_search_idx: ${(err as Error).message}`,
       );
     }
   }
 
   async findAll(query: ProductQueryDto) {
-    const page = query.page || 1;
-    const limit = query.limit || 12;
+    const page = Math.max(1, query.page || 1);
+    const limit = Math.min(100, Math.max(1, query.limit || 12));
     const skip = (page - 1) * limit;
 
     const where: Prisma.ProductWhereInput = { isActive: true };
@@ -221,7 +227,8 @@ export class ProductsService implements OnModuleInit {
 
   // Admin: all products including inactive
   async adminFindAll(page = 1, limit = 20, search?: string) {
-    const skip = (page - 1) * limit;
+    const safeLimit = Math.min(100, Math.max(1, limit));
+    const skip = (page - 1) * safeLimit;
     const where: Prisma.ProductWhereInput = {};
     if (search) {
       where.OR = [
@@ -235,10 +242,10 @@ export class ProductsService implements OnModuleInit {
         include: { category: { select: { id: true, name: true } } },
         orderBy: { createdAt: 'desc' },
         skip,
-        take: limit,
+        take: safeLimit,
       }),
       this.prisma.product.count({ where }),
     ]);
-    return { products, total, page, pages: Math.ceil(total / limit) };
+    return { products, total, page, pages: Math.ceil(total / safeLimit) };
   }
 }
