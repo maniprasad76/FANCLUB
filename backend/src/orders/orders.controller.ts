@@ -8,8 +8,9 @@ import {
   Query,
   UseGuards,
   ParseUUIDPipe,
+  Headers,
 } from '@nestjs/common';
-import { Throttle, SkipThrottle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto/orders.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -23,8 +24,12 @@ export class OrdersController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@CurrentUser('authId') authId: string, @Body() dto: CreateOrderDto) {
-    return this.ordersService.create(authId, dto);
+  create(
+    @CurrentUser('authId') authId: string,
+    @Body() dto: CreateOrderDto,
+    @Headers('idempotency-key') idempotencyKey?: string,
+  ) {
+    return this.ordersService.create(authId, dto, idempotencyKey);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -37,7 +42,7 @@ export class OrdersController {
     return this.ordersService.findUserOrders(authId, +page, +limit);
   }
 
-  @SkipThrottle()
+  @Throttle({ default: { limit: 60, ttl: 60_000 } })
   @Get('public/recent')
   findPublicRecentPurchases() {
     return this.ordersService.getPublicRecentPurchases();
@@ -58,8 +63,9 @@ export class OrdersController {
     @Query('page') page = 1,
     @Query('limit') limit = 20,
     @Query('status') status?: string,
+    @Query('search') search?: string,
   ) {
-    return this.ordersService.adminFindAll(+page, +limit, status);
+    return this.ordersService.adminFindAll(+page, +limit, status, search);
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)

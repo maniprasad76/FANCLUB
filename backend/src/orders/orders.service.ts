@@ -2,8 +2,9 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  ForbiddenException,
   Logger,
+  OnModuleInit,
+  OnModuleDestroy,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { PaymentsService } from '../payments/payments.service';
@@ -40,8 +41,14 @@ const VALID_TRANSITIONS: Record<string, OrderStatusEnum[]> = {
 };
 
 @Injectable()
-export class OrdersService {
+export class OrdersService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(OrdersService.name);
+
+  /** Default time a PENDING online order stays open before it expires. */
+  private readonly defaultTtlMinutes = 15;
+  /** How often the stale-order scan runs. */
+  private readonly scanIntervalMs = 60_000;
+  private expiryTimer?: NodeJS.Timeout;
 
   constructor(
     private prisma: PrismaService,
@@ -51,6 +58,113 @@ export class OrdersService {
     private orderNotification: OrderNotificationHelper,
     private loyaltyService: LoyaltyService,
   ) {}
+
+  onModuleInit() {
+    // ── CRIT 1: Stale PENDING order expiry job ──
+    // Self-scheduling scan that releases stock and closes gateway sessions for
+    // online orders that were never paid. Guards against overlapping runs.
+    this.expiryTimer = setInterval(() => {
+      void this.expireStaleOrders();
+    }, this.scanIntervalMs);
+    this.expiryTimer.unref?.();
+    // Run once shortly after boot to clear anything left over from downtime.
+    const firstRun = setTimeout(() => void this.expireStaleOrders(), 10_000);
+    firstRun.unref?.();
+  }
+
+  onModuleDestroy() {
+    if (this.expiryTimer) clearInterval(this.expiryTimer);
+  }
+
+  /** TTL in ms for how long a PENDING online order stays open for payment. */
+  private ttlMs(): number {
+    const mins = Number(
+      this.config.get('ORDER_PAYMENT_TTL_MINUTES', this.defaultTtlMinutes),
+    );
+    return (
+      (Number.isFinite(mins) && mins > 0 ? mins : this.defaultTtlMinutes) *
+      60_000
+    );
+  }
+
+  /**
+   * CRIT 1 — Find and expire stale PENDING online orders.
+   * Restores stock, cancels pending payments, and closes the Razorpay session.
+   */
+  async expireStaleOrders(): Promise<number> {
+    const now = new Date();
+    const legacyCutoff = new Date(now.getTime() - this.ttlMs());
+
+    const candidates = await this.prisma.order.findMany({
+      where: {
+        status: 'PENDING',
+        paymentMethod: 'ONLINE',
+        OR: [
+          { expiresAt: { lte: now } },
+          { expiresAt: null, createdAt: { lte: legacyCutoff } },
+        ],
+      },
+      include: { items: true },
+      take: 100,
+    });
+
+    let expiredCount = 0;
+    for (const order of candidates) {
+      try {
+        const expired = await this.prisma.$transaction(
+          async (tx) => {
+            // Never expire an order that already has a confirmed/processing payment
+            const livePayment = await tx.payment.findFirst({
+              where: {
+                orderId: order.id,
+                status: { in: ['COMPLETED', 'PROCESSING'] },
+              },
+            });
+            if (livePayment) return false;
+
+            // Guarded update — only flips status if still PENDING + expired
+            const updated = await tx.order.updateMany({
+              where: {
+                id: order.id,
+                status: 'PENDING',
+                expiresAt: { lte: now },
+              },
+              data: { status: 'CANCELLED' },
+            });
+            if (updated.count === 0) return false;
+
+            // Restore stock
+            for (const item of order.items) {
+              await tx.product.update({
+                where: { id: item.productId },
+                data: { stock: { increment: item.quantity } },
+              });
+            }
+            // Cancel pending payment intents so they can never complete
+            await tx.payment.updateMany({
+              where: { orderId: order.id, status: 'PENDING' },
+              data: { status: 'CANCELLED' },
+            });
+            return true;
+          },
+          { isolationLevel: 'Serializable' },
+        );
+
+        if (expired) {
+          expiredCount++;
+          this.logger.log(
+            `⏰ Expired stale PENDING order ${order.orderNumber} (${order.id})`,
+          );
+          if (order.razorpayOrderId) {
+            await this.paymentsService.closeGatewayOrder(order.razorpayOrderId);
+          }
+        }
+      } catch (err: any) {
+        this.logger.error(`Failed to expire order ${order.id}: ${err.message}`);
+      }
+    }
+    return expiredCount;
+  }
 
   /**
    * Creates an order with ZERO-TRUST pricing.
@@ -63,9 +177,39 @@ export class OrdersService {
    * 4. Stock decremented with conditional WHERE stock >= qty (atomic)
    * 5. Gateway session created BEFORE clearing cart/stock to prevent orphaned state
    */
-  async create(authId: string, dto: CreateOrderDto) {
+  async create(authId: string, dto: CreateOrderDto, idempotencyKey?: string) {
     const user = await this.prisma.user.findUnique({ where: { authId } });
     if (!user) throw new NotFoundException('User not found');
+
+    // ── MED 14: Idempotent replay — if this key already created an order,
+    // return the existing order (or its live payment session) instead of
+    // double-charging stock/coupon. ──
+    if (idempotencyKey) {
+      const existing = await this.prisma.order.findUnique({
+        where: { idempotencyKey },
+      });
+      if (existing && existing.userId === user.id) {
+        if (
+          existing.paymentMethod === 'ONLINE' &&
+          existing.status === 'PENDING'
+        ) {
+          const address = existing.addressId
+            ? await this.prisma.address.findUnique({
+                where: { id: existing.addressId },
+              })
+            : null;
+          const country = address?.country || 'India';
+          const payload = await this.paymentsService.createPaymentOrder(
+            existing.id,
+            'RAZORPAY',
+            country,
+            'INR',
+          );
+          return { ...existing, ...payload, payment: payload };
+        }
+        return existing;
+      }
+    }
 
     if (!dto.items || dto.items.length === 0) {
       throw new BadRequestException('Order must contain at least one item');
@@ -151,37 +295,52 @@ export class OrdersService {
 
     if (paymentMethod === PaymentMethodEnum.ONLINE) {
       // Create a temporary order record in PENDING state with NO stock changes yet
-      const tempOrder = await this.prisma.order.create({
-        data: {
-          orderNumber,
-          userId: user.id,
-          totalAmount,
-          shippingAmount,
-          discountAmount,
-          couponCode: dto.couponCode
-            ? dto.couponCode.toUpperCase().trim()
-            : null,
-          addressId: dto.addressId,
-          paymentMethod: 'ONLINE',
-          status: 'PENDING',
-          notes: dto.notes,
-          items: {
-            create: mergedItems.map((item) => {
-              const product = productMap.get(item.productId)!;
-              return {
-                productId: item.productId,
-                quantity: item.quantity,
-                size: item.size,
-                color: item.color,
-                price: product.price,
-                name: product.name,
-                image: product.images?.[0],
-              };
-            }),
+      let tempOrder;
+      try {
+        tempOrder = await this.prisma.order.create({
+          data: {
+            orderNumber,
+            idempotencyKey: idempotencyKey || null,
+            userId: user.id,
+            totalAmount,
+            shippingAmount,
+            discountAmount,
+            couponCode: dto.couponCode
+              ? dto.couponCode.toUpperCase().trim()
+              : null,
+            addressId: dto.addressId,
+            paymentMethod: 'ONLINE',
+            status: 'PENDING',
+            notes: dto.notes,
+            expiresAt: new Date(Date.now() + this.ttlMs()),
+            items: {
+              create: mergedItems.map((item) => {
+                const product = productMap.get(item.productId)!;
+                return {
+                  productId: item.productId,
+                  quantity: item.quantity,
+                  size: item.size,
+                  color: item.color,
+                  price: product.price,
+                  name: product.name,
+                  image: product.images?.[0],
+                };
+              }),
+            },
           },
-        },
-        include: { items: { include: { product: true } }, address: true },
-      });
+          include: { items: { include: { product: true } }, address: true },
+        });
+      } catch (err: any) {
+        // Concurrent request won the race with the same idempotency key —
+        // return the existing order instead of failing.
+        if (err?.code === 'P2002' && idempotencyKey) {
+          const existing = await this.prisma.order.findUnique({
+            where: { idempotencyKey },
+          });
+          if (existing) return existing;
+        }
+        throw err;
+      }
 
       // Create gateway session — if this throws, the temp order remains PENDING
       // and stock has NOT been decremented yet.
@@ -272,6 +431,7 @@ export class OrdersService {
         const created = await tx.order.create({
           data: {
             orderNumber,
+            idempotencyKey: idempotencyKey || null,
             userId: user.id,
             totalAmount,
             shippingAmount,
@@ -390,7 +550,7 @@ export class OrdersService {
       );
     }
 
-    // Restore stock when cancelling
+    // Restore stock when cancelling + auto-refund paid orders (CRIT 2)
     if (
       dto.status === OrderStatusEnum.CANCELLED &&
       order.status !== 'CANCELLED'
@@ -410,10 +570,41 @@ export class OrdersService {
           data: { status: dto.status as any, trackingId: dto.trackingId },
         });
       });
-      return this.prisma.order.findUnique({
+
+      // HIGH 9: Reverse loyalty stamp if this was a delivered order
+      await this.loyaltyService.decrementProgress(id);
+
+      // CRIT 2: Auto-refund if the order was already paid
+      let refund: any = null;
+      const completedPayment = await this.prisma.payment.findFirst({
+        where: { orderId: id, status: 'COMPLETED' },
+        orderBy: { createdAt: 'desc' },
+      });
+      if (completedPayment) {
+        try {
+          const result = await this.paymentsService.processRefund(
+            completedPayment.id,
+          );
+          refund = result.refund
+            ? {
+                id: result.refund.id,
+                status: result.refund.status,
+                amount: Number(result.refund.amount),
+              }
+            : null;
+        } catch (err: any) {
+          this.logger.error(
+            `Auto-refund failed for cancelled order ${id}: ${err.message}`,
+          );
+          refund = { status: 'FAILED', message: err.message };
+        }
+      }
+
+      const updated = await this.prisma.order.findUnique({
         where: { id },
         include: { items: true },
       });
+      return { ...updated, refund };
     }
 
     const updated = await this.prisma.order.update({
@@ -434,20 +625,25 @@ export class OrdersService {
     if (dto.status === OrderStatusEnum.DELIVERED) {
       await this.loyaltyService.incrementProgress(updated.id);
     }
-    // Reverse stamp when a previously-delivered order is cancelled
-    if (dto.status === OrderStatusEnum.CANCELLED) {
-      await this.loyaltyService.decrementProgress(updated.id);
-    }
 
     return updated;
   }
 
-  async adminFindAll(page = 1, limit = 20, status?: string) {
+  async adminFindAll(page = 1, limit = 20, status?: string, search?: string) {
     const safeLimit = Math.min(limit, 100);
     const skip = (page - 1) * safeLimit;
     const where: Prisma.OrderWhereInput = {};
     if (status && Object.values(OrderStatusEnum).includes(status as any)) {
       where.status = status as any;
+    }
+    // MED 22: admin order search by order number, customer name, or email
+    if (search && search.trim()) {
+      const term = search.trim();
+      where.OR = [
+        { orderNumber: { contains: term, mode: 'insensitive' } },
+        { user: { name: { contains: term, mode: 'insensitive' } } },
+        { user: { email: { contains: term, mode: 'insensitive' } } },
+      ];
     }
 
     const [orders, total] = await Promise.all([

@@ -17,7 +17,7 @@ describe('OrdersService', () => {
   let paymentsService: any;
   let configService: any;
   let couponsService: any;
-  let eventEmitter: any;
+  let orderNotification: any;
 
   beforeEach(() => {
     prisma = {
@@ -29,8 +29,10 @@ describe('OrdersService', () => {
         create: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
+        updateMany: jest.fn(),
       },
       orderItem: { findMany: jest.fn() },
+      payment: { findFirst: jest.fn() },
       product: {
         findMany: jest.fn(),
         updateMany: jest.fn(),
@@ -44,6 +46,8 @@ describe('OrdersService', () => {
 
     paymentsService = {
       createPaymentOrder: jest.fn(),
+      processRefund: jest.fn(),
+      closeGatewayOrder: jest.fn(),
     };
 
     configService = {
@@ -54,8 +58,8 @@ describe('OrdersService', () => {
       validateCoupon: jest.fn(),
     };
 
-    eventEmitter = {
-      emit: jest.fn(),
+    orderNotification = {
+      emitOrderConfirmed: jest.fn().mockResolvedValue(undefined),
     };
 
     const loyaltyService = {
@@ -68,7 +72,7 @@ describe('OrdersService', () => {
       paymentsService,
       configService,
       couponsService,
-      eventEmitter,
+      orderNotification,
       loyaltyService as any,
     );
   });
@@ -91,7 +95,7 @@ describe('OrdersService', () => {
         status: 'CONFIRMED' as any,
       });
 
-      expect(result!.status).toBe('CONFIRMED');
+      expect(result.status).toBe('CONFIRMED');
     });
 
     it('allows CONFIRMED → PROCESSING transition', async () => {
@@ -109,7 +113,7 @@ describe('OrdersService', () => {
         status: 'PROCESSING' as any,
       });
 
-      expect(result!.status).toBe('PROCESSING');
+      expect(result.status).toBe('PROCESSING');
     });
 
     it('rejects invalid transition: DELIVERED → PENDING', async () => {

@@ -44,8 +44,7 @@ export class RazorpayService implements PaymentGatewayProvider {
     this.keySecret =
       this.configService.get<string>('RAZORPAY_KEY_SECRET') || '';
     this.webhookSecret =
-      this.configService.get<string>('RAZORPAY_WEBHOOK_SECRET') ||
-      this.keySecret;
+      this.configService.get<string>('RAZORPAY_WEBHOOK_SECRET') || '';
 
     const hasRealKeys =
       this.keyId &&
@@ -77,6 +76,33 @@ export class RazorpayService implements PaymentGatewayProvider {
         );
       }
     }
+
+    this.logger.log(
+      `Razorpay webhook secret ${this.webhookSecret ? 'is configured' : 'is NOT configured — webhooks will be REJECTED in production'}.`,
+    );
+  }
+
+  /**
+   * Close a Razorpay order so it can no longer be paid.
+   * Used by the stale-order expiry job to prevent payment after stock is restored.
+   * Non-fatal: failures are logged here, never propagated.
+   */
+  async closeOrder(razorpayOrderId: string): Promise<void> {
+    if (!this.razorpay) {
+      if (this.isProduction) {
+        throw new ServiceUnavailableException('Razorpay is not configured.');
+      }
+      return; // Stub mode — nothing to close
+    }
+    try {
+      await this.razorpay.orders.close(razorpayOrderId);
+      this.logger.log(`🔒 Closed Razorpay order ${razorpayOrderId}`);
+    } catch (err: any) {
+      // Razorpay throws if the order is already closed/paid — that's fine.
+      this.logger.log(
+        `Razorpay order ${razorpayOrderId} could not be closed (may already be closed/paid): ${err?.error?.description || err?.message}`,
+      );
+    }
   }
 
   /** Returns the publishable key for the frontend to use */
@@ -87,22 +113,6 @@ export class RazorpayService implements PaymentGatewayProvider {
   /** Whether Razorpay is available (real keys + SDK loaded) */
   isAvailable(): boolean {
     return !!this.razorpay;
-  }
-
-  /**
-   * Throws ServiceUnavailableException in production when SDK is not initialised.
-   * In development, returns a stub response for local testing.
-   */
-  private assertAvailableOrStub<T>(stubFn: () => T): T {
-    if (!this.razorpay) {
-      if (this.isProduction) {
-        throw new ServiceUnavailableException(
-          'Razorpay payment gateway is not configured. Please contact support.',
-        );
-      }
-      return stubFn();
-    }
-    return null as any; // Signal that real implementation should run
   }
 
   /**

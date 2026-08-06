@@ -17,6 +17,7 @@ describe('PaymentsService', () => {
       prisma,
       {} as any,
       { emit: jest.fn() } as any,
+      {} as any,
     );
   });
 

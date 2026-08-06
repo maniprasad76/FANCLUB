@@ -2,11 +2,11 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
-  ConflictException,
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RazorpayService } from './razorpay.service';
+import { LoyaltyService } from '../loyalty/loyalty.service';
 import { v4 as uuidv4 } from 'uuid';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { OrderConfirmedEvent } from '../common/services/notification.service.js';
@@ -34,6 +34,7 @@ export class PaymentsService {
     private prisma: PrismaService,
     private razorpayService: RazorpayService,
     private eventEmitter: EventEmitter2,
+    private loyaltyService: LoyaltyService,
   ) {}
 
   // ─────────────────────────────────────────────────────────
@@ -45,8 +46,8 @@ export class PaymentsService {
    * Everything → RAZORPAY.
    */
   private resolveGateway(
-    country?: string,
-    explicitGateway?: string,
+    _country?: string,
+    _explicitGateway?: string,
   ): 'RAZORPAY' {
     return 'RAZORPAY';
   }
@@ -528,13 +529,25 @@ export class PaymentsService {
   /**
    * Initiate a refund for a completed payment.
    * Supports partial refunds via the amount parameter.
+   *
+   * PHASED DESIGN (fixes long DB lock + double-refund race):
+   *   Phase 1 — Short serializable txn: take a Postgres advisory lock on the
+   *             payment row, re-validate state, and insert a PROCESSING Refund
+   *             record. The advisory lock serializes concurrent refund requests
+   *             so only one can ever reach the gateway.
+   *   Phase 2 — Call the gateway OUTSIDE any DB transaction. No locks are held
+   *             during the external HTTP round-trip.
+   *   Phase 3 — Short txn: finalize refund/payment/order status based on the
+   *             gateway result.
    */
   async processRefund(paymentId: string, amount?: number, reason?: string) {
-    // SECURITY: Run entire refund in a serializable transaction to prevent
-    // concurrent requests from both passing the refund-limit check.
-    return this.prisma.$transaction(
+    // ── PHASE 1: Reserve the refund (short, serialized) ──
+    const reservation = await this.prisma.$transaction(
       async (tx) => {
-        // Re-read payment with FOR UPDATE semantics inside transaction
+        // Postgres advisory lock keyed to the payment — serializes concurrent
+        // refund attempts so the gateway is never double-called.
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${paymentId}))`;
+
         const payment = await tx.payment.findUnique({
           where: { id: paymentId },
           include: { refunds: true },
@@ -550,7 +563,7 @@ export class PaymentsService {
           );
         }
 
-        // Calculate refundable amount (re-read inside transaction prevents races)
+        // Calculate refundable amount (re-read after lock prevents races)
         const alreadyRefunded = payment.refunds
           .filter((r) => r.status === 'COMPLETED' || r.status === 'PROCESSING')
           .reduce((sum, r) => sum + Number(r.amount), 0);
@@ -564,28 +577,13 @@ export class PaymentsService {
           );
         }
 
-        // Process via gateway (outside the transaction lock is fine —
-        // the DB record is our source of truth; gateway is idempotent)
-        const gatewayService = this.razorpayService;
-        const result = await gatewayService.processRefund(
-          payment.gatewayPaymentId,
-          refundAmount,
-        );
-
-        const refundStatus =
-          result.status === 'processed' || result.status === 'succeeded'
-            ? 'COMPLETED'
-            : 'PROCESSING';
-
-        // Create refund record
+        // Insert refund intent — status PROCESSING until the gateway responds.
         const refund = await tx.refund.create({
           data: {
             paymentId: payment.id,
             amount: refundAmount,
             reason: reason || 'Customer request',
-            status: refundStatus,
-            gatewayRefundId: result.gatewayRefundId,
-            processedAt: refundStatus === 'COMPLETED' ? new Date() : null,
+            status: 'PROCESSING',
           },
         });
 
@@ -596,35 +594,122 @@ export class PaymentsService {
             type: 'REFUND',
             amount: refundAmount,
             currency: payment.currency,
-            status: refund.status,
-            gatewayRef: result.gatewayRefundId,
+            status: 'PROCESSING',
           },
         });
 
-        // Update payment status
-        const totalRefunded = alreadyRefunded + refundAmount;
-        const isFullRefund = totalRefunded >= Number(payment.amount);
-
-        await tx.payment.update({
-          where: { id: payment.id },
-          data: {
-            status: isFullRefund ? 'REFUNDED' : 'PARTIALLY_REFUNDED',
-          },
-        });
-
-        // Only mark order as REFUNDED when the gateway has confirmed it
-        // (i.e. refundStatus === COMPLETED). If PROCESSING, wait for webhook.
-        if (isFullRefund && refundStatus === 'COMPLETED') {
-          await tx.order.update({
-            where: { id: payment.orderId },
-            data: { status: 'REFUNDED' },
-          });
-        }
-
-        return refund;
+        return {
+          refundId: refund.id,
+          refundAmount,
+          gatewayPaymentId: payment.gatewayPaymentId,
+          paymentAmount: Number(payment.amount),
+          orderId: payment.orderId,
+          currency: payment.currency,
+        };
       },
       { isolationLevel: 'Serializable' },
     );
+
+    // ── PHASE 2: Gateway call — NO DB transaction or lock held here ──
+    let refundStatus: 'COMPLETED' | 'PROCESSING';
+    let gatewayRefundId: string | null = null;
+
+    try {
+      const result = await this.razorpayService.processRefund(
+        reservation.gatewayPaymentId,
+        reservation.refundAmount,
+      );
+      refundStatus =
+        result.status === 'processed' || result.status === 'succeeded'
+          ? 'COMPLETED'
+          : 'PROCESSING';
+      gatewayRefundId = result.gatewayRefundId;
+    } catch (err: any) {
+      this.logger.error(
+        `Gateway refund failed for payment ${paymentId}: ${err.message}`,
+      );
+      // Mark the intent as failed so the amount becomes refundable again
+      await this.prisma.refund
+        .update({
+          where: { id: reservation.refundId },
+          data: { status: 'FAILED' },
+        })
+        .catch(() => {});
+      await this.prisma.transaction
+        .updateMany({
+          where: { paymentId, type: 'REFUND', status: 'PROCESSING' },
+          data: { status: 'FAILED' },
+        })
+        .catch(() => {});
+      throw err;
+    }
+
+    // ── PHASE 3: Finalize statuses (short txn) ──
+    const orderRefunded = await this.prisma.$transaction(async (tx) => {
+      await tx.refund.update({
+        where: { id: reservation.refundId },
+        data: {
+          status: refundStatus,
+          gatewayRefundId,
+          processedAt: refundStatus === 'COMPLETED' ? new Date() : null,
+        },
+      });
+
+      await tx.transaction.updateMany({
+        where: { paymentId, type: 'REFUND', status: 'PROCESSING' },
+        data: {
+          status: refundStatus,
+          gatewayRef: gatewayRefundId,
+        },
+      });
+
+      const refunds = await tx.refund.findMany({ where: { paymentId } });
+      const totalRefunded = refunds
+        .filter((r) => r.status === 'COMPLETED' || r.status === 'PROCESSING')
+        .reduce((sum, r) => sum + Number(r.amount), 0);
+
+      const isFullRefund = totalRefunded >= reservation.paymentAmount;
+
+      await tx.payment.update({
+        where: { id: paymentId },
+        data: { status: isFullRefund ? 'REFUNDED' : 'PARTIALLY_REFUNDED' },
+      });
+
+      // Only mark the order as REFUNDED when the gateway has confirmed it.
+      // If PROCESSING, wait for the refund.processed webhook.
+      if (isFullRefund && refundStatus === 'COMPLETED') {
+        await tx.order.update({
+          where: { id: reservation.orderId },
+          data: { status: 'REFUNDED' },
+        });
+        return true;
+      }
+      return false;
+    });
+
+    // ── HIGH 9: Reverse the loyalty stamp when a delivered order is refunded ──
+    if (orderRefunded) {
+      await this.loyaltyService.decrementProgress(reservation.orderId);
+    }
+
+    const refund = await this.prisma.refund.findUnique({
+      where: { id: reservation.refundId },
+    });
+    return { refund, refunded: refundStatus === 'COMPLETED' };
+  }
+
+  /**
+   * Close a Razorpay order (used by the stale-order expiry job).
+   * Non-blocking — gateway errors are swallowed.
+   */
+  async closeGatewayOrder(razorpayOrderId: string): Promise<void> {
+    try {
+      await this.razorpayService.closeOrder(razorpayOrderId);
+    } catch (err: any) {
+      this.logger.log(
+        `Gateway order close skipped for ${razorpayOrderId}: ${err.message}`,
+      );
+    }
   }
 
   // ─────────────────────────────────────────────────────────
@@ -785,7 +870,9 @@ export class PaymentsService {
     status?: string,
     gateway?: string,
   ) {
-    const skip = (page - 1) * limit;
+    const safeLimit = Math.min(100, Math.max(1, limit));
+    const safePage = Math.max(1, page);
+    const skip = (safePage - 1) * safeLimit;
     const where: any = {};
     if (status) where.status = status;
     if (gateway) where.gateway = gateway;
@@ -804,12 +891,17 @@ export class PaymentsService {
         },
         orderBy: { createdAt: 'desc' },
         skip,
-        take: limit,
+        take: safeLimit,
       }),
       this.prisma.payment.count({ where }),
     ]);
 
-    return { payments, total, page, pages: Math.ceil(total / limit) };
+    return {
+      payments,
+      total,
+      page: safePage,
+      pages: Math.ceil(total / safeLimit),
+    };
   }
 
   /**
