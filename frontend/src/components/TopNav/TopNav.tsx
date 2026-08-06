@@ -15,6 +15,14 @@ import {
   Menu,
   X,
   Loader2,
+  Store,
+  Flame,
+  Zap,
+  BookOpen,
+  Phone,
+  LogOut,
+  LogIn,
+  ChevronRight,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
@@ -305,45 +313,105 @@ export default function TopNav() {
       {/* Mobile menu */}
       <AnimatePresence>
         {menuOpen && (
-          <motion.div
-            className="mobile-menu open"
-            initial={{ x: "-100%" }}
-            animate={{ x: "0%" }}
-            exit={{ x: "-100%" }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div className="mobile-menu-links">
-              <Link to="/shop" onClick={() => setMenuOpen(false)}>
-                Shop
-              </Link>
-              <Link to="/fandom" onClick={() => setMenuOpen(false)}>
-                Fandom
-              </Link>
-              <Link to="/about" onClick={() => setMenuOpen(false)}>
-                About
-              </Link>
-              <Link to="/contact" onClick={() => setMenuOpen(false)}>
-                Contact
-              </Link>
-              <Link to="/profile" onClick={() => setMenuOpen(false)}>
-                Profile
-              </Link>
-              {user ? (
-                <button
-                  onClick={() => {
-                    logout();
-                    setMenuOpen(false);
-                  }}
-                >
-                  Sign Out
-                </button>
-              ) : (
-                <Link to="/login" onClick={() => setMenuOpen(false)}>
-                  Sign In
+          <>
+            <motion.div
+              className="mobile-menu-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMenuOpen(false)}
+            />
+            <motion.div
+              className="mobile-menu open"
+              initial={{ x: "-100%" }}
+              animate={{ x: "0%" }}
+              exit={{ x: "-100%" }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            >
+              {/* Drawer Header */}
+              <div className="mobile-menu-header">
+                <Link to="/" className="topnav-logo" onClick={() => setMenuOpen(false)}>
+                  <span className="logo-box">FAN</span>
+                  <span className="logo-text-out">CLUB</span>
                 </Link>
-              )}
-            </div>
-          </motion.div>
+                <button className="mobile-menu-close-btn" onClick={() => setMenuOpen(false)} aria-label="Close menu">
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* User greeting */}
+              <div className="mobile-menu-user-section">
+                {user ? (
+                  <div className="mobile-menu-user-greeting">
+                    <div className="mobile-menu-avatar">
+                      <User size={18} />
+                    </div>
+                    <div>
+                      <p className="mobile-menu-welcome">Welcome back</p>
+                      <p className="mobile-menu-username">{user.email?.split('@')[0]}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <Link to="/login" className="mobile-menu-signin-cta" onClick={() => setMenuOpen(false)}>
+                    <div className="mobile-menu-avatar">
+                      <LogIn size={16} />
+                    </div>
+                    <div>
+                      <p className="mobile-menu-welcome">Join FANCLUB</p>
+                      <p className="mobile-menu-username">Sign in / Register →</p>
+                    </div>
+                  </Link>
+                )}
+              </div>
+
+              {/* Main nav links */}
+              <div className="mobile-menu-section-label">Browse</div>
+              <nav className="mobile-menu-links">
+                {[
+                  { to: '/shop', icon: Store, label: 'Shop Collection', badge: null },
+                  { to: '/loyalty', icon: Flame, label: 'Loyalty Club', badge: '🔥' },
+                  { to: '/fandom', icon: Zap, label: 'Fandom Drops', badge: 'NEW' },
+                  { to: '/wishlist', icon: Heart, label: 'Wishlist', badge: null },
+                ].map(({ to, icon: Icon, label, badge }) => (
+                  <Link key={to} to={to} className="mobile-menu-link" onClick={() => setMenuOpen(false)}>
+                    <span className="mobile-menu-link-icon"><Icon size={18} /></span>
+                    <span className="mobile-menu-link-label">{label}</span>
+                    {badge && <span className="mobile-menu-link-badge">{badge}</span>}
+                    <ChevronRight size={14} className="mobile-menu-link-arrow" />
+                  </Link>
+                ))}
+              </nav>
+
+              <div className="mobile-menu-section-label">Account</div>
+              <nav className="mobile-menu-links">
+                {[
+                  { to: '/profile', icon: User, label: 'Account & Orders' },
+                  { to: '/about', icon: BookOpen, label: 'About FANCLUB' },
+                  { to: '/contact', icon: Phone, label: 'Help & Contact' },
+                ].map(({ to, icon: Icon, label }) => (
+                  <Link key={to} to={to} className="mobile-menu-link" onClick={() => setMenuOpen(false)}>
+                    <span className="mobile-menu-link-icon"><Icon size={18} /></span>
+                    <span className="mobile-menu-link-label">{label}</span>
+                    <ChevronRight size={14} className="mobile-menu-link-arrow" />
+                  </Link>
+                ))}
+                {user && (
+                  <button
+                    className="mobile-menu-link mobile-menu-logout"
+                    onClick={() => { logout(); setMenuOpen(false); }}
+                  >
+                    <span className="mobile-menu-link-icon"><LogOut size={18} /></span>
+                    <span className="mobile-menu-link-label">Sign Out</span>
+                  </button>
+                )}
+              </nav>
+
+              {/* Footer */}
+              <div className="mobile-menu-footer">
+                <span className="mobile-menu-footer-tag">FAN CLUB © 2026</span>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
       <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />

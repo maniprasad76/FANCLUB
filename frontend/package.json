@@ -21,7 +21,6 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.103.0",
-    "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "axios": "^1.15.0",
     "framer-motion": "^12.38.0",

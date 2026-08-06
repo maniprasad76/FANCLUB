@@ -99,6 +99,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 ::selection {
@@ -112,6 +113,7 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  touch-action: manipulation;
 }
 
 body {
@@ -122,10 +124,23 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
   min-height: 100vh;
+  -webkit-overflow-scrolling: touch;
 }
 
 #root {
   position: relative;
+}
+
+/* Mobile-first main app container padding to clear mobile bottom nav */
+@media (max-width: 768px) {
+  :root {
+    --container-padding: 16px;
+    --nav-height: 60px;
+  }
+
+  .app-main {
+    padding-bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px) + 20px);
+  }
 }
 
 /* Dot grid texture overlay — Bauhaus paper feel */
@@ -340,6 +355,23 @@ ol {
   letter-spacing: 2px;
   color: var(--text-primary);
   text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .logo-box {
+    font-size: 0.85rem;
+    height: 26px;
+    padding: 0px 6px;
+    border-width: 2px;
+    box-shadow: 3px 3px 0px 0px var(--bauhaus-yellow);
+    letter-spacing: 1px;
+    margin-right: 4px;
+  }
+
+  .logo-text-out {
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+  }
 }
 
 /* ============================================
