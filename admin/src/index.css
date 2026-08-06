@@ -1,81 +1,81 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Oufant:wght@400;500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap");
 
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
 /* ============================================
-   FAN ADMIN — BAUHAUS CONSTRUCTIVIST DESIGN
-   Matching the frontend design system exactly.
-   Multi-font typography for visual hierarchy.
-   ============================================ */
+  FAN CLUB ADMIN — Minimalist Design System
+  Neutral palette and simple typography for admin UI.
+  ============================================ */
 
 :root {
-  /* Core palette — Bauhaus Canvas */
-  --bg-primary: #F0F0F0;
-  --bg-secondary: #E8E8E8;
-  --bg-tertiary: #D8D8D8;
-  --bg-card: #FFFFFF;
-  --bg-glass: rgba(0, 0, 0, 0.03);
-  --bg-glass-hover: rgba(0, 0, 0, 0.06);
+  /* Core palette — Luxury Minimalist */
+  --bg-primary: #f8f9fa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f3f5;
+  --bg-card: #ffffff;
+  --bg-glass: rgba(255, 255, 255, 0.85);
+  --bg-glass-hover: rgba(18, 18, 18, 0.04);
 
-  /* Bauhaus Primaries */
-  --bauhaus-red: #D02020;
-  --bauhaus-blue: #1040C0;
-  --bauhaus-yellow: #F0C020;
-  --bauhaus-green: #009E60;
-  --bauhaus-black: #121212;
-  --bauhaus-white: #FFFFFF;
+  /* Legacy Bauhaus tokens kept for compatibility — neutralized */
+  --bauhaus-red: #0f172a;
+  --bauhaus-blue: #374151;
+  --bauhaus-yellow: #6b7280;
+  --bauhaus-green: #10b981;
+  --bauhaus-black: #0f172a;
+  --bauhaus-white: #ffffff;
 
-  /* Legacy accent mappings (for components) */
-  --accent-violet: #1040C0;
-  --accent-cyan: #1040C0;
-  --accent-amber: #F0C020;
-  --accent-rose: #D02020;
-  --accent-emerald: #2E7D32;
-  --accent-blue: #1040C0;
+  /* Status & Accents */
+  --accent-violet: #1040c0;
+  --accent-cyan: #008751;
+  --accent-amber: #b88600;
+  --accent-rose: #d02020;
+  --accent-emerald: #008751;
+  --accent-blue: #1040c0;
 
-  /* Text — Ink on Canvas */
+  /* Text — Crisp & Legible */
   --text-primary: #121212;
-  --text-secondary: #444444;
-  --text-muted: #777777;
-  --text-accent: var(--bauhaus-red);
+  --text-secondary: #495057;
+  --text-muted: #868e96;
+  --text-accent: var(--text-primary);
 
-  /* Borders — Thick, Black, Deliberate */
-  --border-subtle: #121212;
-  --border-glass: #121212;
-  --border-accent: #121212;
+  /* Subtle Modern Borders */
+  --border-subtle: rgba(18, 18, 18, 0.08);
+  --border-glass: rgba(18, 18, 18, 0.08);
+  --border-accent: rgba(208, 32, 32, 0.3);
 
-  /* Shadows — Hard Offset, No Blur */
-  --shadow-sm: 3px 3px 0px 0px #121212;
-  --shadow-md: 5px 5px 0px 0px #121212;
-  --shadow-lg: 8px 8px 0px 0px #121212;
+  /* Soft Ambient Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.08);
 
-  /* ── TYPOGRAPHY SYSTEM ── */
-  --font-display: 'Space Grotesk', 'Oufant', sans-serif;
-  --font-body: 'Inter', 'Oufant', sans-serif;
-  --font-accent: 'Oufant', sans-serif;
-  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
-  --font-editorial: 'Playfair Display', 'Georgia', serif;
+  /* Typography System */
+  --font-display: "Inter", system-ui, -apple-system, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-accent: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --font-editorial: "Inter", sans-serif;
 
-  /* Layout */
+  /* Layout Dimensions */
   --sidebar-width: 260px;
-  --header-height: 64px;
+  --header-height: 72px;
+  --container-padding: 24px;
 
-  /* Transitions — Mechanical, Snappy */
-  --transition-fast: 0.15s ease-out;
-  --transition-base: 0.2s ease-out;
+  /* Transitions — Smooth & Fluid */
+  --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-base: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Radius — Binary: Square or Circle */
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
+  /* Modern Smooth Radius System */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
   --radius-full: 9999px;
 }
 
-/* ============================================
-   RESET & BASE
-   ============================================ */
-*, *::before, *::after {
+/* Reset & Global Base */
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -88,7 +88,7 @@ html {
 
 body {
   font-family: var(--font-body);
-  font-weight: 500;
+  font-weight: 400;
   background: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;
@@ -96,9 +96,10 @@ body {
   min-height: 100vh;
 }
 
-/* Dot grid texture — Bauhaus paper feel */
+/* Subtle luxury gradient overlay */
 body::before {
-  content: '';
+  /* remove textured overlay for clean admin background */
+  content: "";
   position: fixed;
   top: 0;
   left: 0;
@@ -106,9 +107,8 @@ body::before {
   height: 100%;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.08;
-  background-image: radial-gradient(#121212 1px, transparent 1px);
-  background-size: 24px 24px;
+  opacity: 0;
+  background-image: none;
 }
 
 a {
@@ -130,47 +130,72 @@ button {
   color: inherit;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
   font-family: var(--font-body);
   color: var(--text-primary);
-  background: none;
-  border: none;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
   outline: none;
+  transition: all var(--transition-fast);
 }
 
-ul, ol {
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--bauhaus-black);
+  box-shadow: 0 0 0 3px rgba(18, 18, 18, 0.08);
+}
+
+ul,
+ol {
   list-style: none;
 }
 
-/* ============================================
-   SCROLLBAR
-   ============================================ */
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--bauhaus-black);
-  border-radius: 0;
+  background: rgba(18, 18, 18, 0.15);
+  border-radius: var(--radius-full);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--bauhaus-red);
+  background: rgba(18, 18, 18, 0.3);
 }
 
 /* ============================================
-   GLASS — Now a Bauhaus Card
+   GLASS & CARD COMPONENTS
    ============================================ */
 .glass {
-  background: var(--bauhaus-white);
-  border: 2px solid var(--bauhaus-black);
-  border-radius: 0;
+  background: var(--bg-card);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
+  backdrop-filter: blur(12px);
+  transition: all var(--transition-base);
+}
+
+/* Readable content width and paragraph spacing for admin pages */
+.prose {
+  max-width: 72ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+.prose p {
+  margin-bottom: 1rem;
+  color: var(--text-secondary);
 }
 
 /* ============================================
-   BUTTONS — Constructivist Press
+   BUTTONS — LUXURY PILLS & CARDS
    ============================================ */
 .btn {
   display: inline-flex;
@@ -178,191 +203,123 @@ ul, ol {
   justify-content: center;
   gap: 8px;
   padding: 10px 20px;
-  border-radius: 0;
-  font-family: var(--font-accent);
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  font-size: 0.82rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  font-size: 0.85rem;
   transition: all var(--transition-fast);
   position: relative;
   overflow: hidden;
-  border: 2px solid var(--bauhaus-black);
+  border: 1px solid transparent;
   cursor: pointer;
 }
 
 .btn-primary {
-  background: var(--bauhaus-red);
-  color: white;
-  box-shadow: var(--shadow-sm);
+  background: var(--bauhaus-black);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(18, 18, 18, 0.15);
 }
 .btn-primary:hover {
-  opacity: 0.9;
-}
-.btn-primary:active {
-  transform: translate(2px, 2px);
-  box-shadow: none;
+  background: #2a2a2a;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(18, 18, 18, 0.2);
 }
 
 .btn-secondary {
-  background: var(--bauhaus-white);
-  color: var(--bauhaus-black);
-  border: 2px solid var(--bauhaus-black);
-  box-shadow: var(--shadow-sm);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
 }
 .btn-secondary:hover {
-  background: var(--bauhaus-yellow);
+  background: #e4e7eb;
+  transform: translateY(-1px);
 }
-.btn-secondary:active {
-  transform: translate(2px, 2px);
-  box-shadow: none;
+
+.btn-outline {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+}
+.btn-outline:hover {
+  background: var(--bauhaus-black);
+  color: #ffffff;
+  border-color: var(--bauhaus-black);
+  transform: translateY(-1px);
 }
 
 .btn-danger {
-  background: var(--bauhaus-red);
-  color: white;
-  border: 2px solid var(--bauhaus-black);
-  box-shadow: var(--shadow-sm);
+  background: rgba(208, 32, 32, 0.1);
+  color: var(--bauhaus-red);
+  border-color: rgba(208, 32, 32, 0.2);
 }
 .btn-danger:hover {
-  opacity: 0.85;
-}
-.btn-danger:active {
-  transform: translate(2px, 2px);
-  box-shadow: none;
-}
-
-.btn-sm {
-  padding: 6px 14px;
-  font-size: 0.75rem;
-  letter-spacing: 1px;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  background: var(--bauhaus-red);
+  color: #ffffff;
 }
 
 /* ============================================
-   INPUTS — Thick borders, Bauhaus
-   ============================================ */
-.input {
-  width: 100%;
-  padding: 12px 16px;
-  background: var(--bauhaus-white);
-  border: 2px solid var(--bauhaus-black);
-  border-radius: 0;
-  font-size: 0.9rem;
-  color: var(--text-primary);
-  transition: all var(--transition-fast);
-}
-.input:focus {
-  box-shadow: var(--shadow-sm);
-}
-.input::placeholder {
-  color: var(--text-muted);
-}
-
-/* ============================================
-   BADGES — Hard borders
+   BADGES — SOFT SMOOTH PILLS
    ============================================ */
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
-  border-radius: 0;
-  font-size: 0.7rem;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
-  border: 2px solid var(--bauhaus-black);
+  text-transform: uppercase;
 }
 
 .badge-success {
-  background: var(--bauhaus-green);
-  color: var(--bauhaus-white);
+  background: rgba(0, 158, 96, 0.1);
+  color: #008751;
+  border: 1px solid rgba(0, 158, 96, 0.2);
 }
 
 .badge-warning {
-  background: var(--bauhaus-yellow);
-  color: var(--bauhaus-black);
+  background: rgba(240, 192, 32, 0.15);
+  color: #b88600;
+  border: 1px solid rgba(240, 192, 32, 0.3);
 }
 
 .badge-danger {
-  background: var(--bauhaus-red);
-  color: var(--bauhaus-white);
+  background: rgba(208, 32, 32, 0.1);
+  color: var(--bauhaus-red);
+  border: 1px solid rgba(208, 32, 32, 0.2);
 }
 
 .badge-info {
-  background: var(--bauhaus-blue);
-  color: var(--bauhaus-white);
+  background: rgba(16, 64, 192, 0.1);
+  color: var(--bauhaus-blue);
+  border: 1px solid rgba(16, 64, 192, 0.2);
 }
 
-/* ============================================
-   TEXT GRADIENT — Bauhaus Solid Red
-   ============================================ */
-.text-gradient {
-  color: var(--bauhaus-red);
-  font-style: normal;
-  background: none;
-  -webkit-background-clip: unset;
-  -webkit-text-fill-color: unset;
-}
-
-/* ============================================
-   ANIMATIONS
-   ============================================ */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.animate-spin-slow {
-  animation: spin-slow 8s linear infinite;
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.3s ease-out forwards;
-}
-
-/* ============================================
-   GLOBAL COLOR BAR
-   ============================================ */
-.bauhaus-color-bar {
+/* Form Styles */
+.form-group {
+  margin-bottom: 20px;
   display: flex;
-  width: 100%;
-  height: 6px;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.bauhaus-color-bar::before {
-  content: "";
-  flex: 1;
-  background: var(--bauhaus-red);
+.form-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
 }
-.bauhaus-color-bar::after {
-  content: "";
-  flex: 1;
-  background: var(--bauhaus-blue);
-}
-.bauhaus-color-bar > div:first-child {
-  flex: 1;
-  background: var(--bauhaus-yellow);
-}
-.bauhaus-color-bar > div:last-child {
-  flex: 1;
-  background: var(--bauhaus-green);
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  padding: 10px 14px;
+  font-size: 0.9rem;
 }

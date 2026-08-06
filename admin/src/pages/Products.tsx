@@ -100,7 +100,7 @@ export default function Products() {
                   <input type="checkbox" checked={selectedIds.includes(p.id)} onChange={() => toggleSelect(p.id)} style={{ accentColor: 'var(--bauhaus-red)', width: 16, height: 16 }} />
                 </td>
                 <td>
-                  <img src={p.images?.[0] ? (p.images[0].startsWith('/') ? baseUrl + p.images[0] : p.images[0]) : 'https://placehold.co/48x48/F0F0F0/121212?text=FAN'} alt="" style={{ width: 48, height: 48, objectFit: 'cover', border: '2px solid var(--bauhaus-black)' }} />
+                  <img src={p.images?.[0] ? (p.images[0].startsWith('/') ? baseUrl + p.images[0] : p.images[0]) : 'https://placehold.co/48x48/F0F0F0/121212?text=FAN'} alt="" style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 8 }} />
                 </td>
                 <td style={{ fontWeight: 700 }}>{p.name}</td>
                 <td style={{ color: 'var(--text-muted)', textTransform: 'uppercase', fontSize: '0.8rem', letterSpacing: '1px' }}>{p.category?.name || '—'}</td>

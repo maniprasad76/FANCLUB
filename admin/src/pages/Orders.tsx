@@ -1,53 +1,75 @@
 import { useState, useEffect } from 'react';
-import { ShoppingCart, Download } from 'lucide-react';
+import { ShoppingCart, Download, Search } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../lib/api';
+
+/* MED 15: Proper CSV escaping — quotes, commas, newlines, and CRLF injection
+   are neutralized so exported data can't corrupt the sheet or run formulas. */
+const escapeCsvCell = (value: any): string => {
+  const str = value == null ? '' : String(value);
+  if (/[",\n\r\t=+\-@]/.test(str)) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+};
 
 export default function Orders() {
   const [orders, setOrders] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
+  const [search, setSearch] = useState('');
   const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
-    api.get('/orders', { params: { page, limit: 20, status: statusFilter || undefined } })
+    api.get('/orders', {
+      params: { page, limit: 20, status: statusFilter || undefined, search: search.trim() || undefined },
+    })
       .then(r => { setOrders(r.data.orders); setTotal(r.data.total); })
       .catch(() => {});
-  }, [page, statusFilter]);
+  }, [page, statusFilter, search]);
 
-  const updateStatus = async (id: string, status: string) => {
+  const updateStatus = async (id: string, status: string, currentStatus: string) => {
+    // MED 21: No-op if the admin picks the same status — avoids a pointless
+    // round-trip that the backend rejects with 400.
+    if (status === currentStatus) return;
     try {
       await api.put(`/orders/${id}/status`, { status });
       setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
       toast.success('Order status updated');
-    } catch (e) {
-      toast.error('Failed to update order status');
+    } catch (e: any) {
+      toast.error(e.response?.data?.message || 'Failed to update order status');
     }
   };
 
   const handleExport = async () => {
     setExporting(true);
     try {
-      const { data } = await api.get('/orders', { params: { limit: 10000, status: statusFilter || undefined } });
-      const csvRows = [['Order Number', 'Customer Name', 'Customer Email', 'Items Count', 'Total Amount', 'Status', 'Date'].join(',')];
+      const { data } = await api.get('/orders', {
+        params: { limit: 10000, status: statusFilter || undefined, search: search.trim() || undefined },
+      });
+      const csvRows = [
+        ['Order Number', 'Customer Name', 'Customer Email', 'Items Count', 'Total Amount', 'Status', 'Date']
+          .map(escapeCsvCell).join(','),
+      ];
       data.orders.forEach((o: any) => {
         csvRows.push([
-          o.orderNumber,
-          `"${o.user?.name || ''}"`,
-          o.user?.email || '',
-          o.items?.length || 0,
-          o.totalAmount,
-          o.status,
-          new Date(o.createdAt).toLocaleDateString()
+          escapeCsvCell(o.orderNumber),
+          escapeCsvCell(o.user?.name || ''),
+          escapeCsvCell(o.user?.email || ''),
+          escapeCsvCell(o.items?.length || 0),
+          escapeCsvCell(o.totalAmount),
+          escapeCsvCell(o.status),
+          escapeCsvCell(new Date(o.createdAt).toLocaleDateString()),
         ].join(','));
       });
-      const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+      const blob = new Blob(['\uFEFF' + csvRows.join('\n')], { type: 'text/csv;charset=utf-8' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `orders_${statusFilter || 'all'}_${Date.now()}.csv`;
       a.click();
+      window.URL.revokeObjectURL(url);
       toast.success('CSV exported successfully');
     } catch {
       toast.error('Failed to export CSV');
@@ -75,6 +97,19 @@ export default function Orders() {
         </button>
       </div>
 
+      {/* MED 22: Order search */}
+      <div className="admin-search-wrapper" style={{ marginBottom: 16, position: 'relative' }}>
+        <Search size={18} className="admin-search-icon" />
+        <input
+          className="input"
+          placeholder="Search by order #, customer name, or email..."
+          value={search}
+          onChange={e => { setSearch(e.target.value); setPage(1); }}
+          style={{ paddingLeft: 40, width: '100%', maxWidth: 420 }}
+          aria-label="Search orders"
+        />
+      </div>
+
       {/* Filter Tabs */}
       <div style={{ marginBottom: 20, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         {statuses.map(s => (
@@ -100,7 +135,7 @@ export default function Orders() {
                 <td><span className={`badge ${statusColors[o.status] || 'badge-info'}`}>{o.status}</span></td>
                 <td style={{ color: 'var(--text-muted)' }}>{new Date(o.createdAt).toLocaleDateString()}</td>
                 <td>
-                  <select className="input" style={{ width: 140, padding: '6px 10px', fontSize: '0.78rem', fontWeight: 700 }} value={o.status} onChange={e => updateStatus(o.id, e.target.value)}>
+                  <select className="input" style={{ width: 140, padding: '6px 10px', fontSize: '0.78rem', fontWeight: 700 }} value={o.status} onChange={e => updateStatus(o.id, e.target.value, o.status)}>
                     {statuses.filter(Boolean).map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </td>

@@ -49,16 +49,10 @@ export default function AdminLayout() {
 
   return (
     <div className="admin-layout">
-      <div className="bauhaus-color-bar" style={{ position: 'fixed', top: 0, left: 0, zIndex: 99999 }}>
-        <div />
-        <div />
-      </div>
-      {/* Mobile Header (Visible only on mobile) */}
+      {/* Mobile Header */}
       <div className="mobile-admin-header">
         <div className="sidebar-brand">
-          <span className="brand-logo">
-            FAN
-          </span>
+          <span className="brand-badge">FAN</span>
           <span className="sidebar-brand-text">
             <span className="text-gradient">Admin</span>
           </span>
@@ -76,14 +70,14 @@ export default function AdminLayout() {
           >
             {isSidebarOpen ? (
               <>
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
               </>
             ) : (
               <>
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="18" x2="21" y2="18" />
               </>
             )}
           </svg>
@@ -92,32 +86,12 @@ export default function AdminLayout() {
 
       {/* Backdrop for mobile */}
       {isSidebarOpen && (
-        <div className="sidebar-backdrop" onClick={toggleSidebar}></div>
+        <div className="sidebar-backdrop" onClick={toggleSidebar} />
       )}
 
       <aside className={`admin-sidebar ${isSidebarOpen ? "open" : ""}`}>
         <div className="sidebar-brand hide-on-mobile">
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "6px",
-              fontFamily: "var(--font-display)",
-              fontSize: "1.1rem",
-              fontWeight: 900,
-              letterSpacing: "2px",
-              color: "var(--bauhaus-red)",
-              background: "var(--bauhaus-white, #ffffff)",
-              border: "3px solid var(--bauhaus-blue)",
-              boxShadow: "3px 3px 0px 0px var(--bauhaus-yellow)",
-              borderRadius: "4px",
-              padding: "0px 8px",
-              height: "32px",
-            }}
-          >
-            FAN
-          </span>
+          <span className="brand-badge">FAN</span>
           <span className="sidebar-brand-text">
             <span className="text-gradient">Admin</span>
           </span>
@@ -146,25 +120,24 @@ export default function AdminLayout() {
                 style={{
                   fontWeight: 700,
                   fontSize: "0.85rem",
-                  textTransform: "uppercase",
-                  letterSpacing: "1px",
+                  letterSpacing: "0.2px",
                 }}
               >
-                {admin?.name}
+                {admin?.name || "Admin"}
               </p>
               <p
                 style={{
-                  fontSize: "0.7rem",
+                  fontSize: "0.72rem",
                   color: "var(--text-muted)",
                   textTransform: "uppercase",
-                  letterSpacing: "1px",
+                  letterSpacing: "0.5px",
                 }}
               >
-                Admin
+                Store Manager
               </p>
             </div>
           </div>
-          <button className="sidebar-link" onClick={handleLogout}>
+          <button className="sidebar-link" onClick={handleLogout} style={{ marginTop: "4px", color: "var(--bauhaus-red)" }}>
             <LogOut size={18} />
             <span>Sign Out</span>
           </button>

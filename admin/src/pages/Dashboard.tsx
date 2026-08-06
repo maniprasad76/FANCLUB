@@ -4,10 +4,10 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import api from '../lib/api';
 
 const statIcons = [
-  { icon: DollarSign, bg: 'var(--bauhaus-white)', color: 'var(--bauhaus-red)' },
-  { icon: ShoppingCart, bg: 'var(--bauhaus-white)', color: 'var(--bauhaus-blue)' },
-  { icon: Users, bg: 'var(--bauhaus-white)', color: 'var(--bauhaus-yellow)' },
-  { icon: Package, bg: 'var(--bauhaus-white)', color: 'var(--bauhaus-green)' },
+  { icon: DollarSign, bg: 'rgba(208, 32, 32, 0.1)', color: '#D02020' },
+  { icon: ShoppingCart, bg: 'rgba(16, 64, 192, 0.1)', color: '#1040C0' },
+  { icon: Users, bg: 'rgba(240, 192, 32, 0.15)', color: '#b88600' },
+  { icon: Package, bg: 'rgba(0, 158, 96, 0.1)', color: '#008751' },
 ];
 
 export default function Dashboard() {
@@ -34,9 +34,9 @@ export default function Dashboard() {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div style={{ background: 'var(--bauhaus-white)', border: '2px solid var(--bauhaus-black)', padding: '10px 14px', boxShadow: '3px 3px 0px 0px var(--bauhaus-black)' }}>
-          <p style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.8rem' }}>{label}</p>
-          <p style={{ color: 'var(--bauhaus-red)', fontWeight: 900, fontSize: '1.1rem' }}>₹{Number(payload[0].value).toLocaleString('en-IN')}</p>
+        <div style={{ background: '#FFFFFF', border: '1px solid rgba(18, 18, 18, 0.1)', padding: '10px 14px', borderRadius: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}>
+          <p style={{ fontWeight: 600, color: 'var(--text-muted)', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</p>
+          <p style={{ color: 'var(--bauhaus-black)', fontWeight: 800, fontSize: '1.1rem', marginTop: 2 }}>₹{Number(payload[0].value).toLocaleString('en-IN')}</p>
         </div>
       );
     }
@@ -47,17 +47,10 @@ export default function Dashboard() {
     <div id="admin-dashboard">
       <div className="page-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
-          <TrendingUp size={28} style={{ color: 'var(--bauhaus-red)' }} />
-          <h1 className="page-title">Dashboard</h1>
+          <TrendingUp size={24} style={{ color: 'var(--bauhaus-red)' }} />
+          <h1 className="page-title">Dashboard Overview</h1>
         </div>
-        <p className="page-subtitle">Welcome back to FANCLUB Admin</p>
-        {/* Bauhaus decorative bar */}
-        <div style={{ display: 'flex', gap: 0, marginTop: 12, height: 4, maxWidth: 200 }}>
-          <div style={{ flex: 1, background: 'var(--bauhaus-red)' }} />
-          <div style={{ flex: 1, background: 'var(--bauhaus-blue)' }} />
-          <div style={{ flex: 1, background: 'var(--bauhaus-yellow)' }} />
-          <div style={{ flex: 1, background: 'var(--bauhaus-green)' }} />
-        </div>
+        <p className="page-subtitle">Real-time metrics and store performance summary</p>
       </div>
 
       <div className="stats-grid">
@@ -70,8 +63,8 @@ export default function Dashboard() {
                   <p className="stat-label">{label}</p>
                   <p className="stat-value">{value}</p>
                 </div>
-                <div style={{ width: 50, height: 50, background: bg, border: '2px solid var(--bauhaus-black)', display: 'flex', alignItems: 'center', justifyContent: 'center', color, boxShadow: '2px 2px 0px 0px var(--bauhaus-black)' }}>
-                  <Icon size={24} />
+                <div style={{ width: 48, height: 48, background: bg, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color }}>
+                  <Icon size={22} />
                 </div>
               </div>
             </div>
@@ -81,26 +74,26 @@ export default function Dashboard() {
 
       {chartData.length > 0 && (
         <div className="glass" style={{ padding: 24, marginBottom: 28 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
-            <ArrowUpRight size={20} style={{ color: 'var(--bauhaus-red)' }} />
-            <h3 style={{ fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', fontSize: '1rem' }}>Monthly Revenue</h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
+            <ArrowUpRight size={20} style={{ color: 'var(--bauhaus-black)' }} />
+            <h3 style={{ fontWeight: 800, letterSpacing: '-0.3px', fontSize: '1.05rem' }}>Monthly Revenue</h3>
           </div>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="0" stroke="var(--bauhaus-black)" strokeOpacity={0.1} />
-              <XAxis dataKey="month" stroke="var(--bauhaus-black)" fontSize={11} fontWeight={700} tickLine={false} />
-              <YAxis stroke="var(--bauhaus-black)" fontSize={11} fontWeight={700} tickLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(18, 18, 18, 0.06)" vertical={false} />
+              <XAxis dataKey="month" stroke="var(--text-muted)" fontSize={12} fontWeight={600} tickLine={false} axisLine={false} />
+              <YAxis stroke="var(--text-muted)" fontSize={12} fontWeight={600} tickLine={false} axisLine={false} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="revenue" fill="var(--bauhaus-red)" radius={0} stroke="var(--bauhaus-black)" strokeWidth={2} />
+              <Bar dataKey="revenue" fill="var(--bauhaus-black)" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       )}
 
       <div className="glass" style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '2px solid var(--bauhaus-black)', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <ShoppingCart size={18} style={{ color: 'var(--bauhaus-blue)' }} />
-          <h3 style={{ fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.95rem' }}>Recent Orders</h3>
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <ShoppingCart size={18} style={{ color: 'var(--bauhaus-black)' }} />
+          <h3 style={{ fontWeight: 800, letterSpacing: '-0.3px', fontSize: '1rem' }}>Recent Orders</h3>
         </div>
         <table className="data-table">
           <thead><tr><th>Order</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
@@ -115,7 +108,7 @@ export default function Dashboard() {
               </tr>
             ))}
             {(!stats?.recentOrders || stats.recentOrders.length === 0) && (
-              <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 40, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>No orders yet</td></tr>
+              <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 40, fontWeight: 600 }}>No orders yet</td></tr>
             )}
           </tbody>
         </table>
