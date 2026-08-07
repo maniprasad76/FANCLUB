@@ -106,7 +106,7 @@ export default function TopNav() {
       >
         <div className="topnav-inner container">
           <div className="topnav-left">
-            <Link to="/" className="topnav-logo" id="nav-logo">
+            <Link to="/" prefetch="intent" className="topnav-logo" id="nav-logo">
               <span className="logo-box">
                 FAN
               </span>
@@ -125,30 +125,46 @@ export default function TopNav() {
               { name: "Contact", path: "/contact" },
             ].map((item, index) => {
               const isActive = location.pathname === item.path;
+              const isHovered = hoveredIndex === index;
               return (
-                <Magnetic key={item.name}>
+                <Magnetic key={item.name} strength={0.2}>
                   <Link
                     to={item.path}
-                    className={`nav-link interactive ${isActive ? "active" : ""} ${hoveredIndex !== null && hoveredIndex !== index ? "dimmed" : ""}`}
+                    prefetch="intent"
+                    className={`nav-link interactive ${isActive ? "active" : ""}`}
                     onMouseEnter={() => setHoveredIndex(index)}
                   >
-                    {item.name}
-                    <AnimatePresence>
-                      {hoveredIndex === index && (
-                        <motion.div
-                          layoutId="menu-hover-block"
-                          className="menu-hover-block"
-                          transition={{
-                            type: "spring",
-                            stiffness: 350,
-                            damping: 30,
-                          }}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                        />
-                      )}
-                    </AnimatePresence>
+                    <span className="nav-link-text">{item.name}</span>
+                    
+                    {/* Smooth sliding hover background capsule */}
+                    {isHovered && (
+                      <motion.div
+                        layoutId="nav-hover-capsule"
+                        className="nav-hover-capsule"
+                        initial={{ opacity: 0, scale: 0.92 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.92 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 420,
+                          damping: 32,
+                          mass: 0.8,
+                        }}
+                      />
+                    )}
+
+                    {/* Smooth active underline/pill indicator */}
+                    {isActive && (
+                      <motion.div
+                        layoutId="nav-active-indicator"
+                        className="nav-active-indicator"
+                        transition={{
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 30,
+                        }}
+                      />
+                    )}
                   </Link>
                 </Magnetic>
               );
@@ -169,6 +185,7 @@ export default function TopNav() {
               <Magnetic>
                 <Link
                   to="/wishlist"
+                  prefetch="intent"
                   className="btn-icon nav-icon-btn interactive"
                   id="nav-wishlist-btn"
                 >
@@ -190,6 +207,7 @@ export default function TopNav() {
                   <Magnetic>
                     <Link
                       to="/profile"
+                      prefetch="intent"
                       className="btn-icon nav-icon-btn"
                       id="nav-profile-btn"
                     >
@@ -201,6 +219,7 @@ export default function TopNav() {
                 <Magnetic>
                   <Link
                     to="/login"
+                    prefetch="intent"
                     className="btn btn-sm btn-primary interactive"
                     id="nav-login-btn"
                   >
@@ -373,7 +392,7 @@ export default function TopNav() {
                   { to: '/fandom', icon: Zap, label: 'Fandom Drops', badge: 'NEW' },
                   { to: '/wishlist', icon: Heart, label: 'Wishlist', badge: null },
                 ].map(({ to, icon: Icon, label, badge }) => (
-                  <Link key={to} to={to} className="mobile-menu-link" onClick={() => setMenuOpen(false)}>
+                  <Link key={to} to={to} prefetch="intent" className="mobile-menu-link" onClick={() => setMenuOpen(false)}>
                     <span className="mobile-menu-link-icon"><Icon size={18} /></span>
                     <span className="mobile-menu-link-label">{label}</span>
                     {badge && <span className="mobile-menu-link-badge">{badge}</span>}
@@ -389,7 +408,7 @@ export default function TopNav() {
                   { to: '/about', icon: BookOpen, label: 'About FANCLUB' },
                   { to: '/contact', icon: Phone, label: 'Help & Contact' },
                 ].map(({ to, icon: Icon, label }) => (
-                  <Link key={to} to={to} className="mobile-menu-link" onClick={() => setMenuOpen(false)}>
+                  <Link key={to} to={to} prefetch="intent" className="mobile-menu-link" onClick={() => setMenuOpen(false)}>
                     <span className="mobile-menu-link-icon"><Icon size={18} /></span>
                     <span className="mobile-menu-link-label">{label}</span>
                     <ChevronRight size={14} className="mobile-menu-link-arrow" />

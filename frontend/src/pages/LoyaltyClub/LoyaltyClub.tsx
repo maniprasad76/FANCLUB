@@ -11,7 +11,7 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import AnimatedPage from "../../components/AnimatedPage";
-import FanStamp from "../../components/FanStamp/FanStamp";
+import FanStamp from "../../components/FanStamp";
 import { useAuth } from "../../context/AuthContext";
 import api from "../../lib/api";
 import toast from "react-hot-toast";
@@ -134,7 +134,6 @@ export default function LoyaltyClub() {
   const [showClaimModal, setShowClaimModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<EligibleProduct | null>(null);
   const [selectedSize, setSelectedSize] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
   const [claiming, setClaiming] = useState(false);
   const [claimResult, setClaimResult] = useState<{ couponCode: string; message: string } | null>(null);
   const confettiRef = useRef<HTMLCanvasElement>(null);
@@ -177,7 +176,6 @@ export default function LoyaltyClub() {
       const res = await api.post("/loyalty/claim", {
         productId: selectedProduct.id,
         size: selectedSize || undefined,
-        color: selectedColor || undefined,
       });
       setClaimResult({
         couponCode: res.data.couponCode,
@@ -197,7 +195,6 @@ export default function LoyaltyClub() {
   const openClaimModal = () => {
     setSelectedProduct(null);
     setSelectedSize("");
-    setSelectedColor("");
     setClaimResult(null);
     setShowClaimModal(true);
   };
@@ -516,7 +513,6 @@ export default function LoyaltyClub() {
                         onClick={() => {
                           setSelectedProduct(product);
                           setSelectedSize(product.sizes?.[0] || "");
-                          setSelectedColor(product.colors?.[0] || "");
                         }}
                         style={{ cursor: "pointer" }}
                       >
@@ -557,22 +553,6 @@ export default function LoyaltyClub() {
                                   onClick={() => setSelectedSize(size)}
                                 >
                                   {size}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        {selectedProduct.colors.length > 0 && (
-                          <div className="loyalty-selector-group">
-                            <label>Color</label>
-                            <div className="loyalty-selector-options">
-                              {selectedProduct.colors.map((color) => (
-                                <button
-                                  key={color}
-                                  className={`loyalty-selector-btn ${selectedColor === color ? "active" : ""}`}
-                                  onClick={() => setSelectedColor(color)}
-                                >
-                                  {color}
                                 </button>
                               ))}
                             </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
-import api from '../../lib/api';
+import api from '../lib/api';
 import './ScarcityToaster.css';
 
 // Exact real product list matching backend/scripts/direct-seed.js
@@ -50,9 +50,17 @@ interface ToastData {
   message: React.ReactNode;
 }
 
+// Module-level caches to avoid re-fetching on page transitions
+let cachedProducts: Array<{ name: string; price: number }> | null = null;
+let cachedRecentPurchases: Array<{ id: string; purchaserName: string; productName: string; city: string; createdAt: string }> | null = null;
+
 export default function ScarcityToaster() {
-  const [products, setProducts] = useState<Array<{ name: string; price: number }>>(FALLBACK_PRODUCTS);
-  const [recentPurchases, setRecentPurchases] = useState<Array<{ id: string; purchaserName: string; productName: string; city: string; createdAt: string }>>([]);
+  const [products, setProducts] = useState<Array<{ name: string; price: number }>>(
+    () => cachedProducts || FALLBACK_PRODUCTS
+  );
+  const [recentPurchases, setRecentPurchases] = useState<Array<{ id: string; purchaserName: string; productName: string; city: string; createdAt: string }>>(
+    () => cachedRecentPurchases || []
+  );
   const [currentToast, setCurrentToast] = useState<ToastData | null>(null);
   const [visible, setVisible] = useState(false);
 
@@ -65,41 +73,40 @@ export default function ScarcityToaster() {
   const cityHistoryRef = useRef<string[]>([]);
   const purchaseHistoryRef = useRef<string[]>([]);
 
-  // Fetch real products from backend to ensure alignment with active database
+  // Defer fetching real products & orders until 15s after load to keep initial page load fast
   useEffect(() => {
-    api.get('/products', { params: { limit: 20 } })
-      .then(res => {
-        if (res.data && Array.isArray(res.data.products) && res.data.products.length > 0) {
-          const fetched = res.data.products.map((p: any) => ({
-            name: p.name,
-            price: p.price
-          }));
-          setProducts(fetched);
+    let timer: any;
+    if (!cachedProducts || !cachedRecentPurchases) {
+      timer = setTimeout(() => {
+        if (!cachedProducts) {
+          api.get('/products', { params: { limit: 20 } })
+            .then(res => {
+              if (res.data && Array.isArray(res.data.products) && res.data.products.length > 0) {
+                const fetched = res.data.products.map((p: any) => ({
+                  name: p.name,
+                  price: p.price
+                }));
+                cachedProducts = fetched;
+                setProducts(fetched);
+              }
+            })
+            .catch(() => {});
         }
-      })
-      .catch(() => {
-        // Fallback silently to static list on network error / offline dev server
-      });
-  }, []);
-
-  // Fetch real recent customer orders from backend
-  const fetchRecentPurchases = () => {
-    api.get('/orders/public/recent')
-      .then(res => {
-        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-          setRecentPurchases(res.data);
+        if (!cachedRecentPurchases) {
+          api.get('/orders/public/recent')
+            .then(res => {
+              if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+                cachedRecentPurchases = res.data;
+                setRecentPurchases(res.data);
+              }
+            })
+            .catch(() => {});
         }
-      })
-      .catch(() => {
-        // Fallback silently if API is offline
-      });
-  };
-
-  useEffect(() => {
-    fetchRecentPurchases();
-    // Poll every 5 minutes to fetch new real purchases
-    const interval = setInterval(fetchRecentPurchases, 5 * 60 * 1000);
-    return () => clearInterval(interval);
+      }, 15000);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, []);
 
   // Scarcity notification loop
@@ -280,10 +287,10 @@ export default function ScarcityToaster() {
           <motion.div
             key={currentToast.id}
             className={`scarcity-toast-card ${currentToast.type}`}
-            initial={{ opacity: 0, y: 50, scale: 0.95 }}
+            initial={{ opacity: 0, y: 20, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 30, scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+            exit={{ opacity: 0, y: 15, scale: 0.96 }}
+            transition={{ type: 'spring', stiffness: 350, damping: 25 }}
           >
             <div className={`scarcity-toast-icon ${currentToast.type}`}>
               {currentToast.icon}
@@ -299,7 +306,7 @@ export default function ScarcityToaster() {
               onClick={handleClose}
               aria-label="Dismiss notification"
             >
-              <X size={16} strokeWidth={2.5} />
+              <X size={14} strokeWidth={2.5} />
             </button>
           </motion.div>
         )}

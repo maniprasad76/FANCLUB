@@ -1,23 +1,11 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Film, Sparkles, Palette, Clapperboard } from 'lucide-react';
 import AnimatedPage, { fandomticItem, fandomticStagger } from '../../components/AnimatedPage';
-import api from '../../lib/api';
 import './Fandom.css';
 
 export default function Fandom() {
   const heroRef = useRef<HTMLElement>(null);
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const [showVideo, setShowVideo] = useState(true);
-
-  useEffect(() => {
-    api.get('/settings/video').then(res => {
-      if (res.data?.url) {
-        setVideoUrl(import.meta.env.VITE_API_URL.replace('/api', '') + res.data.url);
-      }
-    }).catch(() => {});
-  }, []);
 
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -55,31 +43,7 @@ export default function Fandom() {
         <section className="fandom-hero" ref={heroRef} style={{ position: 'relative', overflow: 'hidden' }}>
           <motion.div className="fandom-hero-bg" style={{ y: heroY, zIndex: 1 }} />
           
-          {videoUrl && showVideo && (
-            <motion.div 
-              className="fandom-hero-video-wrapper"
-              style={{ y: heroY, position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: isVideoLoaded ? 1 : 0 }}
-              transition={{ duration: 1.5 }}
-            >
-              <video
-                src={videoUrl}
-                autoPlay
-                loop
-                muted
-                playsInline
-                onLoadedData={() => setIsVideoLoaded(true)}
-                onError={() => setShowVideo(false)}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  filter: 'grayscale(100%) contrast(1.2)'
-                }}
-              />
-            </motion.div>
-          )}
+
 
           <motion.div className="fandom-hero-vignette" style={{ opacity: heroOpacity, zIndex: 2, background: 'radial-gradient(circle at center, transparent 0%, var(--bg-primary) 85%)' }} />
           <div className="container fandom-hero-content" style={{ zIndex: 3, position: 'relative' }}>

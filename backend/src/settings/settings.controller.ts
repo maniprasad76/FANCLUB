@@ -12,6 +12,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname, resolve } from 'path';
 import * as fs from 'fs';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { SkipThrottle } from '@nestjs/throttler';
 import { SettingsService } from './settings.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -23,41 +24,8 @@ import { Audit } from '../audit/decorators/audit.decorator.js';
 export class SettingsController {
   constructor(private readonly settingsService: SettingsService) {}
 
-  @Get('video')
-  async getFooterVideo() {
-    return { url: await this.settingsService.getSetting('footer_video_url') };
-  }
-
-  @UseGuards(JwtAuthGuard, AdminGuard)
-  @Audit('UPLOAD_FOOTER_VIDEO', 'SETTING')
-  @Post('video/upload')
-  @UseInterceptors(
-    FileInterceptor('video', {
-      storage: diskStorage({
-        destination: (_req, _file, cb) => {
-          const uploadPath = './public/uploads';
-          if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-          }
-          cb(null, uploadPath);
-        },
-        filename: (_req, file, cb) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, 'footer-video-' + uniqueSuffix + extname(file.originalname));
-        },
-      }),
-      limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
-    }),
-  )
-  async uploadFooterVideo(@UploadedFile() file: Express.Multer.File) {
-    if (!file) throw new Error('No file uploaded');
-
-    const videoUrl = `/public/uploads/${file.filename}`;
-    await this.settingsService.setSetting('footer_video_url', videoUrl);
-    return { success: true, url: videoUrl };
-  }
-
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(600000) // 10 minutes
   @Get('about-image')
   async getAboutImage() {
     return { url: await this.settingsService.getSetting('about_image_url') };
@@ -108,18 +76,6 @@ export class SettingsController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, AdminGuard)
-  @Audit('DELETE_FOOTER_VIDEO', 'SETTING')
-  @Delete('video')
-  async deleteFooterVideo() {
-    const currentUrl =
-      await this.settingsService.getSetting('footer_video_url');
-    if (currentUrl) {
-      this.safeDeleteFile(`.${currentUrl}`);
-      await this.settingsService.deleteSetting('footer_video_url');
-    }
-    return { success: true };
-  }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
   @Audit('DELETE_ABOUT_IMAGE', 'SETTING')
@@ -133,6 +89,8 @@ export class SettingsController {
     return { success: true };
   }
 
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(600000) // 10 minutes
   @Get('hero-images')
   async getHeroImages() {
     return {
@@ -193,6 +151,8 @@ export class SettingsController {
     return { success: true, urls: currentUrls };
   }
 
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(600000) // 10 minutes
   @Get('cod')
   async getCodStatus() {
     const status = await this.settingsService.getSetting('cod_enabled');

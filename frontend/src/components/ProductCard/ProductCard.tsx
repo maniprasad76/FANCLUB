@@ -1,6 +1,8 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Heart } from "lucide-react";
 import { formatImageUrl } from "../../lib/utils";
+import api from "../../lib/api";
 import "./ProductCard.css";
 
 interface ProductCardProps {
@@ -11,27 +13,125 @@ interface ProductCardProps {
     price: number;
     comparePrice?: number;
     images: string[];
-    rating: number;
-    reviewCount: number;
+    rating?: number;
+    reviewCount?: number;
     category?: { name: string; slug: string };
     newArrival?: boolean;
     bestseller?: boolean;
     description?: string;
   };
   onWishlist?: (id: string) => void;
+  variant?: "default" | "clean";
 }
 
-/*
- * Performance optimizations:
- * 1. React.memo — prevents re-render when parent re-renders but props haven't changed
- * 2. Removed framer-motion whileInView — was creating an IntersectionObserver per card,
- *    causing scroll jank with 12+ cards. Parent grid handles entrance animations instead.
- * 3. Removed motion.div wrapper entirely — pure DOM, no animation overhead per card
- * 4. Added decoding="async" on images for non-blocking decode
- */
-const ProductCard = memo(function ProductCard({ product }: ProductCardProps) {
+const ProductCard = memo(function ProductCard({
+  product,
+  onWishlist,
+  variant = "clean",
+}: ProductCardProps) {
   const navigate = useNavigate();
+  const [isWishlisted, setIsWishlisted] = useState(false);
 
+  const priceNum = typeof product.price === "number" ? product.price : parseFloat(product.price || 0);
+  const compareNum = product.comparePrice
+    ? typeof product.comparePrice === "number"
+      ? product.comparePrice
+      : parseFloat(product.comparePrice)
+    : undefined;
+
+  const hasDiscount = compareNum && compareNum > priceNum;
+  const discountPercent = hasDiscount
+    ? Math.round(((compareNum - priceNum) / compareNum) * 100)
+    : null;
+
+  const handleWishlist = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsWishlisted((prev) => !prev);
+    if (onWishlist) {
+      onWishlist(product.id);
+    } else {
+      try {
+        await api.post(`/wishlist/${product.id}`);
+      } catch {
+        /* silent fallback for guest or unauth */
+      }
+    }
+  };
+
+  const handleCardClick = () => {
+    // Navigate to product detail page on card click
+    navigate(`/product/${product.slug}`);
+  };
+
+  if (variant === "clean") {
+    return (
+      <div className="clean-product-card" onClick={handleCardClick}>
+        <div className="clean-image-container">
+          <img
+            src={
+              formatImageUrl(product.images?.[0]) ||
+              "https://placehold.co/400x500/f5f5f7/999?text=Product"
+            }
+            alt={product.name}
+            className="clean-image"
+            loading="lazy"
+            decoding="async"
+          />
+
+          {/* Badges in top left corner */}
+          <div className="clean-badges-left">
+            {discountPercent ? (
+              <span className="clean-badge discount-badge">-{discountPercent}%</span>
+            ) : product.newArrival ? (
+              <span className="clean-badge new-badge">New</span>
+            ) : product.bestseller ? (
+              <span className="clean-badge bestseller-badge">Popular</span>
+            ) : null}
+          </div>
+
+          {/* Badges in top right corner if both discount and new exist */}
+          {discountPercent && product.newArrival && (
+            <div className="clean-badges-right">
+              <span className="clean-badge new-badge">New</span>
+            </div>
+          )}
+        </div>
+
+        <div className="clean-info">
+          <div className="clean-title-row">
+            <h3 className="clean-title">{product.name}</h3>
+            <button
+              type="button"
+              className={`clean-wishlist-btn ${isWishlisted ? "active" : ""}`}
+              onClick={handleWishlist}
+              aria-label="Add to Wishlist"
+            >
+              <Heart
+                size={18}
+                fill={isWishlisted ? "#e052a0" : "none"}
+                stroke={isWishlisted ? "#e052a0" : "#a0a0a0"}
+                strokeWidth={1.75}
+              />
+            </button>
+          </div>
+
+          <div className="clean-price-row">
+            <span className="clean-current-price">
+              ₹{priceNum.toLocaleString("en-IN")}
+            </span>
+            {hasDiscount && (
+              <span className="clean-compare-price">
+                ₹{compareNum.toLocaleString("en-IN")}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* Default Nike / Fandom style variant */
   const handleBuyNow = (e: React.MouseEvent) => {
     e.preventDefault();
     navigate(`/product/${product.slug}`);
@@ -53,25 +153,18 @@ const ProductCard = memo(function ProductCard({ product }: ProductCardProps) {
           />
 
           <div className="mpc-badges-top">
-            {(product.bestseller || product.newArrival || true) && (
+            {(product.bestseller || product.newArrival || discountPercent) && (
               <span className="mpc-badge-glass">
-                {product.bestseller
+                {discountPercent
+                  ? `-${discountPercent}% OFF`
+                  : product.bestseller
                   ? "Best Seller"
-                  : product.newArrival
-                    ? "New Arrival"
-                    : "Best Seller"}
+                  : "New Arrival"}
               </span>
             )}
             <div className="mpc-brand-box">
               <span>FAN</span>
             </div>
-          </div>
-
-          <div className="mpc-dots">
-            <span className="mpc-dot active"></span>
-            <span className="mpc-dot"></span>
-            <span className="mpc-dot"></span>
-            <span className="mpc-dot"></span>
           </div>
         </div>
 
@@ -80,17 +173,13 @@ const ProductCard = memo(function ProductCard({ product }: ProductCardProps) {
           <p className="mpc-subtitle">
             {product.category?.name || "Exclusive Drop"}
           </p>
-          <p className="mpc-desc">
-            {product.description
-              ? product.description.length > 60
-                ? product.description.slice(0, 60) + "..."
-                : product.description
-              : "Step into classic fandom style with durable, premium materials designed for comfort."}
-          </p>
 
           <div className="mpc-bottom-row">
             <div className="mpc-price-pill">
-              ₹{product.price.toLocaleString("en-IN")}
+              ₹{priceNum.toLocaleString("en-IN")}
+              {hasDiscount && (
+                <span className="mpc-strikethrough"> ₹{compareNum.toLocaleString("en-IN")}</span>
+              )}
             </div>
 
             <button className="mpc-buy-btn" onClick={handleBuyNow}>
@@ -119,3 +208,4 @@ const ProductCard = memo(function ProductCard({ product }: ProductCardProps) {
 });
 
 export default ProductCard;
+

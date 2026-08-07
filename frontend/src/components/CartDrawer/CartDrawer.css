@@ -157,7 +157,7 @@
 }
 
 .cart-drawer-footer {
-  padding: 24px;
+  padding: 16px 20px 20px;
   border-top: 1px solid var(--border-color, #eaeaea);
   background: var(--bg-primary, white);
 }
@@ -166,28 +166,86 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--text-primary, #111);
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .cart-drawer-taxes {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-muted, #888);
-  margin: 0 0 20px 0;
+  margin: 0 0 14px 0;
 }
 
+/* Sleek Cart Action Buttons */
 .cart-drawer-actions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
+  align-items: center;
+}
+
+.cart-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1.5px solid transparent;
+  box-sizing: border-box;
+}
+
+.cart-btn-primary {
+  background: var(--bauhaus-red, #D02020);
+  color: #FFFFFF !important;
+  border-color: var(--bauhaus-red, #D02020);
+  box-shadow: 0 4px 12px rgba(208, 32, 32, 0.2);
+}
+
+.cart-btn-primary:hover {
+  background: #b51a1a;
+  border-color: #b51a1a;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(208, 32, 32, 0.3);
+}
+
+.cart-btn-outline {
+  background: transparent;
+  color: var(--text-primary, #111) !important;
+  border-color: rgba(0, 0, 0, 0.8);
+}
+
+.cart-btn-outline:hover {
+  background: rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
 }
 
 @media (max-width: 768px) {
   .cart-drawer {
     max-width: 100%;
   }
+  .cart-drawer-header {
+    padding: 16px 18px;
+  }
+  .cart-drawer-body {
+    padding: 18px;
+  }
   .cart-drawer-footer {
-    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    padding: 14px 18px calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+  .cart-btn {
+    height: 40px;
+    font-size: 0.78rem;
   }
 }

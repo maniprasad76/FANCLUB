@@ -13,7 +13,7 @@ export default function ProductForm() {
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     name: '', slug: '', description: '', price: 0, comparePrice: 0,
-    images: [''], sizes: ['S', 'M', 'L', 'XL'], colors: ['Black', 'White'],
+    images: [''], sizes: ['S', 'M', 'L', 'XL'], colors: [],
     categoryId: '', stock: 0, featured: false, bestseller: false, newArrival: false, loyaltyEligible: false, tags: [''],
     gender: 'UNISEX'
   });
@@ -94,19 +94,6 @@ export default function ProductForm() {
             ))}
           </div>
           <button type="button" className="btn btn-secondary btn-sm" onClick={() => addArrayItem('sizes')}>+ Add Size</button>
-        </div>
-
-        {/* Colors */}
-        <div>
-          <label style={labelStyle}>Colors</label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: 16, marginBottom: 8 }}>
-            {form.colors?.map((c, i) => (
-              <div key={i} style={{ display: 'flex', gap: 4 }}>
-                <input className="input" value={c} onChange={e => updateArrayField('colors', i, e.target.value)} placeholder="Color" />
-              </div>
-            ))}
-          </div>
-          <button type="button" className="btn btn-secondary btn-sm" onClick={() => addArrayItem('colors')}>+ Add Color</button>
         </div>
 
         {/* Images */}

@@ -30,6 +30,7 @@ import { AdminGuard } from '../auth/guards/admin.guard';
 import { CacheInvalidationInterceptor } from '../common/interceptors/cache-invalidation.interceptor';
 import { Audit } from '../audit/decorators/audit.decorator.js';
 
+@SkipThrottle()
 @ApiTags('Products')
 @Controller('products')
 export class ProductsController {

@@ -9,6 +9,7 @@ export default defineConfig({
     target: 'es2020',
     // No sourcemaps in production
     sourcemap: false,
+    cssCodeSplit: true,
     chunkSizeWarningLimit: 500,
     // Chunk splitting for better caching
     rolldownOptions: {
@@ -49,6 +50,8 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    strictPort: true,
+    host: true,
   },
 })
 

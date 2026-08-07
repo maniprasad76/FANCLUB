@@ -1,5 +1,4 @@
 import {
-  Film,
   Upload,
   CheckCircle2,
   Loader2,
@@ -15,11 +14,6 @@ import { CheckoutSettings } from "./CheckoutSettings";
 import { compressImage } from "../lib/compress";
 
 export default function AdminSettings() {
-  const [uploading, setUploading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [currentVideo, setCurrentVideo] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [uploadingImage, setUploadingImage] = useState(false);
   const [successImage, setSuccessImage] = useState(false);
   const [currentImage, setCurrentImage] = useState("");
@@ -34,20 +28,10 @@ export default function AdminSettings() {
   const [updatingCod, setUpdatingCod] = useState(false);
 
   useEffect(() => {
-    fetchCurrentVideo();
     fetchCurrentImage();
     fetchCodStatus();
     fetchHeroImages();
   }, []);
-
-  const fetchCurrentVideo = async () => {
-    try {
-      const res = await api.get("/settings/video");
-      if (res.data?.url) setCurrentVideo(res.data.url);
-    } catch (err: any) {
-      // No video configured yet
-    }
-  };
 
   const fetchCurrentImage = async () => {
     try {
@@ -93,34 +77,6 @@ export default function AdminSettings() {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploading(true);
-    setSuccess(false);
-
-    try {
-      const formData = new FormData();
-      formData.append("video", file);
-
-      const res = await api.post("/settings/video/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      if (res.data?.success) {
-        setSuccess(true);
-        setCurrentVideo(res.data.url);
-        setTimeout(() => setSuccess(false), 3000);
-      }
-    } catch (err: any) {
-      console.error("Video upload failed", err);
-      toast.error("Video upload failed. Is backend running?");
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -154,16 +110,6 @@ export default function AdminSettings() {
     }
   };
 
-  const handleDeleteVideo = async () => {
-    if (!confirm("Are you sure you want to delete the footer video?")) return;
-    try {
-      await api.delete("/settings/video");
-      setCurrentVideo("");
-      toast.success("Video deleted successfully");
-    } catch (e) {
-      toast.error("Failed to delete video");
-    }
-  };
 
   const handleDeleteImage = async () => {
     if (!confirm("Are you sure you want to delete the about image?")) return;
@@ -191,14 +137,8 @@ export default function AdminSettings() {
 
     try {
       const formData = new FormData();
-      
-      // If it's an image, compress it to max 1920x1080px with 0.8 quality
-      if (file.type.startsWith('image/')) {
-        const compressedFile = await compressImage(file, { maxWidth: 1920, maxHeight: 1080 });
-        formData.append("image", compressedFile);
-      } else {
-        formData.append("image", file);
-      }
+      const compressedFile = await compressImage(file, { maxWidth: 1920, maxHeight: 1080 });
+      formData.append("image", compressedFile);
 
       const res = await api.post("/settings/hero-images/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -283,219 +223,6 @@ export default function AdminSettings() {
           updatingCod={updatingCod}
           handleToggleCod={handleToggleCod}
         />
-        {/* Video Upload Card */}
-        <div className="glass" style={{ padding: 32 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              marginBottom: 8,
-            }}
-          >
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                background: "var(--bauhaus-blue)",
-                border: "2px solid var(--bauhaus-black)",
-                boxShadow: "2px 2px 0px 0px var(--bauhaus-black)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Film size={20} color="white" />
-            </div>
-            <h2
-              style={{
-                fontFamily: "var(--font-display)",
-                fontWeight: 900,
-                fontSize: "1.1rem",
-                textTransform: "uppercase",
-                letterSpacing: "1px",
-              }}
-            >
-              Footer Video
-            </h2>
-          </div>
-          <p
-            style={{
-              color: "var(--text-muted)",
-              marginBottom: 24,
-              fontSize: "0.85rem",
-            }}
-          >
-            Upload an MP4 file to appear full-width above the website footer.
-          </p>
-
-          <div style={uploadZoneStyle}>
-            {uploading ? (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 16,
-                  color: "var(--text-secondary)",
-                }}
-              >
-                <Loader2
-                  size={40}
-                  className="spin"
-                  style={{ color: "var(--bauhaus-blue)" }}
-                />
-                <p
-                  style={{
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                  }}
-                >
-                  Uploading Video...
-                </p>
-              </div>
-            ) : success ? (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 16,
-                  color: "var(--accent-emerald)",
-                }}
-              >
-                <CheckCircle2 size={40} />
-                <p
-                  style={{
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                  }}
-                >
-                  Video uploaded!
-                </p>
-              </div>
-            ) : (
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 16,
-                }}
-              >
-                <div
-                  style={{
-                    width: 64,
-                    height: 64,
-                    background: "var(--bauhaus-black)",
-                    border: "3px solid var(--bauhaus-black)",
-                    boxShadow: "3px 3px 0px 0px var(--bauhaus-yellow)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload size={28} color="white" />
-                </div>
-                <div>
-                  <h4
-                    style={{
-                      margin: "0 0 6px 0",
-                      fontWeight: 900,
-                      textTransform: "uppercase",
-                      letterSpacing: "1px",
-                    }}
-                  >
-                    Select Video File
-                  </h4>
-                  <p
-                    style={{
-                      margin: 0,
-                      fontSize: "0.82rem",
-                      color: "var(--text-muted)",
-                    }}
-                  >
-                    Max size 50MB. MP4 format recommended.
-                  </p>
-                </div>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleFileUpload}
-                  accept="video/mp4,video/webm,video/quicktime"
-                  style={{ display: "none" }}
-                />
-              </div>
-            )}
-          </div>
-
-          {currentVideo && !uploading && (
-            <div style={{ marginTop: "20px" }}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "8px",
-                }}
-              >
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: "0.75rem",
-                    color: "var(--bauhaus-blue)",
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                  }}
-                >
-                  Current Video:
-                </p>
-                <button
-                  className="btn btn-sm btn-danger"
-                  onClick={handleDeleteVideo}
-                  style={{
-                    padding: "4px 8px",
-                    minHeight: "unset",
-                    fontSize: "0.7rem",
-                  }}
-                >
-                  <Trash2 size={12} /> Delete
-                </button>
-              </div>
-              <div
-                style={{
-                  background: "var(--bg-primary)",
-                  padding: "10px 14px",
-                  border: "2px solid var(--bauhaus-black)",
-                  overflow: "hidden",
-                  whiteSpace: "nowrap",
-                  textOverflow: "ellipsis",
-                  fontSize: "0.78rem",
-                  color: "var(--text-secondary)",
-                  fontFamily: "monospace",
-                }}
-              >
-                {(() => {
-                  let base =
-                    import.meta.env.VITE_API_URL?.replace("/api", "") ||
-                    "http://localhost:3001";
-                  if (
-                    base.includes("localhost") &&
-                    typeof window !== "undefined"
-                  )
-                    base = base.replace("localhost", window.location.hostname);
-                  return base;
-                })()}
-                {currentVideo}
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* Image Upload Card */}
         <div className="glass" style={{ padding: 32 }}>
@@ -752,7 +479,7 @@ export default function AdminSettings() {
                 letterSpacing: "1px",
               }}
             >
-              Hero Media (Max 5)
+              Hero Images (Max 5)
             </h2>
           </div>
           <p
@@ -762,7 +489,7 @@ export default function AdminSettings() {
               fontSize: "0.85rem",
             }}
           >
-            Upload images or videos for the Hero carousel. Maximum 5 items.
+            Upload images for the Hero carousel. Maximum 5 items.
           </p>
 
           <div style={uploadZoneStyle}>
@@ -846,7 +573,7 @@ export default function AdminSettings() {
                       letterSpacing: "1px",
                     }}
                   >
-                    Select Media File
+                    Select Image File
                   </h4>
                   <p
                     style={{
@@ -855,14 +582,14 @@ export default function AdminSettings() {
                       color: "var(--text-muted)",
                     }}
                   >
-                    JPG, PNG, WebP, MP4, WebM supported.
+                    JPG, PNG, WebP supported.
                   </p>
                 </div>
                 <input
                   type="file"
                   ref={heroInputRef}
                   onChange={handleHeroUpload}
-                  accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+                  accept="image/jpeg,image/png,image/webp"
                   style={{ display: "none" }}
                 />
               </div>
@@ -896,47 +623,25 @@ export default function AdminSettings() {
                       border: "2px solid var(--bauhaus-black)",
                     }}
                   >
-                    {imgUrl.endsWith('.mp4') || imgUrl.endsWith('.webm') ? (
-                      <video
-                        src={
-                          (() => {
-                            let base =
-                              import.meta.env.VITE_API_URL?.replace("/api", "") ||
-                              "http://localhost:3001";
-                            if (base.includes("localhost") && typeof window !== "undefined")
-                              base = base.replace("localhost", window.location.hostname);
-                            return base;
-                          })() + imgUrl
-                        }
-                        style={{
-                          height: "40px",
-                          width: "80px",
-                          objectFit: "cover",
-                          border: "2px solid var(--bauhaus-black)",
-                        }}
-                        muted
-                      />
-                    ) : (
-                      <img
-                        src={
-                          (() => {
-                            let base =
-                              import.meta.env.VITE_API_URL?.replace("/api", "") ||
-                              "http://localhost:3001";
-                            if (base.includes("localhost") && typeof window !== "undefined")
-                              base = base.replace("localhost", window.location.hostname);
-                            return base;
-                          })() + imgUrl
-                        }
-                        alt={`Hero ${i}`}
-                        style={{
-                          height: "40px",
-                          width: "80px",
-                          objectFit: "cover",
-                          border: "2px solid var(--bauhaus-black)",
-                        }}
-                      />
-                    )}
+                    <img
+                      src={
+                        (() => {
+                          let base =
+                            import.meta.env.VITE_API_URL?.replace("/api", "") ||
+                            "http://localhost:3001";
+                          if (base.includes("localhost") && typeof window !== "undefined")
+                            base = base.replace("localhost", window.location.hostname);
+                          return base;
+                        })() + imgUrl
+                      }
+                      alt={`Hero ${i}`}
+                      style={{
+                        height: "40px",
+                        width: "80px",
+                        objectFit: "cover",
+                        border: "2px solid var(--bauhaus-black)",
+                      }}
+                    />
                     <button
                       className="btn btn-sm btn-danger"
                       onClick={() => handleDeleteHeroImage(imgUrl)}

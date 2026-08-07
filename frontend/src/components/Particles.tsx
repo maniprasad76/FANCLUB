@@ -2,10 +2,10 @@ import { useEffect, useRef } from "react";
 
 /*
  * Performance-optimized particle system:
- * 1. Pauses animation when tab is hidden (visibilitychange API)
- * 2. Reduces particle count on mobile (max 30 vs 60 desktop)
- * 3. Debounced resize handler
- * 4. Uses offscreen canvas detection
+ * 1. Defers startup until the browser is idle — never competes with first paint
+ * 2. Pauses animation when tab is hidden (visibilitychange API)
+ * 3. Reduces particle count on mobile (max 30 vs 60 desktop)
+ * 4. Debounced resize handler
  */
 export const Particles = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -20,6 +20,7 @@ export const Particles = () => {
     let animationFrameId: number;
     let particles: Particle[] = [];
     let isVisible = !document.hidden;
+    let started = false;
     const colors = ["#D02020", "#1040C0", "#F0C020", "rgba(18,18,18,0.3)"];
 
     class Particle {
@@ -93,8 +94,17 @@ export const Particles = () => {
       animationFrameId = requestAnimationFrame(animate);
     };
 
-    init();
-    animate();
+    const start = () => {
+      if (started) return;
+      started = true;
+      init();
+      animate();
+    };
+
+    // ── Defer startup until idle so first paint & route render win ──
+    const idleId = "requestIdleCallback" in window
+      ? (window as any).requestIdleCallback(start, { timeout: 1500 })
+      : setTimeout(start, 300);
 
     // Pause when tab is not visible to save CPU/battery
     const handleVisibilityChange = () => {
@@ -111,6 +121,11 @@ export const Particles = () => {
     window.addEventListener("resize", handleResize);
 
     return () => {
+      if ("cancelIdleCallback" in window) {
+        (window as any).cancelIdleCallback(idleId);
+      } else {
+        clearTimeout(idleId as any);
+      }
       window.removeEventListener("resize", handleResize);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       cancelAnimationFrame(animationFrameId);

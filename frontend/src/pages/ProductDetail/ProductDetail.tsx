@@ -45,7 +45,6 @@ export default function ProductDetail() {
   const [product, setProduct] = useState<any>(null);
   const [related, setRelated] = useState<any[]>([]);
   const [selectedSize, setSelectedSize] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
 
@@ -76,7 +75,6 @@ export default function ProductDetail() {
       .then((r) => {
         setProduct(r.data);
         if (r.data.sizes?.length) setSelectedSize(r.data.sizes[0]);
-        if (r.data.colors?.length) setSelectedColor(r.data.colors[0]);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -94,7 +92,6 @@ export default function ProductDetail() {
         product.id,
         quantity,
         selectedSize || undefined,
-        selectedColor || undefined,
       );
       setCartStatus("added");
       setTimeout(() => setCartStatus("idle"), 2000);
@@ -107,7 +104,6 @@ export default function ProductDetail() {
       product.id,
       quantity,
       selectedSize || undefined,
-      selectedColor || undefined,
     );
     navigate("/checkout");
   };
@@ -238,6 +234,9 @@ export default function ProductDetail() {
                         src={formatImageUrl(img)}
                         alt={`${product.name} - view ${idx + 1}`}
                         style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover' }}
+                        loading={idx === 0 ? "eager" : "lazy"}
+                        decoding="async"
+                        fetchPriority={idx === 0 ? "high" : "low"}
                       />
                     </div>
                   ))}
@@ -273,6 +272,8 @@ export default function ProductDetail() {
                       src={formatImageUrl(img)}
                       alt={`${product.name} - view ${idx + 1}`}
                       loading={idx === 0 ? "eager" : "lazy"}
+                      decoding="async"
+                      fetchPriority={idx === 0 ? "high" : "low"}
                     />
                   </motion.div>
                 ))}
@@ -376,25 +377,6 @@ export default function ProductDetail() {
                         >
                           {s}
                         </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {product.colors?.length > 0 && (
-                  <div className="pdp-option-group">
-                    <div className="pdp-option-header">
-                      <span className="pdp-option-label">Select Color</span>
-                    </div>
-                    <div className="pdp-colors">
-                      {product.colors.map((c: string) => (
-                        <button
-                          key={c}
-                          className={`color-btn-neo ${selectedColor === c ? "active" : ""}`}
-                          onClick={() => setSelectedColor(c)}
-                          style={{ background: c.toLowerCase() }}
-                          title={c}
-                        />
                       ))}
                     </div>
                   </div>

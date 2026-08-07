@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <!-- Yellow offset shadow -->
-  <rect x="22" y="22" width="96" height="96" fill="#F0C020" rx="8" ry="8" />
+  <!-- Yellow offset box shadow -->
+  <rect x="20" y="20" width="96" height="96" fill="#FFCC00" rx="14" ry="14" />
   
-  <!-- White fill with blue border (the box) -->
-  <rect x="10" y="10" width="96" height="96" fill="#FFFFFF" stroke="#1040C0" stroke-width="6" rx="8" ry="8" />
+  <!-- Main White Box with Blue Border -->
+  <rect x="10" y="10" width="96" height="96" fill="#FFFFFF" stroke="#3366FF" stroke-width="8" rx="14" ry="14" />
   
-  <!-- FAN Typography -->
-  <text x="58" y="70" font-family="'Space Grotesk', 'Oufant', -apple-system, system-ui, sans-serif" font-size="34" font-weight="900" fill="#D02020" text-anchor="middle" letter-spacing="1">FAN</text>
+  <!-- Red Bold FAN Text -->
+  <text x="58" y="74" font-family="'Inter', 'Space Grotesk', system-ui, -apple-system, sans-serif" font-size="40" font-weight="900" fill="#FF3333" text-anchor="middle" letter-spacing="3">FAN</text>
 </svg>

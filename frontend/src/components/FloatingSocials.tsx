@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import { SOCIAL_LINKS } from '../../config';
+import { SOCIAL_LINKS } from '../lib/api';
 import './FloatingSocials.css';
 
 const WhatsAppIcon = ({ size = 20 }) => (

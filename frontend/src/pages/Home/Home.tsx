@@ -13,10 +13,9 @@ import AnimatedPage, {
   fandomticItem,
   fandomticStagger,
 } from "../../components/AnimatedPage";
-import ProductCard from "../../components/ProductCard/ProductCard";
+import ProductShowcase from "../../components/ProductShowcase/ProductShowcase";
 import SEOHead from "../../components/SEOHead";
-import { SOCIAL_LINKS } from "../../config";
-import api from "../../lib/api";
+import api, { SOCIAL_LINKS } from "../../lib/api";
 import { formatImageUrl } from "../../lib/utils";
 import "./Home.css";
 import { useDevice } from "../../context/DeviceContext";
@@ -49,7 +48,6 @@ export default function Home() {
   const heroRef = useRef<HTMLElement>(null);
   const [featured, setFeatured] = useState<Product[]>([]);
   const [drops, setDrops] = useState<Product[]>([]);
-  const [heroVideoError, setHeroVideoError] = useState(false);
   const [aboutImage, setAboutImage] = useState<string | null>(null);
   const [heroImages, setHeroImages] = useState<string[]>([]);
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
@@ -63,29 +61,13 @@ export default function Home() {
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.08]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
-  /* Retry helper with exponential backoff for 429s */
-  const fetchWithRetry = useCallback(async (url: string, retries = 3, delay = 800): Promise<any> => {
-    for (let i = 0; i <= retries; i++) {
-      try {
-        return await api.get(url);
-      } catch (err: any) {
-        const status = err?.response?.status;
-        if (status === 429 && i < retries) {
-          await new Promise(res => setTimeout(res, delay * Math.pow(2, i)));
-          continue;
-        }
-        throw err;
-      }
-    }
-  }, []);
-
   /* fetch products & config */
   const fetchData = useCallback(async () => {
     try {
       const [featuredRes, dropsRes, aboutImgRes, heroImgRes] =
         await Promise.all([
-          fetchWithRetry("/products/featured").catch(() => ({ data: {} })),
-          fetchWithRetry("/products?sort=newest&limit=12").catch(() => ({ data: {} })),
+          api.get("/products/featured").catch(() => ({ data: {} })),
+          api.get("/products?sort=newest&limit=12").catch(() => ({ data: {} })),
           api.get("/settings/about-image").catch(() => ({ data: {} })),
           api.get("/settings/hero-images").catch(() => ({ data: {} })),
         ]);
@@ -96,22 +78,11 @@ export default function Home() {
     } catch {
       /* silent — skeletons will show */
     }
-  }, [fetchWithRetry]);
+  }, []);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
-  /* Preload hero-banner only on the Home page */
-  useEffect(() => {
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'image';
-    link.href = '/assets/hero-banner.jpg';
-    link.setAttribute('fetchpriority', 'high');
-    document.head.appendChild(link);
-    return () => { document.head.removeChild(link); };
-  }, []);
 
   useEffect(() => {
     if (heroImages.length > 1) {
@@ -142,41 +113,17 @@ export default function Home() {
           style={isMobile ? {} : { y: heroBgY, scale: heroScale }}
         >
           {heroImages.length > 0 ? (
-            heroImages.map((imgUrl, idx) => {
-              const isVideo =
-                imgUrl.endsWith(".mp4") || imgUrl.endsWith(".webm");
-              return isVideo ? (
-                <video
-                  key={idx}
-                  src={formatImageUrl(imgUrl)}
-                  className={`hero-carousel-img full-screen ${idx === currentHeroIndex ? "active" : ""}`}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                />
-              ) : (
-                <img
-                  key={idx}
-                  src={formatImageUrl(imgUrl)}
-                  alt={`Hero ${idx + 1}`}
-                  className={`hero-carousel-img full-screen ${idx === currentHeroIndex ? "active" : ""}`}
-                  fetchPriority={idx === 0 ? "high" : "low"}
-                  loading={idx === 0 ? "eager" : "lazy"}
-                  decoding={idx === 0 ? "sync" : "async"}
-                />
-              );
-            })
-          ) : !heroVideoError ? (
-            <video
-              className="hero-media"
-              src="/assets/hero-media.mp4"
-              autoPlay
-              muted
-              loop
-              playsInline
-              onError={() => setHeroVideoError(true)}
-            />
+            heroImages.map((imgUrl, idx) => (
+              <img
+                key={idx}
+                src={formatImageUrl(imgUrl)}
+                alt={`Hero ${idx + 1}`}
+                className={`hero-carousel-img full-screen ${idx === currentHeroIndex ? "active" : ""}`}
+                fetchPriority={idx === 0 ? "high" : "low"}
+                loading={idx === 0 ? "eager" : "lazy"}
+                decoding={idx === 0 ? "sync" : "async"}
+              />
+            ))
           ) : (
             <img
               className="hero-media"
@@ -261,73 +208,10 @@ export default function Home() {
       </div>
 
       {/* ════════════════════════════════════════════
-          2. INFINITE SCROLL — Product Drops Marquee
+          2. CLEAN PRODUCT SHOWCASE & OUR BLOG
          ════════════════════════════════════════════ */}
-      <section className="section drops-section" id="drops-section">
-        <div className="container">
-          <motion.div
-            className="section-header"
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true, amount: 0.3 }}
-            variants={fandomticStagger}
-          >
-            <motion.p className="section-subtitle" variants={fandomticItem}>
-              Latest
-            </motion.p>
-            <motion.h2 className="section-title" variants={fandomticItem}>
-              NEW <span className="text-gradient">DROPS</span>
-            </motion.h2>
-            <motion.div className="section-divider" variants={fandomticItem} />
-          </motion.div>
-        </div>
+      <ProductShowcase initialProducts={drops} subtitle="Latest" />
 
-        {isMobile ? (
-          <div className="container">
-            {/* Category Quick Pills */}
-            <div className="mobile-pills-row">
-              <Link to="/shop" className="mobile-pill active">All Drops</Link>
-              <Link to="/shop?category=tees" className="mobile-pill">Tees</Link>
-              <Link to="/shop?category=hoodies" className="mobile-pill">Hoodies</Link>
-              <Link to="/shop?category=sweatshirts" className="mobile-pill">Sweatshirts</Link>
-              <Link to="/shop?category=accessories" className="mobile-pill">Accessories</Link>
-            </div>
-            
-            <div className="mobile-swipe-carousel">
-              {drops.length > 0
-                ? drops.map((product, i) => (
-                    <div className="mobile-swipe-item" key={`drop-${product.id}-${i}`}>
-                      <ProductCard product={product} />
-                    </div>
-                  ))
-                : Array.from({ length: 4 }).map((_, i) => (
-                    <div className="mobile-swipe-item" key={`skel-${i}`}>
-                      <div className="skeleton-card" style={{ height: "380px" }} />
-                    </div>
-                  ))}
-            </div>
-            <div style={{ textAlign: "center", marginTop: "12px", fontFamily: "var(--font-mono)", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "1px", color: "var(--text-muted)" }}>
-              ← Swipe to Explore →
-            </div>
-          </div>
-        ) : (
-          <div className="container">
-            <div className="drops-grid">
-              {drops.length > 0
-                ? drops.map((product, i) => (
-                    <div className="drops-item" key={`drop-${product.id}-${i}`}>
-                      <ProductCard product={product} />
-                    </div>
-                  ))
-                : Array.from({ length: 8 }).map((_, i) => (
-                    <div className="drops-item" key={`skel-${i}`}>
-                      <div className="skeleton-card" />
-                    </div>
-                  ))}
-            </div>
-          </div>
-        )}
-      </section>
 
       {/* ════════════════════════════════════════════
           3. SOCIAL CONNECTIONS — Yellow Color Block
@@ -345,74 +229,90 @@ export default function Home() {
         <div className="bauhaus-corner bauhaus-corner-br" />
 
         <div className="container delivery-content">
-          <motion.div className="social-icons-row" variants={fandomticItem}>
-            <a
-              href={SOCIAL_LINKS.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="social-icon-wrap"
-              aria-label="Instagram"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 448 512"
-                width="28"
-                height="28"
-                fill="currentColor"
-              >
-                <path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z" />
-              </svg>
-            </a>
+          <motion.div className="social-icons-row" variants={fandomticStagger}>
             <a
               href={SOCIAL_LINKS.whatsapp}
               target="_blank"
               rel="noopener noreferrer"
-              className="social-icon-wrap"
+              className="social-icon-wrap social-whatsapp"
               aria-label="WhatsApp"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 448 512"
-                width="28"
-                height="28"
+                width="20"
+                height="20"
                 fill="currentColor"
               >
                 <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-23.1-115.1-65.1-157zM223.9 413.3c-33.1 0-65.5-8.9-94-25.7l-6.7-4-69.9 18.3L72 334.8l-4.4-7c-18.4-29.3-28.1-63.5-28.1-98.8 0-101.4 82.6-184 184.2-184 49.1 0 95.3 19.1 130 53.8 34.7 34.7 53.8 81 53.8 130 0 101.5-82.6 184.1-183.6 184.1v-.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18.1-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18.1-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.9-16.5-54.4-28-76.8-67-2.3-4.1-.2-6.3 1.2-7.7 1.2-1.2 2.8-3.2 4.1-4.8 1.4-1.6 1.9-2.8 2.8-4.7 1.1-2.1.5-3.9-.4-5.3-1.1-1.6-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.3-.2-7.1-.2-10.8-.2-3.7 0-9.8 1.4-14.9 6.9-5.1 5.6-19.5 19-19.5 46.3s20 53.6 22.8 57.3c2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.6-2.5-5.3-3.9-10.8-6.7z" />
               </svg>
             </a>
             <a
+              href={SOCIAL_LINKS.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-icon-wrap social-instagram"
+              aria-label="Instagram"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 448 512"
+                width="20"
+                height="20"
+                fill="currentColor"
+              >
+                <path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z" />
+              </svg>
+            </a>
+            <a
               href={SOCIAL_LINKS.youtube}
               target="_blank"
               rel="noopener noreferrer"
-              className="social-icon-wrap"
+              className="social-icon-wrap social-youtube"
               aria-label="YouTube"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 576 512"
-                width="28"
-                height="28"
+                width="20"
+                height="20"
                 fill="currentColor"
               >
                 <path d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z" />
               </svg>
             </a>
-
             <a
               href={SOCIAL_LINKS.twitter}
               target="_blank"
               rel="noopener noreferrer"
-              className="social-icon-wrap"
+              className="social-icon-wrap social-twitter"
               aria-label="Twitter"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 512 512"
-                width="28"
-                height="28"
+                width="20"
+                height="20"
                 fill="currentColor"
               >
                 <path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.792 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.792-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z" />
+              </svg>
+            </a>
+            <a
+              href={SOCIAL_LINKS.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="social-icon-wrap social-facebook"
+              aria-label="Facebook"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 448 512"
+                width="20"
+                height="20"
+                fill="currentColor"
+              >
+                <path d="M400 32H48A16 16 0 0 0 32 48v416a16 16 0 0 0 16 16h214.6V300.6h-59.5v-69h59.5v-51.4c0-58.9 36-91 88.6-91 25.2 0 46.9 1.9 53.2 2.7v61.7h-36.5c-28.6 0-34.1 13.6-34.1 33.5v44.5h68.3l-8.9 69h-59.4V480H400a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16z" />
               </svg>
             </a>
           </motion.div>

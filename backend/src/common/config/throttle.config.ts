@@ -13,7 +13,7 @@
 const THROTTLE_DEFAULT = {
   name: 'default',
   ttl: 60000, // 60 seconds
-  limit: 200,
+  limit: 1000, // 1000 req / minute for public store browsing
 };
 
 const THROTTLE_STRICT = {

@@ -163,7 +163,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [forceLogout]);
 
-  const login = async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string) => {
     const { data } = await api.post("/auth/signin", { email, password });
     // Store user data
     sessionStorage.setItem("user", JSON.stringify(data.user));
@@ -175,9 +175,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       sessionStorage.setItem("refresh_token", data.session.refresh_token);
     }
     setUser(data.user);
-  };
+  }, []);
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = useCallback(async (name: string, email: string, password: string) => {
     const { data } = await api.post("/auth/signup", { email, password, name });
     if (data.user) {
       sessionStorage.setItem("user", JSON.stringify(data.user));
@@ -189,9 +189,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       setUser(data.user);
     }
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await api.post("/auth/logout");
     } catch {
@@ -207,17 +207,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionStorage.removeItem("refresh_token");
     sessionStorage.removeItem("access_token");
     setUser(null);
-  };
+  }, []);
 
-  const updateUser = (data: Partial<User>) => {
-    if (user) {
-      const updated = { ...user, ...data };
-      setUser(updated);
-      sessionStorage.setItem("user", JSON.stringify(updated));
-    }
-  };
+  const updateUser = useCallback((data: Partial<User>) => {
+    setUser((prevUser) => {
+      if (prevUser) {
+        const updated = { ...prevUser, ...data };
+        sessionStorage.setItem("user", JSON.stringify(updated));
+        return updated;
+      }
+      return prevUser;
+    });
+  }, []);
 
-  const socialLogin = async (provider: "google" | "facebook") => {
+  const socialLogin = useCallback(async (provider: "google" | "facebook") => {
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
@@ -228,7 +231,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
       },
     });
-  };
+  }, []);
 
   // ── Session inactivity timer (30 min) ──
   // Auto-logout after 30 minutes of no user interaction to prevent

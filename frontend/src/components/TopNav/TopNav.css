@@ -44,22 +44,8 @@
 .topnav-center {
   display: flex;
   align-items: center;
-  gap: 28px;
-}
-
-.nav-link.active {
-  color: var(--text-primary);
-  font-weight: 900;
-}
-
-.nav-link.active::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 16px;
-  right: 16px;
-  height: 3px;
-  background: var(--bauhaus-red);
+  gap: 8px;
+  padding: 4px;
 }
 
 .nav-link {
@@ -67,32 +53,64 @@
   font-size: 0.8rem;
   font-weight: 700;
   color: var(--text-secondary);
-  transition: color 0.3s ease, opacity 0.3s ease, filter 0.3s ease;
   position: relative;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.8px;
   text-transform: uppercase;
-  padding: 8px 16px;
+  padding: 10px 20px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
   z-index: 1;
+  transition: color 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-link-text {
+  position: relative;
+  z-index: 2;
+  transition: color 0.25s ease, transform 0.25s ease;
 }
 
 .nav-link:hover {
-  color: white;
+  color: var(--text-primary);
+  transform: translateY(-1px);
 }
 
-.nav-link.dimmed {
-  opacity: 0.3;
-  filter: blur(1.5px);
+.nav-link.active {
+  color: var(--text-primary);
+  font-weight: 800;
 }
 
-.menu-hover-block {
+.nav-link.active .nav-link-text {
+  color: var(--text-primary);
+}
+
+/* Smooth sliding liquid capsule on hover */
+.nav-hover-capsule {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: var(--bauhaus-black, #111);
-  border-radius: 4px;
-  z-index: -1;
+  border-radius: 999px;
+  z-index: 1;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.nav-link:hover .nav-link-text {
+  color: #ffffff;
+}
+
+/* Smooth active underline/pill indicator */
+.nav-active-indicator {
+  position: absolute;
+  bottom: -2px;
+  left: 20px;
+  right: 20px;
+  height: 3px;
+  background: var(--bauhaus-red, #d02020);
+  border-radius: 999px;
+  z-index: 3;
+  box-shadow: 0 2px 8px rgba(208, 32, 32, 0.4);
 }
 
 .topnav-right {
@@ -114,6 +132,24 @@
 }
 .nav-icon-btn:hover {
   color: var(--bauhaus-red);
+}
+
+#nav-login-btn {
+  padding: 6px 14px;
+  min-height: 34px;
+  height: 34px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  border-radius: 999px;
+  border: 2px solid var(--bauhaus-black);
+  box-shadow: 2px 2px 0px 0px var(--bauhaus-black);
+  margin-left: 6px;
+}
+
+#nav-login-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 3px 3px 0px 0px var(--bauhaus-red);
 }
 
 .cart-btn {

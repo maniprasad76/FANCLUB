@@ -92,10 +92,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 </div>
                 <p className="cart-drawer-taxes">All taxes & shipping included.</p>
                 <div className="cart-drawer-actions">
-                  <Link to="/cart" className="btn btn-outline" onClick={onClose} style={{ flex: 1, textAlign: 'center' }}>
+                  <Link to="/cart" className="cart-btn cart-btn-outline" onClick={onClose}>
                     View Cart
                   </Link>
-                  <Link to="/checkout" className="btn btn-primary" onClick={onClose} style={{ flex: 1, textAlign: 'center' }}>
+                  <Link to="/checkout" className="cart-btn cart-btn-primary" onClick={onClose}>
                     Checkout
                   </Link>
                 </div>

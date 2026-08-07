@@ -28,8 +28,10 @@
     <!-- Preconnect to API/Supabase for faster data fetching -->
     <link rel="dns-prefetch" href="https://fanclub-backend.onrender.com" />
 
-    <!-- Non-blocking font loading: loads fonts without blocking first paint -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Oufant:wght@400;500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" media="print" onload="this.media='all'" />
+    <!-- Non-blocking font loading: loads fonts without blocking first paint.
+         NOTE: no inline onload handler — the inline handler is blocked by our CSP,
+         so the media flip is driven from main.tsx (an allowed 'self' module). -->
+    <link id="fonts-css" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Oufant:wght@400;500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" media="print" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Oufant:wght@400;500;700;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" /></noscript>
 
     <!-- Open Graph defaults (SXO — social sharing) -->

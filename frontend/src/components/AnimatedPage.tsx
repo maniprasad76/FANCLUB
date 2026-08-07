@@ -7,29 +7,29 @@ const exitEase: [number, number, number, number] = [0.4, 0, 1, 1];
 /*
  * Performance-optimized page variants:
  * - Removed filter: blur() — triggers expensive layer compositing and paint operations
- * - Shortened durations — 0.5s enter (was 0.85s), 0.25s exit (was 0.45s)
+ * - Sub-300ms transitions — instant-feeling navigation, no waiting on animations
  * - Only animate transform + opacity — GPU-accelerated, no layout/paint triggered
  */
 const pageVariants = {
-  initial: { opacity: 0, y: 32, scale: 0.99 },
+  initial: { opacity: 0, y: 20, scale: 0.995 },
   animate: {
     opacity: 1,
     y: 0,
     scale: 1,
     transition: {
-      duration: 0.5,
+      duration: 0.22,
       ease: fandomticEase,
       when: 'beforeChildren',
-      staggerChildren: 0.06,
-      delayChildren: 0.02,
+      staggerChildren: 0.04,
+      delayChildren: 0.01,
     },
   },
   exit: {
     opacity: 0,
-    y: -16,
-    scale: 0.995,
+    y: -10,
+    scale: 0.997,
     transition: {
-      duration: 0.25,
+      duration: 0.12,
       ease: exitEase,
     },
   },
@@ -40,21 +40,21 @@ export const fandomticStagger = {
   animate: {
     opacity: 1,
     transition: {
-      duration: 0.4,
-      staggerChildren: 0.08,
-      delayChildren: 0.04,
+      duration: 0.25,
+      staggerChildren: 0.05,
+      delayChildren: 0.02,
     },
   },
 };
 
 export const fandomticItem = {
-  initial: { opacity: 0, y: 24, scale: 0.99 },
+  initial: { opacity: 0, y: 16, scale: 0.995 },
   animate: {
     opacity: 1,
     y: 0,
     scale: 1,
     transition: {
-      duration: 0.5,
+      duration: 0.28,
       ease: fandomticEase,
     },
   },

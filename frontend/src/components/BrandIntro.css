@@ -1,0 +1,175 @@
+/* ==========================================================================
+   FANCLUB — Premium High-Impact Brand Intro Overlay
+   ========================================================================== */
+
+.brand-intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #0d0d11;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Ambient Pulsing Backlight Rays */
+.intro-glow-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: 
+    radial-gradient(circle at 50% 45%, rgba(208, 32, 32, 0.18) 0%, rgba(16, 64, 192, 0.12) 40%, rgba(13, 13, 17, 0) 70%),
+    radial-gradient(circle at 50% 60%, rgba(240, 192, 32, 0.1) 0%, rgba(13, 13, 17, 0) 50%);
+  filter: blur(40px);
+}
+
+.intro-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+
+/* Main Brand Logo Cluster */
+.intro-logo-cluster {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+/* FAN Badge Box */
+.intro-fan-box {
+  background: #FFFFFF;
+  color: #D02020;
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-weight: 900;
+  font-size: 2.5rem;
+  line-height: 1;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 4px solid #1040C0;
+  box-shadow: 6px 6px 0px #F0C020, 0 10px 30px rgba(0, 0, 0, 0.5);
+  letter-spacing: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* CLUB Typography */
+.intro-club-text {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  font-weight: 900;
+  font-size: 2.8rem;
+  letter-spacing: 6px;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  text-shadow: 0 4px 20px rgba(255, 255, 255, 0.2);
+}
+
+/* Tagline Container */
+.intro-tagline-box {
+  font-family: 'Inter', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: 4px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.intro-tagline-yellow {
+  color: #FFCC00;
+  text-shadow: 0 0 16px rgba(255, 204, 0, 0.4);
+}
+
+.intro-tagline-blue {
+  color: #3B82F6;
+  text-shadow: 0 0 16px rgba(59, 130, 246, 0.4);
+}
+
+/* Sub-caption bar */
+.intro-subcaption {
+  margin-top: 18px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+}
+
+/* Animated Progress Bar Line at Bottom */
+.intro-progress-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.intro-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #D02020 0%, #F0C020 50%, #1040C0 100%);
+  box-shadow: 0 0 12px rgba(240, 192, 32, 0.8);
+  border-radius: 2px;
+}
+
+/* Skip Button */
+.intro-skip-btn {
+  position: absolute;
+  top: 28px;
+  right: 28px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding: 8px 18px;
+  border-radius: 30px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 0.25s ease;
+}
+
+.intro-skip-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .intro-fan-box {
+    font-size: 1.8rem;
+    padding: 8px 14px;
+    border-width: 3px;
+    box-shadow: 4px 4px 0px #F0C020;
+  }
+  .intro-club-text {
+    font-size: 2.1rem;
+    letter-spacing: 4px;
+  }
+  .intro-tagline-box {
+    font-size: 0.9rem;
+    letter-spacing: 3px;
+  }
+  .intro-skip-btn {
+    top: 18px;
+    right: 18px;
+    padding: 6px 14px;
+    font-size: 0.7rem;
+  }
+}

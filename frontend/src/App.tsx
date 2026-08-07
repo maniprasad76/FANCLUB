@@ -9,16 +9,14 @@ import { DeviceProvider } from "./context/DeviceContext";
 import { Particles } from "./components/Particles";
 import TopNav from "./components/TopNav/TopNav";
 import Footer from "./components/Footer/Footer";
-import FooterVideo from "./components/FooterVideo/FooterVideo";
 import MobileBottomNav from "./components/MobileBottomNav/MobileBottomNav";
 import TopProgressBar from "./components/TopProgressBar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { Toaster } from "react-hot-toast";
-import "./App.css";
-import BrandIntro from "./components/BrandIntro/BrandIntro";
-import FloatingSocials from "./components/FloatingSocials/FloatingSocials";
+import BrandIntro from "./components/BrandIntro";
+import FloatingSocials from "./components/FloatingSocials";
 import OfflineIndicator from "./components/OfflineIndicator";
-import ScarcityToaster from "./components/ScarcityToaster/ScarcityToaster";
+import ScarcityToaster from "./components/ScarcityToaster";
 
 /* ─── Lazy-loaded pages (code-split into separate chunks) ─── */
 const Home = lazy(() => import("./pages/Home/Home"));
@@ -176,7 +174,6 @@ function AppShell() {
           </Routes>
         </AnimatePresence>
       </main>
-      <FooterVideo />
       <Footer />
       <MobileBottomNav />
       <FloatingSocials />
@@ -186,69 +183,59 @@ function AppShell() {
       <Toaster
         position="top-center"
         containerStyle={{
-          top: "calc(var(--nav-height) + 16px)",
+          top: "calc(var(--nav-height) + 6px)",
         }}
-        gutter={10}
+        gutter={6}
         toastOptions={{
-          duration: 3500,
+          duration: 3000,
           style: {
-            background: "#1a1a1a",
+            background: "rgba(18, 18, 24, 0.94)",
             color: "#ffffff",
-            border: "none",
-            borderRadius: "12px",
-            padding: "12px 18px",
+            border: "1px solid rgba(255, 255, 255, 0.14)",
+            borderRadius: "999px",
+            padding: "6px 14px",
             fontFamily: "var(--font-body)",
             fontWeight: 600,
-            fontSize: "0.875rem",
-            letterSpacing: "0",
-            textTransform: "none" as const,
-            maxWidth: "min(380px, 92vw)",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.12)",
+            fontSize: "0.78rem",
+            letterSpacing: "0.2px",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4)",
             display: "flex",
             alignItems: "center",
-            gap: "10px",
-            lineHeight: "1.4",
+            gap: "6px",
+            maxWidth: "min(300px, 86vw)",
           },
           success: {
             style: {
-              background: "#1a1a1a",
+              background: "rgba(18, 18, 24, 0.94)",
               color: "#ffffff",
-              border: "none",
-              borderRadius: "12px",
-              padding: "12px 18px",
-              fontFamily: "var(--font-body)",
-              fontWeight: 600,
-              fontSize: "0.875rem",
-              letterSpacing: "0",
-              textTransform: "none" as const,
-              maxWidth: "min(380px, 92vw)",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.12)",
-              lineHeight: "1.4",
+              border: "1px solid rgba(34, 197, 94, 0.35)",
+              borderRadius: "999px",
+              padding: "6px 14px",
+              fontSize: "0.78rem",
+              backdropFilter: "blur(16px)",
+              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4)",
             },
             iconTheme: {
               primary: "#22c55e",
-              secondary: "#1a1a1a",
+              secondary: "#121216",
             },
           },
           error: {
             style: {
-              background: "#1a1a1a",
+              background: "rgba(18, 18, 24, 0.94)",
               color: "#ffffff",
-              border: "none",
-              borderRadius: "12px",
-              padding: "12px 18px",
-              fontFamily: "var(--font-body)",
-              fontWeight: 600,
-              fontSize: "0.875rem",
-              letterSpacing: "0",
-              textTransform: "none" as const,
-              maxWidth: "min(380px, 92vw)",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.12)",
-              lineHeight: "1.4",
+              border: "1px solid rgba(248, 113, 113, 0.35)",
+              borderRadius: "999px",
+              padding: "6px 14px",
+              fontSize: "0.78rem",
+              backdropFilter: "blur(16px)",
+              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4)",
             },
             iconTheme: {
               primary: "#f87171",
-              secondary: "#1a1a1a",
+              secondary: "#121216",
             },
           },
         }}
@@ -259,30 +246,26 @@ function AppShell() {
 }
 
 function App() {
-  // Show BrandIntro only once per browser session.
-  // Returning visitors / page refreshes within the same session skip the 2.8s intro.
   const [showIntro, setShowIntro] = useState(() => {
     try {
       return !sessionStorage.getItem('fan_intro_shown');
     } catch {
-      return true; // sessionStorage unavailable (e.g. private mode edge case)
+      return false;
     }
   });
-
-  useEffect(() => {
-    if (showIntro) {
-      const timer = setTimeout(() => {
-        setShowIntro(false);
-        try { sessionStorage.setItem('fan_intro_shown', '1'); } catch {}
-      }, 2800);
-      return () => clearTimeout(timer);
-    }
-  }, [showIntro]);
 
   return (
     <BrowserRouter>
       <AnimatePresence mode="wait">
-        {showIntro && <BrandIntro key="brand-intro" />}
+        {showIntro && (
+          <BrandIntro
+            key="brand-intro"
+            onDone={() => {
+              setShowIntro(false);
+              try { sessionStorage.setItem('fan_intro_shown', '1'); } catch {}
+            }}
+          />
+        )}
       </AnimatePresence>
       <Particles />
       <DeviceProvider>
