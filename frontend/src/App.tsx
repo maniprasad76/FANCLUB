@@ -1,4 +1,10 @@
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
 import { useEffect, useState, useRef, Suspense, lazy } from "react";
 import { AnimatePresence } from "framer-motion";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -10,7 +16,6 @@ import { Particles } from "./components/Particles";
 import TopNav from "./components/TopNav/TopNav";
 import Footer from "./components/Footer/Footer";
 import MobileBottomNav from "./components/MobileBottomNav/MobileBottomNav";
-import TopProgressBar from "./components/TopProgressBar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { Toaster } from "react-hot-toast";
 import BrandIntro from "./components/BrandIntro";
@@ -39,11 +44,12 @@ const FAQ = lazy(() => import("./pages/Support/FAQ"));
 const Privacy = lazy(() => import("./pages/Support/Privacy"));
 const Returns = lazy(() => import("./pages/Support/Returns"));
 const Terms = lazy(() => import("./pages/Support/Terms"));
-const LaunchChecklist = lazy(() => import("./pages/LaunchChecklist/LaunchChecklist"));
+const LaunchChecklist = lazy(
+  () => import("./pages/LaunchChecklist/LaunchChecklist"),
+);
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AccessDenied = lazy(() => import("./pages/AccessDenied/AccessDenied"));
 const LoyaltyClub = lazy(() => import("./pages/LoyaltyClub/LoyaltyClub"));
-
 
 function AppShell() {
   const location = useLocation();
@@ -53,12 +59,18 @@ function AppShell() {
   }, [location.pathname]);
 
   // Route-change announcer for screen readers
-  const [routeAnnouncement, setRouteAnnouncement] = useState('');
+  const [routeAnnouncement, setRouteAnnouncement] = useState("");
   const prevPathRef = useRef(location.pathname);
 
   useEffect(() => {
     if (prevPathRef.current !== location.pathname) {
-      const pageName = location.pathname === '/' ? 'Home' : location.pathname.replace(/^\//,'').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      const pageName =
+        location.pathname === "/"
+          ? "Home"
+          : location.pathname
+              .replace(/^\//, "")
+              .replace(/-/g, " ")
+              .replace(/\b\w/g, (l) => l.toUpperCase());
       setRouteAnnouncement(`Navigated to ${pageName}`);
       prevPathRef.current = location.pathname;
     }
@@ -67,15 +79,19 @@ function AppShell() {
   return (
     <>
       {/* Skip-to-content link — first focusable element for keyboard users */}
-      <a href="#main-content" className="skip-link">Skip to Main Content</a>
+      <a href="#main-content" className="skip-link">
+        Skip to Main Content
+      </a>
       {/* Aria-live region — announces route changes to screen readers */}
-      <div aria-live="polite" aria-atomic="true" className="route-announcer" role="status">
+      <div
+        aria-live="polite"
+        aria-atomic="true"
+        className="route-announcer"
+        role="status"
+      >
         {routeAnnouncement}
       </div>
-      <div className="bauhaus-color-bar" style={{ position: 'relative', zIndex: 99999 }}>
-        <div />
-        <div />
-      </div>
+
       <TopNav />
       <main className="app-main" id="main-content">
         <AnimatePresence mode="wait" initial={false}>
@@ -240,7 +256,6 @@ function AppShell() {
           },
         }}
       />
-      <TopProgressBar />
     </>
   );
 }
@@ -248,7 +263,7 @@ function AppShell() {
 function App() {
   const [showIntro, setShowIntro] = useState(() => {
     try {
-      return !sessionStorage.getItem('fan_intro_shown');
+      return !sessionStorage.getItem("fan_intro_shown");
     } catch {
       return false;
     }
@@ -262,7 +277,9 @@ function App() {
             key="brand-intro"
             onDone={() => {
               setShowIntro(false);
-              try { sessionStorage.setItem('fan_intro_shown', '1'); } catch {}
+              try {
+                sessionStorage.setItem("fan_intro_shown", "1");
+              } catch {}
             }}
           />
         )}

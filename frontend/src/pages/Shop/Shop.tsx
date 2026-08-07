@@ -176,23 +176,6 @@ export default function Shop() {
                       </div>
                     </div>
 
-                    <div className="filter-group" style={{ marginTop: '20px' }}>
-                      <h4 className="filter-title">Color</h4>
-                      <div className="filter-chips" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                        {['Black', 'White', 'Red', 'Blue', 'Yellow'].map(c => (
-                          <button 
-                            key={c} 
-                            title={c}
-                            onClick={() => updateFilter('color', color === c ? '' : c)}
-                            style={{ 
-                              width: '28px', height: '28px', borderRadius: '50%', background: c.toLowerCase(), 
-                              border: color === c ? '3px solid var(--bauhaus-red)' : '2px solid var(--bauhaus-black)',
-                              cursor: 'pointer' 
-                            }} 
-                          />
-                        ))}
-                      </div>
-                    </div>
 
                     <div className="filter-group" style={{ marginTop: '20px', marginBottom: '20px' }}>
                       <h4 className="filter-title">Price Range</h4>
@@ -254,23 +237,6 @@ export default function Shop() {
                   </div>
                 </div>
 
-                <div className="filter-group" style={{ marginTop: '24px' }}>
-                  <h4 className="filter-title">Color</h4>
-                  <div className="filter-chips" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    {['Black', 'White', 'Red', 'Blue', 'Yellow'].map(c => (
-                      <button 
-                        key={c} 
-                        title={c}
-                        onClick={() => updateFilter('color', color === c ? '' : c)}
-                        style={{ 
-                          width: '28px', height: '28px', borderRadius: '50%', background: c.toLowerCase(), 
-                          border: color === c ? '3px solid var(--bauhaus-red)' : '2px solid var(--bauhaus-black)',
-                          cursor: 'pointer' 
-                        }} 
-                      />
-                    ))}
-                  </div>
-                </div>
 
                 <div className="filter-group" style={{ marginTop: '24px' }}>
                   <h4 className="filter-title">Price Range</h4>
@@ -335,15 +301,29 @@ export default function Shop() {
                   <motion.div
                     key={`shop-grid-${viewMode}-${page}-${category}-${search}-${sort}`}
                     className={viewMode === 'grid' ? 'product-grid' : 'product-list'}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.25 }}
+                    variants={{
+                      hidden: { opacity: 0 },
+                      show: {
+                        opacity: 1,
+                        transition: { staggerChildren: 0.08 }
+                      },
+                      exit: { opacity: 0 }
+                    }}
+                    initial="hidden"
+                    animate="show"
+                    exit="exit"
                   >
                     {products.map((p: any) => (
-                      <div key={p.id} className="shop-product-item">
+                      <motion.div 
+                        key={p.id} 
+                        className="shop-product-item"
+                        variants={{
+                          hidden: { opacity: 0, y: 20 },
+                          show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+                        }}
+                      >
                         <ProductCard product={p} />
-                      </div>
+                      </motion.div>
                     ))}
                   </motion.div>
                 )}

@@ -787,31 +787,7 @@ ol {
 
 /* ============================================
    GLOBAL COLOR BAR
-   ============================================ */
-.bauhaus-color-bar {
-  display: flex;
-  width: 100%;
-  height: 6px;
-}
 
-.bauhaus-color-bar::before {
-  content: "";
-  flex: 1;
-  background: var(--bauhaus-red);
-}
-.bauhaus-color-bar::after {
-  content: "";
-  flex: 1;
-  background: var(--bauhaus-blue);
-}
-.bauhaus-color-bar > div:first-child {
-  flex: 1;
-  background: var(--bauhaus-yellow);
-}
-.bauhaus-color-bar > div:last-child {
-  flex: 1;
-  background: var(--bauhaus-green);
-}
 
 /* ============================================
    ACCESSIBILITY UTILITIES

@@ -227,13 +227,14 @@
   bottom: 0;
   width: 82vw;
   max-width: 320px;
-  background: #ffffff;
+  background: var(--bg-primary);
   z-index: 2000;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  box-shadow: 8px 0 32px rgba(0, 0, 0, 0.15);
+  border-right: 4px solid var(--bauhaus-black);
+  box-shadow: 12px 0 0 0 rgba(18, 18, 18, 0.15);
 }
 
 .mobile-menu.open {
@@ -246,7 +247,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 20px 16px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 2px solid var(--bauhaus-black);
   flex-shrink: 0;
 }
 
@@ -276,9 +277,9 @@
 }
 
 .mobile-menu-close-btn {
-  background: #f5f5f5;
-  border: none;
-  border-radius: 50%;
+  background: transparent;
+  border: 2px solid var(--bauhaus-black);
+  border-radius: 0;
   width: 36px;
   height: 36px;
   display: flex;
@@ -286,19 +287,28 @@
   justify-content: center;
   cursor: pointer;
   color: var(--bauhaus-black);
-  transition: background var(--transition-fast);
+  transition: all var(--transition-fast);
   flex-shrink: 0;
+  box-shadow: 2px 2px 0 0 var(--bauhaus-black);
 }
 
 .mobile-menu-close-btn:hover {
-  background: #e8e8e8;
+  background: var(--bauhaus-red);
+  color: white;
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 0 var(--bauhaus-black);
+}
+
+.mobile-menu-close-btn:active {
+  transform: translate(0, 0);
+  box-shadow: 0 0 0 0 var(--bauhaus-black);
 }
 
 /* User section */
 .mobile-menu-user-section {
   padding: 16px 20px;
-  background: #fafafa;
-  border-bottom: 1px solid #f0f0f0;
+  background: var(--bg-primary);
+  border-bottom: 2px solid var(--bauhaus-black);
   flex-shrink: 0;
 }
 
@@ -314,41 +324,45 @@
 .mobile-menu-avatar {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  background: var(--bauhaus-black);
-  color: white;
+  border-radius: 0;
+  border: 2px solid var(--bauhaus-black);
+  background: var(--bauhaus-yellow);
+  color: var(--bauhaus-black);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 2px 2px 0 0 var(--bauhaus-black);
 }
 
 .mobile-menu-welcome {
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin: 0;
   line-height: 1;
 }
 
 .mobile-menu-username {
-  font-size: 0.88rem;
+  font-family: var(--font-display);
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--bauhaus-black);
-  margin: 3px 0 0;
+  margin: 4px 0 0;
   line-height: 1.2;
 }
 
 /* Section label */
 .mobile-menu-section-label {
-  font-size: 0.65rem;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
-  color: #aaa;
-  padding: 16px 20px 8px;
+  letter-spacing: 2px;
+  color: var(--bauhaus-black);
+  padding: 24px 20px 8px;
   flex-shrink: 0;
 }
 
@@ -356,8 +370,8 @@
 .mobile-menu-links {
   display: flex;
   flex-direction: column;
-  padding: 0 12px;
-  gap: 2px;
+  padding: 0 16px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
@@ -365,15 +379,16 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 10px;
-  border-radius: 10px;
+  padding: 12px 14px;
+  border-radius: 0;
   text-decoration: none;
   color: var(--text-primary);
-  font-size: 0.93rem;
-  font-weight: 600;
-  font-family: var(--font-body);
-  transition: background var(--transition-fast), color var(--transition-fast);
-  border: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  transition: all var(--transition-fast);
+  border: 2px solid transparent;
   background: transparent;
   cursor: pointer;
   width: 100%;
@@ -382,74 +397,89 @@
 
 .mobile-menu-link:hover,
 .mobile-menu-link:active {
-  background: #f5f5f5;
-  color: var(--bauhaus-black);
+  background: var(--bg-primary);
+  border: 2px solid var(--bauhaus-black);
+  box-shadow: 3px 3px 0 0 var(--bauhaus-black);
+  transform: translate(-1px, -1px);
 }
 
 .mobile-menu-link-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 9px;
-  background: #f0f0f0;
+  width: 32px;
+  height: 32px;
+  border-radius: 0;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--bauhaus-black);
   flex-shrink: 0;
-  transition: background var(--transition-fast);
+  transition: transform var(--transition-fast);
 }
 
 .mobile-menu-link:hover .mobile-menu-link-icon {
-  background: #e0e0e0;
+  transform: scale(1.1);
+  color: var(--bauhaus-red);
 }
 
 .mobile-menu-link-label {
   flex: 1;
-  letter-spacing: 0;
+  letter-spacing: 0.5px;
 }
 
 .mobile-menu-link-badge {
-  font-size: 0.6rem;
+  font-family: var(--font-accent);
+  font-size: 0.65rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  background: var(--bauhaus-red);
-  color: white;
-  padding: 2px 6px;
-  border-radius: 4px;
+  letter-spacing: 1px;
+  background: var(--bauhaus-yellow);
+  color: var(--bauhaus-black);
+  border: 2px solid var(--bauhaus-black);
+  padding: 2px 8px;
+  border-radius: 0;
   line-height: 1.4;
   flex-shrink: 0;
+  box-shadow: 1px 1px 0 0 var(--bauhaus-black);
 }
 
 .mobile-menu-link-arrow {
-  color: #ccc;
+  color: var(--bauhaus-black);
   flex-shrink: 0;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all var(--transition-fast);
+}
+
+.mobile-menu-link:hover .mobile-menu-link-arrow {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 /* Logout link */
 .mobile-menu-logout {
-  color: #e53e3e !important;
+  color: var(--bauhaus-red) !important;
 }
 
 .mobile-menu-logout .mobile-menu-link-icon {
-  background: #fff0f0;
-  color: #e53e3e;
+  color: var(--bauhaus-red);
 }
 
 /* Footer */
 .mobile-menu-footer {
   margin-top: auto;
   padding: 20px;
-  border-top: 1px solid #f0f0f0;
+  border-top: 2px solid var(--bauhaus-black);
   flex-shrink: 0;
+  background: var(--bauhaus-black);
+  color: white;
 }
 
 .mobile-menu-footer-tag {
-  font-size: 0.65rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  color: #bbb;
+  letter-spacing: 2px;
 }
 
 
