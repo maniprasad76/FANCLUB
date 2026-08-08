@@ -81,8 +81,16 @@ export default function Checkout() {
 
   // Once an order is placed, the cart is emptied server-side. The empty-cart
   // guard below must NOT fire afterwards — otherwise the customer is yanked
-  // off the success page back to the (now empty) cart.
+  // off the success page back to the (now empty) cart. The ref is set in
+  // handlePlaceOrder only AFTER the post-order cart refresh completes (right
+  // before navigating to the result page), so a failed attempt leaves the
+  // guard intact and the customer gets an accurate error instead of a
+  // misleading "Order failed".
   const orderCompletedRef = useRef(false);
+
+  // Synchronous re-entry guard for the submit button — blocks a second
+  // POST /orders before React has re-rendered the disabled state.
+  const submittingRef = useRef(false);
 
   // Coupon states
   const [couponInput, setCouponInput] = useState('');
@@ -261,9 +269,22 @@ export default function Checkout() {
 
   /* ── Place order ── */
   const handlePlaceOrder = async () => {
+    // In-handler re-entry guard: setLoading only disables the button on the
+    // next render, so a rapid double-click could fire two POST /orders before
+    // the disabled state lands. The ref is synchronous — it blocks immediately.
+    if (submittingRef.current) return;
     if (!selectedAddress) return toast.error('Please select a delivery address');
     if (items.length === 0) return toast.error('Your cart is empty');
+
+    submittingRef.current = true;
     setLoading(true);
+
+    // Remember the created order so a failure in a *later* step (payment,
+    // verify, cart refresh) is reported accurately instead of a blanket
+    // "Order failed" — the order exists, the customer just needs to be
+    // routed to the status page to continue or retry.
+    let createdOrder: any = null;
+
     try {
       const orderData: any = {
         items: items.map(item => ({ productId: item.productId, quantity: item.quantity, size: item.size, color: item.color })),
@@ -274,9 +295,7 @@ export default function Checkout() {
         couponCode: appliedCoupon || undefined,
       };
       const { data } = await api.post('/orders', orderData);
-      // Order is created — from here on the cart will be emptied, so the
-      // empty-cart guard must not redirect away from the result pages.
-      orderCompletedRef.current = true;
+      createdOrder = data;
 
       if (paymentMethod === 'ONLINE') {
         const paymentGateway = data.gateway || 'RAZORPAY';
@@ -285,31 +304,52 @@ export default function Checkout() {
           try {
             const paymentResult = await openRazorpayModal(data.razorpayOrderId, data.totalAmount, data.razorpayKey);
             await api.post('/payments/verify', paymentResult);
+            // Cart is emptied server-side once the order is paid — mark the
+            // order complete AFTER the refresh so the empty-cart guard can't
+            // yank the customer back to /cart on their way to the result page.
             await fetchCart();
+            orderCompletedRef.current = true;
             navigate('/order-success', { state: { order: { ...data, paymentMethod: 'ONLINE', onlineMethod: onlineSubMethod, gateway: 'RAZORPAY' } } });
           } catch {
+            // Payment failed or was cancelled — the order still exists as
+            // pending, so route to the payment-status page (with retry) and
+            // suppress the guard after the refresh so the customer isn't
+            // bounced to the (now empty) cart.
             toast.error('Payment cancelled or failed. Order saved as pending.');
             await fetchCart();
+            orderCompletedRef.current = true;
             navigate('/payment-status/' + data.id + '?status=cancelled');
           }
         } else {
           // Fallback — show payment status page
           await fetchCart();
+          orderCompletedRef.current = true;
           navigate('/payment-status/' + data.id);
         }
       } else {
         await fetchCart();
+        orderCompletedRef.current = true;
         navigate('/order-success', { state: { order: { ...data, paymentMethod: 'COD' } } });
       }
     } catch (err: any) {
-      if (err.response?.status === 401) {
+      if (createdOrder) {
+        // The order WAS created but a later step failed (e.g. the request
+        // timed out after the server committed). Don't claim the order
+        // failed — send the customer to the status page where they can see
+        // it and retry payment.
+        toast.error('Order created, but we could not complete the next step. Check the status page to continue.');
+        orderCompletedRef.current = true;
+        navigate('/payment-status/' + createdOrder.id);
+      } else if (err.response?.status === 401) {
         toast.error('Session expired. Please sign in again.');
         navigate('/login?redirect=/checkout');
       } else {
         toast.error(err.response?.data?.message || 'Order failed. Please try again.');
       }
+    } finally {
+      submittingRef.current = false;
+      setLoading(false);
     }
-    setLoading(false);
   };
 
 

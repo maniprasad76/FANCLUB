@@ -282,14 +282,15 @@ export default function TopNav() {
           <div className="topnav-right">
             <Magnetic>
               <button
-                className="btn-icon nav-icon-btn interactive nav-search-btn"
+                className="nav-search-trigger interactive"
                 onClick={() => setSearchOpen(!searchOpen)}
                 id="nav-search-btn"
                 aria-label="Search products"
               >
-                <Search size={22} />
-                <span className="nav-search-hint">
-                  Search <kbd>⌘K</kbd>
+                <Search size={18} className="search-trigger-icon" />
+                <span className="search-trigger-text">Search</span>
+                <span className="search-trigger-kbd">
+                  <kbd>⌘K</kbd>
                 </span>
               </button>
             </Magnetic>
