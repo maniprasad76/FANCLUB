@@ -1,15 +1,33 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class WishlistService {
   constructor(private prisma: PrismaService) {}
 
-  async getWishlist(authId: string) {
-    const user = await this.prisma.user.findUnique({ where: { authId } });
-    if (!user) throw new NotFoundException('User not found');
+  private async resolveUser(userIdentifier?: string) {
+    if (!userIdentifier) {
+      throw new UnauthorizedException('Authentication required');
+    }
 
-    return this.prisma.wishlist.findMany({
+    const user = await this.prisma.user.findFirst({
+      where: {
+        OR: [{ id: userIdentifier }, { authId: userIdentifier }],
+      },
+    });
+
+    if (!user) throw new NotFoundException('User not found');
+    return user;
+  }
+
+  async getWishlist(userIdentifier: string) {
+    const user = await this.resolveUser(userIdentifier);
+
+    const items = await this.prisma.wishlist.findMany({
       where: { userId: user.id },
       include: {
         product: {
@@ -20,11 +38,17 @@ export class WishlistService {
       },
       orderBy: { createdAt: 'desc' },
     });
+
+    return items.filter((item) => item.product != null);
   }
 
-  async toggle(authId: string, productId: string) {
-    const user = await this.prisma.user.findUnique({ where: { authId } });
-    if (!user) throw new NotFoundException('User not found');
+  async toggle(userIdentifier: string, productId: string) {
+    const user = await this.resolveUser(userIdentifier);
+
+    const product = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
+    if (!product) throw new NotFoundException('Product not found');
 
     const existing = await this.prisma.wishlist.findUnique({
       where: { userId_productId: { userId: user.id, productId } },
@@ -39,9 +63,13 @@ export class WishlistService {
     return { added: true, message: 'Added to wishlist' };
   }
 
-  async remove(authId: string, productId: string) {
-    const user = await this.prisma.user.findUnique({ where: { authId } });
-    if (!user) throw new NotFoundException('User not found');
+  async remove(userIdentifier: string, productId: string) {
+    const user = await this.resolveUser(userIdentifier);
+
+    const existing = await this.prisma.wishlist.findUnique({
+      where: { userId_productId: { userId: user.id, productId } },
+    });
+    if (!existing) throw new NotFoundException('Wishlist item not found');
 
     await this.prisma.wishlist.delete({
       where: { userId_productId: { userId: user.id, productId } },

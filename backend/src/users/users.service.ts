@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   UpdateUserDto,
@@ -9,6 +13,22 @@ import {
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
+
+  private async resolveUser(userIdentifier?: string) {
+    if (!userIdentifier) {
+      throw new UnauthorizedException('Authentication required');
+    }
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        OR: [{ id: userIdentifier }, { authId: userIdentifier }],
+      },
+      include: { addresses: true },
+    });
+
+    if (!user) throw new NotFoundException('User not found');
+    return user;
+  }
 
   async findAll(page = 1, limit = 20) {
     const safeLimit = Math.min(100, Math.max(1, limit));
@@ -30,16 +50,12 @@ export class UsersService {
     };
   }
 
-  async findByAuthId(authId: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { authId },
-      include: { addresses: true },
-    });
-    if (!user) throw new NotFoundException('User not found');
-    return user;
+  async findByAuthId(userIdentifier: string) {
+    return this.resolveUser(userIdentifier);
   }
 
   async findById(id: string) {
+    if (!id) throw new NotFoundException('User ID missing');
     const user = await this.prisma.user.findUnique({
       where: { id },
       include: {
@@ -51,13 +67,13 @@ export class UsersService {
     return user;
   }
 
-  async update(authId: string, dto: UpdateUserDto) {
-    return this.prisma.user.update({ where: { authId }, data: dto });
+  async update(userIdentifier: string, dto: UpdateUserDto) {
+    const user = await this.resolveUser(userIdentifier);
+    return this.prisma.user.update({ where: { id: user.id }, data: dto });
   }
 
-  async addAddress(authId: string, dto: CreateAddressDto) {
-    const user = await this.prisma.user.findUnique({ where: { authId } });
-    if (!user) throw new NotFoundException('User not found');
+  async addAddress(userIdentifier: string, dto: CreateAddressDto) {
+    const user = await this.resolveUser(userIdentifier);
 
     if (dto.isDefault) {
       await this.prisma.address.updateMany({
@@ -69,12 +85,11 @@ export class UsersService {
   }
 
   async updateAddress(
-    authId: string,
+    userIdentifier: string,
     addressId: string,
     dto: UpdateAddressDto,
   ) {
-    const user = await this.prisma.user.findUnique({ where: { authId } });
-    if (!user) throw new NotFoundException('User not found');
+    const user = await this.resolveUser(userIdentifier);
 
     if (dto.isDefault) {
       await this.prisma.address.updateMany({
@@ -92,9 +107,8 @@ export class UsersService {
     return this.prisma.address.findUnique({ where: { id: addressId } });
   }
 
-  async deleteAddress(authId: string, addressId: string) {
-    const user = await this.prisma.user.findUnique({ where: { authId } });
-    if (!user) throw new NotFoundException('User not found');
+  async deleteAddress(userIdentifier: string, addressId: string) {
+    const user = await this.resolveUser(userIdentifier);
 
     const result = await this.prisma.address.deleteMany({
       where: { id: addressId, userId: user.id },
