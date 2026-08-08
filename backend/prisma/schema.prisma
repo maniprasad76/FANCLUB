@@ -7,7 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
 model User {
   id               String            @id @default(uuid())
   email            String            @unique
@@ -158,17 +157,17 @@ model Order {
 }
 
 model OrderItem {
-  id        String  @id @default(uuid())
+  id        String   @id @default(uuid())
   orderId   String
-  productId String
+  productId String?
   quantity  Int
   size      String?
   color     String?
   price     Decimal  @db.Decimal(10, 2)
   name      String
   image     String?
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product   Product @relation(fields: [productId], references: [id])
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
 
   @@index([orderId])
   @@index([productId])
@@ -278,14 +277,6 @@ model Wishlist {
   @@index([userId])
   @@index([productId])
   @@map("wishlists")
-}
-
-model Newsletter {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  createdAt DateTime @default(now())
-
-  @@map("newsletters")
 }
 
 model Contact {
@@ -416,7 +407,7 @@ model LoyaltyReward {
   id                String          @id @default(uuid())
   loyaltyProgressId String
   cycle             Int
-  productId         String
+  productId         String?
   productName       String
   productImage      String?
   productSize       String?
@@ -425,7 +416,7 @@ model LoyaltyReward {
   couponCode        String?
   claimedAt         DateTime        @default(now())
   loyaltyProgress   LoyaltyProgress @relation(fields: [loyaltyProgressId], references: [id], onDelete: Cascade)
-  product           Product         @relation(fields: [productId], references: [id])
+  product           Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
 
   @@index([loyaltyProgressId])
   @@map("loyalty_rewards")

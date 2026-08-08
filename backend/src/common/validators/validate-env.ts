@@ -64,6 +64,45 @@ export function validateEnv(): void {
     }
   }
 
+  // Validate database connection strings — DATABASE_URL is required and
+  // DIRECT_URL (migrations) must also be real, not template placeholders.
+  const dbUrlVars = ['DATABASE_URL', 'DIRECT_URL'];
+  for (const key of dbUrlVars) {
+    const val = process.env[key];
+    if (!val) continue; // missing is handled above; DIRECT_URL is optional
+
+    let parsed: URL;
+    try {
+      parsed = new URL(val);
+    } catch {
+      missing.push(`${key} is not a valid URL — check backend/.env`);
+      continue;
+    }
+
+    if (parsed.protocol !== 'postgres:' && parsed.protocol !== 'postgresql:') {
+      missing.push(
+        `${key} must use the postgres:// or postgresql:// scheme (got: ${val.slice(0, 40)}...)`,
+      );
+      continue;
+    }
+
+    const dbHost = (parsed.hostname || '').replace(/^\[|\]$/g, '');
+    const isLocalDbHost = ['localhost', '127.0.0.1', '::1'].includes(dbHost);
+    const isPlaceholder =
+      /<[^>]+>/.test(val) || // e.g. <ref>, <password> from .env.example
+      !parsed.username ||
+      (!parsed.password && !isLocalDbHost);
+
+    if (isPlaceholder) {
+      missing.push(
+        `${key} contains a placeholder or missing credentials (username/password). Copy the real connection string from Supabase Dashboard → Settings → Database.`,
+      );
+      continue;
+    }
+
+
+  }
+
   // Validate URL format for CORS URLs if present
   for (const key of corsVars) {
     const val = process.env[key];

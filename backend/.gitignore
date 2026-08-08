@@ -7,3 +7,6 @@ node_modules
 *.tsbuildinfo
 
 /generated/prisma
+
+# Upload migration audit logs
+scripts/migrate-uploads-*.jsonl

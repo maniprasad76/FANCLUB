@@ -46,9 +46,13 @@ export class OrdersService implements OnModuleInit, OnModuleDestroy {
 
   /** Default time a PENDING online order stays open before it expires. */
   private readonly defaultTtlMinutes = 15;
-  /** How often the stale-order scan runs. */
+  /** How often the stale-order scan runs (base interval). */
   private readonly scanIntervalMs = 60_000;
+  /** Backoff interval after repeated failures (5 minutes). */
+  private readonly backoffIntervalMs = 300_000;
   private expiryTimer?: NodeJS.Timeout;
+  /** Track consecutive scan failures for backoff logic. */
+  private consecutiveScanFailures = 0;
 
   constructor(
     private prisma: PrismaService,
@@ -63,17 +67,26 @@ export class OrdersService implements OnModuleInit, OnModuleDestroy {
     // ── CRIT 1: Stale PENDING order expiry job ──
     // Self-scheduling scan that releases stock and closes gateway sessions for
     // online orders that were never paid. Guards against overlapping runs.
-    this.expiryTimer = setInterval(() => {
-      void this.expireStaleOrders();
-    }, this.scanIntervalMs);
-    this.expiryTimer.unref?.();
+    this.scheduleScan(this.scanIntervalMs);
     // Run once shortly after boot to clear anything left over from downtime.
-    const firstRun = setTimeout(() => void this.expireStaleOrders(), 10_000);
+    const firstRun = setTimeout(() => void this.runExpiryScan(), 10_000);
     firstRun.unref?.();
   }
 
   onModuleDestroy() {
     if (this.expiryTimer) clearInterval(this.expiryTimer);
+  }
+
+  /**
+   * Schedules the next expiry scan. Uses backoff interval after 3+ consecutive
+   * failures to avoid flooding logs when the database is temporarily unreachable.
+   */
+  private scheduleScan(intervalMs: number) {
+    if (this.expiryTimer) clearInterval(this.expiryTimer);
+    this.expiryTimer = setInterval(() => {
+      void this.runExpiryScan();
+    }, intervalMs);
+    this.expiryTimer.unref?.();
   }
 
   /** TTL in ms for how long a PENDING online order stays open for payment. */
@@ -85,6 +98,35 @@ export class OrdersService implements OnModuleInit, OnModuleDestroy {
       (Number.isFinite(mins) && mins > 0 ? mins : this.defaultTtlMinutes) *
       60_000
     );
+  }
+
+  /**
+   * Safe wrapper around expireStaleOrders() — a transient DB failure must
+   * never become an unhandled promise rejection that crashes the process.
+   * Implements backoff: after 3 consecutive failures, extends scan interval.
+   */
+  private async runExpiryScan(): Promise<void> {
+    try {
+      await this.expireStaleOrders();
+      // Reset backoff on success
+      if (this.consecutiveScanFailures > 0) {
+        this.consecutiveScanFailures = 0;
+        this.scheduleScan(this.scanIntervalMs);
+        this.logger.log('Stale-order expiry scan recovered — resuming normal interval.');
+      }
+    } catch (err: any) {
+      this.consecutiveScanFailures++;
+      this.logger.error(
+        `Stale-order expiry scan failed (attempt ${this.consecutiveScanFailures}): ${err?.message || err}`,
+      );
+      // After 3 consecutive failures, back off to reduce log spam
+      if (this.consecutiveScanFailures === 3) {
+        this.logger.warn(
+          `Stale-order expiry scan failed 3 times — backing off to ${this.backoffIntervalMs / 1000}s interval.`,
+        );
+        this.scheduleScan(this.backoffIntervalMs);
+      }
+    }
   }
 
   /**
@@ -135,6 +177,7 @@ export class OrdersService implements OnModuleInit, OnModuleDestroy {
 
             // Restore stock
             for (const item of order.items) {
+              if (!item.productId) continue;
               await tx.product.update({
                 where: { id: item.productId },
                 data: { stock: { increment: item.quantity } },
@@ -560,6 +603,7 @@ export class OrdersService implements OnModuleInit, OnModuleDestroy {
       });
       await this.prisma.$transaction(async (tx) => {
         for (const item of items) {
+          if (!item.productId) continue;
           await tx.product.update({
             where: { id: item.productId },
             data: { stock: { increment: item.quantity } },

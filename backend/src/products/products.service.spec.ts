@@ -50,6 +50,8 @@ describe('ProductsService', () => {
       cartItem: { deleteMany: jest.fn() },
       wishlist: { deleteMany: jest.fn() },
       review: { deleteMany: jest.fn() },
+      orderItem: { updateMany: jest.fn() },
+      loyaltyReward: { updateMany: jest.fn() },
       $transaction: jest.fn((txs) => Promise.all(txs)),
     };
 

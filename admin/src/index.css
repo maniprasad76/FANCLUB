@@ -1,91 +1,110 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;900&family=Oufant:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap");
 
 /* ============================================
-  FAN CLUB ADMIN — Minimalist Design System
-  Neutral palette and simple typography for admin UI.
-  ============================================ */
+   FAN CLUB ADMIN — BAUHAUS CONSTRUCTIVIST DESIGN SYSTEM
+   Form follows function. Geometric purity.
+   100% Visual Alignment with Frontend Storefront.
+   ============================================ */
 
 :root {
-  /* Core palette — Luxury Minimalist */
-  --bg-primary: #f8f9fa;
+  /* Core palette — Bauhaus Canvas */
+  --bg-primary: #f6fafc;
+  --bg-rgb: 246, 250, 252;
   --bg-secondary: #ffffff;
-  --bg-tertiary: #f1f3f5;
+  --bg-tertiary: #c0e9fc;
   --bg-card: #ffffff;
   --bg-glass: rgba(255, 255, 255, 0.85);
-  --bg-glass-hover: rgba(18, 18, 18, 0.04);
+  --bg-glass-hover: rgba(255, 255, 255, 0.95);
+  --glass-blur: blur(24px);
 
-  /* Legacy Bauhaus tokens kept for compatibility — neutralized */
-  --bauhaus-red: #0f172a;
-  --bauhaus-blue: #374151;
-  --bauhaus-yellow: #6b7280;
-  --bauhaus-green: #10b981;
-  --bauhaus-black: #0f172a;
+  /* Bauhaus Primaries */
+  --bauhaus-red: #d02020;
+  --bauhaus-blue: #1040c0;
+  --bauhaus-yellow: #f0c020;
+  --bauhaus-green: #009e60;
+  --bauhaus-black: #121212;
   --bauhaus-white: #ffffff;
 
   /* Status & Accents */
   --accent-violet: #1040c0;
-  --accent-cyan: #008751;
-  --accent-amber: #b88600;
+  --accent-cyan: #009e60;
+  --accent-amber: #f0c020;
   --accent-rose: #d02020;
-  --accent-emerald: #008751;
+  --accent-emerald: #009e60;
   --accent-blue: #1040c0;
 
-  /* Text — Crisp & Legible */
+  /* Text — Ink on Canvas */
   --text-primary: #121212;
-  --text-secondary: #495057;
-  --text-muted: #868e96;
-  --text-accent: var(--text-primary);
+  --text-secondary: #444444;
+  --text-muted: #595959;
+  --text-accent: var(--bauhaus-red);
 
-  /* Subtle Modern Borders */
-  --border-subtle: rgba(18, 18, 18, 0.08);
-  --border-glass: rgba(18, 18, 18, 0.08);
-  --border-accent: rgba(208, 32, 32, 0.3);
+  /* Borders — Thick, Black, Deliberate */
+  --border-subtle: #121212;
+  --border-glass: #121212;
+  --border-accent: #121212;
+  --border-rgb: 18, 18, 18;
 
-  /* Soft Ambient Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.03);
-  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.08);
+  /* Shadows — Hard Offset, No Blur */
+  --shadow-sm: 3px 3px 0px 0px #121212;
+  --shadow-md: 5px 5px 0px 0px #121212;
+  --shadow-lg: 8px 8px 0px 0px #121212;
+  --shadow-glow: 4px 4px 0px 0px #121212;
+  --shadow-glow-amber: 4px 4px 0px 0px #121212;
 
   /* Typography System */
-  --font-display: "Inter", system-ui, -apple-system, sans-serif;
-  --font-body: "Inter", system-ui, -apple-system, sans-serif;
-  --font-accent: "Inter", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
-  --font-editorial: "Inter", sans-serif;
+  --font-display: "Space Grotesk", "Oufant", sans-serif;
+  --font-body: "Inter", "Oufant", sans-serif;
+  --font-accent: "Oufant", sans-serif;
+  --font-mono: "JetBrains Mono", "Courier New", monospace;
+  --font-editorial: "Playfair Display", "Georgia", serif;
 
   /* Layout Dimensions */
   --sidebar-width: 260px;
   --header-height: 72px;
   --container-padding: 24px;
 
-  /* Transitions — Smooth & Fluid */
-  --transition-fast: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-base: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Transitions — Mechanical, Snappy */
+  --transition-fast: 0.15s ease-out;
+  --transition-base: 0.2s ease-out;
+  --transition-slow: 0.3s ease-out;
 
-  /* Modern Smooth Radius System */
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  /* Radius — Binary Constructivist: Square 0px or Circle */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
   --radius-full: 9999px;
 }
 
-/* Reset & Global Base */
+/* ============================================
+   RESET & BASE
+   ============================================ */
 *,
 *::before,
 *::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: rgba(0, 158, 96, 0.25);
+  color: var(--text-primary);
 }
 
 html {
+  position: relative;
+  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 body {
   font-family: var(--font-body);
-  font-weight: 400;
+  font-weight: 500;
   background: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;
@@ -93,9 +112,8 @@ body {
   min-height: 100vh;
 }
 
-/* Subtle luxury gradient overlay */
+/* Dot grid texture overlay — Bauhaus paper feel */
 body::before {
-  /* remove textured overlay for clean admin background */
   content: "";
   position: fixed;
   top: 0;
@@ -103,9 +121,15 @@ body::before {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 9999;
-  opacity: 0;
-  background-image: none;
+  z-index: 1;
+  opacity: 0.15;
+  background-image: radial-gradient(var(--bauhaus-green) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+#root {
+  position: relative;
+  z-index: 2;
 }
 
 a {
@@ -131,11 +155,12 @@ input,
 select,
 textarea {
   font-family: var(--font-body);
+  font-weight: 600;
   color: var(--text-primary);
-  background: var(--bg-secondary);
-  border: 1px solid rgba(15, 23, 42, 0.06);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 2px solid var(--bauhaus-black);
+  border-radius: 0;
+  padding: 12px 16px;
   outline: none;
   transition: all var(--transition-fast);
 }
@@ -143,8 +168,8 @@ textarea {
 input:focus,
 select:focus,
 textarea:focus {
-  border-color: var(--bauhaus-black);
-  box-shadow: 0 0 0 3px rgba(18, 18, 18, 0.08);
+  border-color: var(--bauhaus-green);
+  box-shadow: 3px 3px 0px 0px var(--bauhaus-black);
 }
 
 ul,
@@ -152,39 +177,98 @@ ol {
   list-style: none;
 }
 
-/* Scrollbar */
+/* ============================================
+   SCROLLBAR
+   ============================================ */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--bg-primary);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(18, 18, 18, 0.15);
-  border-radius: var(--radius-full);
+  background: var(--bauhaus-black);
+  border-radius: 0;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(18, 18, 18, 0.3);
+  background: var(--bauhaus-green);
 }
 
 /* ============================================
-   GLASS & CARD COMPONENTS
+   TYPOGRAPHY
+   ============================================ */
+.heading-lg {
+  font-family: var(--font-display);
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: -1px;
+  text-transform: uppercase;
+}
+
+.heading-md {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+}
+
+.text-gradient {
+  color: var(--bauhaus-red);
+  font-weight: 900;
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================
+   TYPOGRAPHIC LOGO STYLES (Matching Frontend)
+   ============================================ */
+.logo-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--bauhaus-red);
+  background: var(--bauhaus-white, #ffffff);
+  border: 3px solid var(--bauhaus-blue);
+  box-shadow: 4px 4px 0px 0px var(--bauhaus-yellow);
+  border-radius: 4px;
+  padding: 0px 8px;
+  height: 34px;
+  margin-right: 6px;
+}
+
+.logo-text-out {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--text-primary);
+  text-transform: uppercase;
+}
+
+/* ============================================
+   GLASS & CARD COMPONENTS — Bauhaus Constructivist
    ============================================ */
 .glass {
   background: var(--bg-card);
-  border: 1px solid rgba(15, 23, 42, 0.06);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  backdrop-filter: blur(12px);
-  transition: all var(--transition-base);
+  border: 2px solid var(--bauhaus-black);
+  border-radius: 0;
+  box-shadow: var(--shadow-lg);
+  transition: transform var(--transition-base);
 }
 
-/* Readable content width and paragraph spacing for admin pages */
+/* Readable prose */
 .prose {
   max-width: 72ch;
-  margin-left: auto;
-  margin-right: auto;
 }
 .prose p {
   margin-bottom: 1rem;
@@ -192,7 +276,7 @@ ol {
 }
 
 /* ============================================
-   BUTTONS — LUXURY PILLS & CARDS
+   BUTTONS — Constructivist Press
    ============================================ */
 .btn {
   display: inline-flex;
@@ -200,98 +284,138 @@ ol {
   justify-content: center;
   gap: 8px;
   padding: 10px 20px;
-  border-radius: var(--radius-full);
-  font-family: var(--font-body);
-  font-weight: 600;
-  letter-spacing: 0.3px;
+  border-radius: 0;
+  font-family: var(--font-accent);
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
   font-size: 0.85rem;
   transition: all var(--transition-fast);
   position: relative;
   overflow: hidden;
-  border: 1px solid transparent;
+  border: 2px solid var(--bauhaus-black);
   cursor: pointer;
 }
 
 .btn-primary {
-  background: var(--bauhaus-black);
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(18, 18, 18, 0.15);
+  background: var(--bauhaus-red);
+  color: white !important;
+  box-shadow: var(--shadow-glow);
 }
 .btn-primary:hover {
-  background: #2a2a2a;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(18, 18, 18, 0.2);
+  background: var(--bauhaus-yellow);
+  color: var(--bauhaus-black) !important;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px 0px var(--bauhaus-blue);
+}
+.btn-primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
 }
 
 .btn-secondary {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border-color: var(--border-subtle);
+  background: var(--bauhaus-blue);
+  color: white !important;
+  border: 2px solid var(--bauhaus-black);
+  box-shadow: var(--shadow-glow);
 }
 .btn-secondary:hover {
-  background: #e4e7eb;
-  transform: translateY(-1px);
+  background: var(--bauhaus-red);
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px 0px var(--bauhaus-yellow);
+}
+.btn-secondary:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
 }
 
 .btn-outline {
-  background: transparent;
-  color: var(--text-primary);
-  border: 1px solid var(--border-subtle);
+  background: var(--bauhaus-white);
+  color: var(--bauhaus-black);
+  border: 2px solid var(--bauhaus-black);
+  box-shadow: var(--shadow-glow);
 }
 .btn-outline:hover {
-  background: var(--bauhaus-black);
-  color: #ffffff;
-  border-color: var(--bauhaus-black);
-  transform: translateY(-1px);
+  background: var(--bauhaus-yellow);
+  color: var(--bauhaus-black) !important;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px 0px var(--bauhaus-black);
+}
+.btn-outline:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
 }
 
 .btn-danger {
-  background: rgba(208, 32, 32, 0.1);
-  color: var(--bauhaus-red);
-  border-color: rgba(208, 32, 32, 0.2);
+  background: var(--bauhaus-red);
+  color: white !important;
+  border: 2px solid var(--bauhaus-black);
+  box-shadow: var(--shadow-glow);
 }
 .btn-danger:hover {
-  background: var(--bauhaus-red);
-  color: #ffffff;
+  background: var(--bauhaus-black);
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0px 0px var(--bauhaus-yellow);
+}
+.btn-danger:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.btn-ghost {
+  color: var(--text-secondary);
+  border: 2px solid transparent;
+  padding: 8px 16px;
+}
+.btn-ghost:hover {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border-color: var(--bauhaus-black);
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 0.78rem;
+  border-radius: 0;
 }
 
 /* ============================================
-   BADGES — SOFT SMOOTH PILLS
+   BADGES — Bold Constructivist Blocks
    ============================================ */
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 4px 12px;
-  border-radius: var(--radius-full);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  border-radius: 0;
+  font-family: var(--font-accent);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 1px;
   text-transform: uppercase;
+  border: 2px solid var(--bauhaus-black);
 }
 
 .badge-success {
-  background: rgba(0, 158, 96, 0.1);
-  color: #008751;
-  border: 1px solid rgba(0, 158, 96, 0.2);
+  background: var(--bauhaus-green);
+  color: white;
 }
 
 .badge-warning {
-  background: rgba(240, 192, 32, 0.15);
-  color: #b88600;
-  border: 1px solid rgba(240, 192, 32, 0.3);
+  background: var(--bauhaus-yellow);
+  color: var(--bauhaus-black);
 }
 
 .badge-danger {
-  background: rgba(208, 32, 32, 0.1);
-  color: var(--bauhaus-red);
-  border: 1px solid rgba(208, 32, 32, 0.2);
+  background: var(--bauhaus-red);
+  color: white;
 }
 
 .badge-info {
-  background: rgba(16, 64, 192, 0.1);
-  color: var(--bauhaus-blue);
-  border: 1px solid rgba(16, 64, 192, 0.2);
+  background: var(--bauhaus-blue);
+  color: white;
 }
 
 /* Form Styles */
@@ -303,20 +427,21 @@ ol {
 }
 
 .form-label {
+  font-family: var(--font-accent);
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-secondary);
+  letter-spacing: 1px;
+  color: var(--text-primary);
 }
 
 .form-input,
 .form-select,
 .form-textarea {
   width: 100%;
-  border-radius: var(--radius-sm);
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
-  padding: 10px 14px;
-  font-size: 0.9rem;
+  border-radius: 0;
+  background: var(--bg-card);
+  border: 2px solid var(--bauhaus-black);
+  padding: 12px 16px;
+  font-size: 0.95rem;
 }

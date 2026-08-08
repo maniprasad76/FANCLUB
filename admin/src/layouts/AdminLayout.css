@@ -1,5 +1,6 @@
 /* ============================================
-   ADMIN LAYOUT — MODERN LUXURY SMOOTH STYLES
+   ADMIN LAYOUT — BAUHAUS CONSTRUCTIVIST STYLES
+   100% Visual Alignment with Frontend Storefront
    ============================================ */
 
 .admin-layout {
@@ -12,7 +13,7 @@
 .admin-sidebar {
   width: var(--sidebar-width);
   background: var(--bg-secondary);
-  border-right: 1px solid var(--border-subtle);
+  border-right: 3px solid var(--bauhaus-black);
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -20,16 +21,17 @@
   bottom: 0;
   left: 0;
   z-index: 100;
-  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.02);
+  box-shadow: 4px 0px 0px 0px var(--bauhaus-black);
   transition: transform var(--transition-base);
 }
 
 .sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 22px 24px;
-  border-bottom: 1px solid var(--border-subtle);
+  gap: 10px;
+  padding: 20px 24px;
+  border-bottom: 3px solid var(--bauhaus-black);
+  background: var(--bg-secondary);
 }
 
 .brand-badge {
@@ -37,22 +39,25 @@
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
-  font-size: 0.95rem;
-  font-weight: 800;
-  letter-spacing: 1.5px;
-  color: #FFFFFF;
-  background: var(--bauhaus-black);
-  border-radius: var(--radius-sm);
-  padding: 4px 10px;
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #ffffff;
+  background: var(--bauhaus-red);
+  border: 2px solid var(--bauhaus-blue);
+  box-shadow: 3px 3px 0px 0px var(--bauhaus-yellow);
+  border-radius: 0;
+  padding: 2px 8px;
   height: 32px;
 }
 
 .sidebar-brand-text {
   font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 800;
-  letter-spacing: 0.5px;
+  font-size: 1.2rem;
+  font-weight: 900;
+  letter-spacing: 1px;
   color: var(--text-primary);
+  text-transform: uppercase;
 }
 
 .sidebar-brand-text .text-gradient {
@@ -64,7 +69,7 @@
   padding: 16px 12px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   overflow-y: auto;
 }
 
@@ -72,32 +77,36 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 11px 16px;
-  border-radius: var(--radius-md);
-  font-size: 0.88rem;
-  font-weight: 600;
+  padding: 12px 16px;
+  border-radius: 0;
+  font-family: var(--font-accent);
+  font-size: 0.85rem;
+  font-weight: 800;
   color: var(--text-secondary);
-  letter-spacing: 0.2px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
   transition: all var(--transition-fast);
-  border: 1px solid transparent;
+  border: 2px solid transparent;
 }
 
 .sidebar-link:hover {
-  background: rgba(18, 18, 18, 0.04);
+  background: var(--bg-tertiary);
   color: var(--text-primary);
-  transform: translateX(2px);
+  border-color: var(--bauhaus-black);
+  transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
 }
 
 .sidebar-link.active {
   background: var(--bauhaus-black);
-  color: #FFFFFF;
-  font-weight: 600;
-  box-shadow: 0 4px 14px rgba(18, 18, 18, 0.12);
+  color: #ffffff;
+  border: 2px solid var(--bauhaus-black);
+  box-shadow: 4px 4px 0px 0px var(--bauhaus-yellow);
 }
 
 .sidebar-footer {
   padding: 16px;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 3px solid var(--bauhaus-black);
   background: var(--bg-primary);
 }
 
@@ -107,20 +116,24 @@
   gap: 12px;
   padding: 8px 10px;
   margin-bottom: 8px;
-  border-radius: var(--radius-sm);
+  border: 2px solid var(--bauhaus-black);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-sm);
 }
 
 .sidebar-user-avatar {
   width: 38px;
   height: 38px;
-  border-radius: var(--radius-full);
-  background: var(--bauhaus-black);
+  border-radius: 0;
+  background: var(--bauhaus-red);
+  border: 2px solid var(--bauhaus-black);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: #FFFFFF;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.1rem;
+  color: #ffffff;
 }
 
 /* ── MAIN CONTENT AREA ── */
@@ -138,17 +151,21 @@
 
 .page-title {
   font-family: var(--font-display);
-  font-size: 1.75rem;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: -1px;
+  text-transform: uppercase;
   color: var(--text-primary);
 }
 
 .page-subtitle {
   color: var(--text-muted);
-  font-size: 0.88rem;
+  font-family: var(--font-accent);
+  font-size: 0.85rem;
   margin-top: 4px;
-  font-weight: 500;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* ── STATS GRID ── */
@@ -161,31 +178,32 @@
 
 .stat-card {
   padding: 24px;
-  border-radius: var(--radius-md);
+  border-radius: 0;
   background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  box-shadow: var(--shadow-sm);
+  border: 2px solid var(--bauhaus-black);
+  box-shadow: var(--shadow-md);
   transition: all var(--transition-base);
 }
 
 .stat-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-  border-color: rgba(18, 18, 18, 0.15);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--bauhaus-black);
 }
 
 .stat-label {
+  font-family: var(--font-accent);
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--bauhaus-red);
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 1.5px;
   margin-bottom: 8px;
-  font-weight: 700;
+  font-weight: 900;
 }
 
 .stat-value {
-  font-size: 1.85rem;
-  font-weight: 800;
+  font-size: 2.2rem;
+  font-weight: 900;
   color: var(--text-primary);
   font-family: var(--font-display);
 }
@@ -199,41 +217,38 @@
 
 .data-table th {
   text-align: left;
-  padding: 14px 20px;
-  font-size: 0.75rem;
+  padding: 16px 20px;
+  font-family: var(--font-accent);
+  font-size: 0.78rem;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: var(--text-muted);
-  background: var(--bg-tertiary);
-  font-weight: 700;
-  border-bottom: 1px solid var(--border-subtle);
+  letter-spacing: 1.2px;
+  color: #ffffff;
+  background: var(--bauhaus-black);
+  font-weight: 900;
+  border: 2px solid var(--bauhaus-black);
 }
 
 .data-table td {
   padding: 16px 20px;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 2px solid var(--bauhaus-black);
+  border-right: 1px solid rgba(18, 18, 18, 0.1);
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-primary);
 }
 
-.data-table tr:last-child td {
-  border-bottom: none;
-}
-
 .data-table tr:hover td {
-  background: rgba(18, 18, 18, 0.02);
-  transition: background var(--transition-fast);
+  background: var(--bg-tertiary);
 }
 
 .table-responsive {
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
+  border-radius: 0;
+  border: 3px solid var(--bauhaus-black);
   background: var(--bg-card);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-lg);
 }
 
 /* ── MOBILE HEADER & BACKDROP ── */
@@ -243,7 +258,7 @@
   justify-content: space-between;
   padding: 14px 20px;
   background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 3px solid var(--bauhaus-black);
   position: fixed;
   top: 0;
   left: 0;
@@ -257,7 +272,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   z-index: 95;
 }
@@ -293,7 +308,7 @@
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--text-muted);
+  color: var(--text-primary);
   pointer-events: none;
 }
 
@@ -301,10 +316,11 @@
 .admin-search-wrapper input {
   width: 100%;
   padding-left: 42px;
-  border-radius: var(--radius-full);
+  border-radius: 0;
   background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
+  border: 2px solid var(--bauhaus-black);
   box-shadow: var(--shadow-sm);
+  font-weight: 600;
 }
 
 .admin-bulk-actions {
@@ -313,22 +329,20 @@
   gap: 12px;
 }
 
-.btn-sm {
-  padding: 6px 14px;
-  font-size: 0.78rem;
-  border-radius: var(--radius-full);
-}
-
 /* Image thumbnails in tables */
 .data-table img {
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-subtle);
+  border-radius: 0;
+  border: 2px solid var(--bauhaus-black);
+  box-shadow: 2px 2px 0px 0px var(--bauhaus-black);
 }
 
 /* Checkbox styling */
 .data-table input[type="checkbox"] {
-  border-radius: 4px;
+  width: 18px;
+  height: 18px;
+  border-radius: 0;
   cursor: pointer;
+  accent-color: var(--bauhaus-red);
 }
 
 /* Responsive adjustments */

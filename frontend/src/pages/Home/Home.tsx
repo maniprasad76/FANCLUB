@@ -74,7 +74,9 @@ export default function Home() {
       setFeatured(featuredRes.data?.products || featuredRes.data || []);
       setDrops(dropsRes.data?.products || dropsRes.data || []);
       if (aboutImgRes.data?.url) setAboutImage(aboutImgRes.data.url);
-      if (heroImgRes.data?.urls) setHeroImages(heroImgRes.data.urls);
+      if (heroImgRes.data?.urls && Array.isArray(heroImgRes.data.urls)) {
+        setHeroImages(heroImgRes.data.urls.filter((u: string) => Boolean(u)));
+      }
     } catch {
       /* silent — skeletons will show */
     }

@@ -9,94 +9,26 @@
   gap: 16px;
 }
 
-.socials-menu {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: flex-end;
-  margin-bottom: 12px;
-}
-
-.social-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
-  cursor: pointer;
-  position: relative;
-}
-
-.social-label {
-  background: var(--bauhaus-white);
-  color: var(--bauhaus-black);
-  padding: 6px 12px;
-  border: 2px solid var(--bauhaus-black);
-  font-family: var(--font-accent);
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  box-shadow: 2px 2px 0px 0px var(--bauhaus-black);
-  opacity: 0;
-  transform: translateX(10px);
-  transition: all 0.2s ease;
-  pointer-events: none;
-  white-space: nowrap;
-}
-
-.social-item:hover .social-label {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.social-icon {
-  width: 48px;
-  height: 48px;
-  background: var(--bauhaus-white);
-  border: 2px solid var(--bauhaus-black);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 3px 3px 0px 0px var(--bauhaus-black);
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.social-item:hover .social-icon {
-  background: var(--hover-color);
-  color: var(--bauhaus-white) !important;
-  transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0px 0px var(--bauhaus-black);
-}
-
-.social-item:hover .social-icon svg {
-  stroke: var(--bauhaus-white);
-}
-
-.fab-main {
+.fab-whatsapp {
   width: 60px;
   height: 60px;
-  background: var(--bauhaus-red);
-  color: var(--bauhaus-white);
-  border: 2px solid var(--bauhaus-black);
-  border-radius: 0; /* Bauhaus standard */
+  background: #25D366;
+  color: white;
+  border-radius: 50%;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 4px 4px 0px 0px var(--bauhaus-black);
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
   z-index: 10;
+  text-decoration: none;
 }
 
-.fab-main:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px 0px var(--bauhaus-black);
-  background: var(--bauhaus-blue);
-}
-
-.fab-main.open {
-  background: var(--bauhaus-black);
-  color: var(--bauhaus-white);
+.fab-whatsapp:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+  color: white;
 }
 
 @media (max-width: 768px) {
@@ -105,18 +37,9 @@
     right: 16px;
   }
   
-  .social-label {
-    display: none; /* Hide labels on mobile to save space */
-  }
-  
-  .fab-main {
+  .fab-whatsapp {
     width: 50px;
     height: 50px;
-  }
-  
-  .social-icon {
-    width: 40px;
-    height: 40px;
   }
 }
 
@@ -126,19 +49,14 @@
     right: 12px;
   }
   
-  .fab-main {
-    width: 42px;
-    height: 42px;
-    box-shadow: 3px 3px 0px 0px var(--bauhaus-black);
+  .fab-whatsapp {
+    width: 45px;
+    height: 45px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
   }
   
-  .fab-main svg {
-    width: 18px;
-    height: 18px;
-  }
-  
-  .social-icon {
-    width: 34px;
-    height: 34px;
+  .fab-whatsapp svg {
+    width: 22px;
+    height: 22px;
   }
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-import { ShieldCheck, Lock, Mail, ArrowRight } from 'lucide-react';
+import { Lock, Mail, ArrowRight } from 'lucide-react';
 
 interface AdminLoginProps {
   onLogin: (email: string, password: string) => Promise<void>;
@@ -41,38 +41,29 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
           width: '100%',
           maxWidth: '420px',
           background: 'var(--bg-card)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: '24px',
-          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.06)',
+          border: '3px solid var(--bauhaus-black)',
+          borderRadius: '0px',
+          boxShadow: 'var(--shadow-lg)',
           padding: '40px 36px',
         }}
       >
         {/* Logo Header */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '56px',
-            height: '56px',
-            borderRadius: '16px',
-            background: 'var(--bauhaus-black)',
-            color: '#FFFFFF',
-            marginBottom: '16px',
-            boxShadow: '0 8px 20px rgba(18, 18, 18, 0.15)',
-          }}>
-            <ShieldCheck size={28} />
+          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
+            <span className="logo-box" style={{ fontSize: '1.6rem', height: '44px', padding: '0 12px', borderWidth: '3px', margin: 0 }}>FAN</span>
           </div>
           <h2 style={{
             fontFamily: 'var(--font-display)',
-            fontSize: '1.6rem',
-            fontWeight: 800,
-            letterSpacing: '-0.5px',
+            fontSize: '1.8rem',
+            fontWeight: 900,
+            letterSpacing: '1px',
             color: 'var(--text-primary)',
+            textTransform: 'uppercase',
+            marginTop: '8px',
           }}>
-            FAN<span style={{ color: 'var(--bauhaus-red)' }}>Admin</span>
+            FAN<span style={{ color: 'var(--bauhaus-red)' }}>CLUB ADMIN</span>
           </h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '6px' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', marginTop: '6px', fontFamily: 'var(--font-accent)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>
             Enter your credentials to access store control panel
           </p>
         </div>
@@ -81,14 +72,14 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Admin Email</label>
             <div style={{ position: 'relative' }}>
-              <Mail size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <Mail size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-primary)' }} />
               <input
                 type="email"
                 required
                 placeholder="admin@fanclub.com"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                style={{ width: '100%', paddingLeft: 42, borderRadius: 12, height: 46 }}
+                style={{ width: '100%', paddingLeft: 42, borderRadius: 0, height: 46, border: '2px solid var(--bauhaus-black)' }}
               />
             </div>
           </div>
@@ -96,14 +87,14 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label">Password</label>
             <div style={{ position: 'relative' }}>
-              <Lock size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <Lock size={18} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-primary)' }} />
               <input
                 type="password"
                 required
                 placeholder="••••••••••••"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                style={{ width: '100%', paddingLeft: 42, borderRadius: 12, height: 46 }}
+                style={{ width: '100%', paddingLeft: 42, borderRadius: 0, height: 46, border: '2px solid var(--bauhaus-black)' }}
               />
             </div>
           </div>
@@ -112,7 +103,7 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
             type="submit"
             disabled={loading}
             className="btn btn-primary"
-            style={{ width: '100%', height: 48, borderRadius: 9999, marginTop: 8, fontSize: '0.9rem' }}
+            style={{ width: '100%', height: 48, marginTop: 8, fontSize: '0.9rem' }}
           >
             {loading ? 'Authenticating...' : 'Sign In to Dashboard'}
             {!loading && <ArrowRight size={16} />}

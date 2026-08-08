@@ -57,7 +57,6 @@ src/
 ├── dashboard/     # Admin analytics
 ├── health/        # Liveness/readiness probes
 ├── loyalty/       # Stamp-card loyalty program
-├── newsletter/    # Newsletter subscriptions
 ├── orders/        # Order lifecycle, expiry, refunds
 ├── payments/      # Razorpay integration
 ├── prisma/        # Prisma client

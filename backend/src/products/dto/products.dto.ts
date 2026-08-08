@@ -40,6 +40,7 @@ export class CreateProductDto {
   @IsOptional() @IsBoolean() featured?: boolean;
   @IsOptional() @IsBoolean() bestseller?: boolean;
   @IsOptional() @IsBoolean() newArrival?: boolean;
+  @IsOptional() @IsBoolean() loyaltyEligible?: boolean;
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
@@ -81,6 +82,7 @@ export class UpdateProductDto {
   @IsOptional() @IsBoolean() bestseller?: boolean;
   @IsOptional() @IsBoolean() newArrival?: boolean;
   @IsOptional() @IsBoolean() isActive?: boolean;
+  @IsOptional() @IsBoolean() loyaltyEligible?: boolean;
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
@@ -100,6 +102,7 @@ export class ProductQueryDto {
   @IsOptional() @IsBoolean() featured?: boolean;
   @IsOptional() @IsBoolean() bestseller?: boolean;
   @IsOptional() @IsBoolean() newArrival?: boolean;
+  @IsOptional() @IsBoolean() loyaltyEligible?: boolean;
   @IsOptional() @IsNumber() @Type(() => Number) page?: number;
   @IsOptional() @IsNumber() @Type(() => Number) limit?: number;
   @IsOptional() @IsString() @MaxLength(20) gender?: string;

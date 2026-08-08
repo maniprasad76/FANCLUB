@@ -14,7 +14,6 @@ const Orders = lazy(() => import('./pages/Orders'));
 const Payments = lazy(() => import('./pages/Payments'));
 const Customers = lazy(() => import('./pages/Customers'));
 const Reviews = lazy(() => import('./pages/Reviews'));
-const Newsletter = lazy(() => import('./pages/Newsletter'));
 const Contacts = lazy(() => import('./pages/Contacts'));
 const Settings = lazy(() => import('./pages/Settings'));
 const AuditLogs = lazy(() => import('./pages/AuditLogs'));
@@ -59,7 +58,6 @@ function App() {
                 <Route path="/payments" element={<Payments />} />
                 <Route path="/customers" element={<Customers />} />
                 <Route path="/reviews" element={<Reviews />} />
-                <Route path="/newsletter" element={<Newsletter />} />
                 <Route path="/contacts" element={<Contacts />} />
                 <Route path="/audit-logs" element={<AuditLogs />} />
                 <Route path="/settings" element={<Settings />} />

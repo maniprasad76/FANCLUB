@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, Package } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../lib/api';
 
 let baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3001';
@@ -13,22 +14,34 @@ export default function Products() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [search]);
+
   const fetchProducts = () => {
-    api.get('/products/admin/all', { params: { page, limit: 20, search: search || undefined } })
+    api.get('/products/admin/all', { params: { page, limit: 20, search: debouncedSearch || undefined } })
       .then(r => { setProducts(r.data.products); setTotal(r.data.total); })
       .catch(() => {});
   };
 
-  useEffect(() => { fetchProducts(); }, [page, search]);
+  useEffect(() => { fetchProducts(); }, [page, debouncedSearch]);
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this product?')) return;
     try {
       await api.delete(`/products/${id}`);
+      toast.success('Product deleted successfully');
+      setProducts(prev => prev.filter(p => p.id !== id));
+      setTotal(prev => Math.max(0, prev - 1));
       fetchProducts();
-    } catch {
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to delete product');
       fetchProducts();
     }
   };
@@ -37,9 +50,13 @@ export default function Products() {
     if (!selectedIds.length || !confirm(`Delete ${selectedIds.length} selected products?`)) return;
     try {
       await api.post('/products/bulk-delete', { ids: selectedIds });
+      toast.success(`${selectedIds.length} products deleted successfully`);
+      setProducts(prev => prev.filter(p => !selectedIds.includes(p.id)));
+      setTotal(prev => Math.max(0, prev - selectedIds.length));
       setSelectedIds([]);
       fetchProducts();
-    } catch {
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to delete products');
       setSelectedIds([]);
       fetchProducts();
     }

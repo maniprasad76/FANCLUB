@@ -8,7 +8,9 @@ const AD = 'http://localhost:5174';
 // ── Admin credentials read from backend/.env (never printed) ──
 function getAdminCreds(): { email: string; password: string } | null {
   try {
-    const envPath = path.resolve(__dirname, '../../backend/.env');
+    // Resolve relative to the frontend project dir (cwd when Playwright runs from the frontend package).
+    // NOTE: __dirname is unavailable under ESM (package.json "type": "module"), so derive from cwd.
+    const envPath = path.resolve(process.cwd(), '../backend/.env');
     const raw = fs.readFileSync(envPath, 'utf8');
     const get = (k: string) => {
       const m = raw.split(/\r?\n/).find((l) => l.trim().startsWith(`${k}=`));
@@ -161,7 +163,6 @@ test.describe('Full page walk', () => {
             ['/payments', 'Payments'],
             ['/customers', 'Customers'],
             ['/reviews', 'Reviews'],
-            ['/newsletter', 'Newsletter'],
             ['/contacts', 'Contacts'],
             ['/audit-logs', 'AuditLogs'],
             ['/settings', 'Settings'],

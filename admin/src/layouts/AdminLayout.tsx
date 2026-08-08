@@ -8,7 +8,6 @@ import {
   CreditCard,
   Users,
   Star,
-  Newspaper,
   Mail,
   Settings,
   LogOut,
@@ -27,7 +26,6 @@ const navItems = [
   { path: "/payments", icon: CreditCard, label: "Payments" },
   { path: "/customers", icon: Users, label: "Customers" },
   { path: "/reviews", icon: Star, label: "Reviews" },
-  { path: "/newsletter", icon: Newspaper, label: "Newsletter" },
   { path: "/contacts", icon: Mail, label: "Messages" },
   { path: "/coupons", icon: Ticket, label: "Coupons" },
   { path: "/loyalty", icon: Crown, label: "Loyalty Club" },
@@ -52,9 +50,10 @@ export default function AdminLayout() {
       {/* Mobile Header */}
       <div className="mobile-admin-header">
         <div className="sidebar-brand">
-          <span className="brand-badge">FAN</span>
-          <span className="sidebar-brand-text">
-            <span className="text-gradient">Admin</span>
+          <span className="logo-box" style={{ margin: 0 }}>FAN</span>
+          <span className="logo-text-out" style={{ fontSize: '1.1rem' }}>
+            <span style={{ color: 'var(--text-primary)' }}>CLUB</span>{' '}
+            <span className="text-gradient">ADMIN</span>
           </span>
         </div>
         <button className="hamburger-btn" onClick={toggleSidebar}>
@@ -91,9 +90,10 @@ export default function AdminLayout() {
 
       <aside className={`admin-sidebar ${isSidebarOpen ? "open" : ""}`}>
         <div className="sidebar-brand hide-on-mobile">
-          <span className="brand-badge">FAN</span>
-          <span className="sidebar-brand-text">
-            <span className="text-gradient">Admin</span>
+          <span className="logo-box" style={{ margin: 0 }}>FAN</span>
+          <span className="logo-text-out" style={{ fontSize: '1.1rem' }}>
+            <span style={{ color: 'var(--text-primary)' }}>CLUB</span>{' '}
+            <span className="text-gradient">ADMIN</span>
           </span>
         </div>
         <nav className="sidebar-nav">

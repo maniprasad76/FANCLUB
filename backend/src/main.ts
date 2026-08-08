@@ -161,7 +161,6 @@ async function bootstrap() {
       .addTag('Reviews', 'Product reviews — create, list, moderate')
       .addTag('Wishlist', 'Saved products wishlist')
       .addTag('Upload', 'File upload to Supabase Storage')
-      .addTag('Newsletter', 'Email subscription management')
       .addTag('Contact', 'Contact form submissions')
       .addTag('Dashboard', 'Admin analytics — sales, KPIs, charts')
       .addTag('Settings', 'Store configuration')
@@ -197,4 +196,15 @@ async function bootstrap() {
   logger.log(`   Security headers: ✅ Helmet enabled`);
   logger.log(`   API docs: http://${host}:${port}/api/docs`);
 }
+
+// ── Process-level safety net ──
+// A stray unhandled promise rejection (e.g. a DB blip on a background job)
+// must never silently kill the whole API. Log it loudly and keep serving.
+process.on('unhandledRejection', (reason: unknown) => {
+  const processLogger = new Logger('Process');
+  processLogger.error(
+    `⚠️  Unhandled promise rejection: ${(reason as Error)?.stack || reason}`,
+  );
+});
+
 bootstrap();

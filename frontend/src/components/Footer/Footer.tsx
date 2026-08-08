@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown, ArrowRight, Check } from 'lucide-react';
-import api, { SOCIAL_LINKS } from '../../lib/api';
+import { ChevronDown } from 'lucide-react';
+import { SOCIAL_LINKS } from '../../lib/api';
 import './Footer.css';
 
 const IconInstagram = () => (
@@ -22,61 +22,14 @@ const IconFacebook = () => (
 
 export default function Footer() {
   const [openSection, setOpenSection] = useState<string | null>(null);
-  const [email, setEmail] = useState('');
-  const [subscribed, setSubscribed] = useState(false);
 
   const toggleSection = (section: string) => {
     setOpenSection(openSection === section ? null : section);
   };
 
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-    try {
-      await api.post('/newsletter', { email });
-      setSubscribed(true);
-      setEmail('');
-      setTimeout(() => setSubscribed(false), 5000);
-    } catch {
-      setSubscribed(true);
-      setTimeout(() => setSubscribed(false), 5000);
-    }
-  };
-
   return (
     <footer className="footer" id="footer">
       <div className="footer-container">
-        
-        {/* Top Newsletter Bar */}
-        <div className="footer-newsletter-bar">
-          <div className="newsletter-info">
-            <h3>Stay in the Loop</h3>
-            <p>Subscribe for exclusive drops, early access, and special offers.</p>
-          </div>
-          <form onSubmit={handleSubscribe} className="newsletter-form-clean">
-            <div className="newsletter-field-group">
-              <input 
-                type="email" 
-                placeholder="Your email address..." 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <button 
-                type="submit" 
-                className={`newsletter-submit-btn ${subscribed ? 'submitted' : ''}`} 
-                aria-label="Subscribe"
-              >
-                {subscribed ? (
-                  <>Joined <Check size={14} /></>
-                ) : (
-                  <>Subscribe <ArrowRight size={14} /></>
-                )}
-              </button>
-            </div>
-            {subscribed && <span className="newsletter-msg">✓ Subscribed successfully</span>}
-          </form>
-        </div>
 
         {/* Main Footer Clean Grid */}
         <div className="footer-grid-clean">

@@ -93,6 +93,8 @@ export class ProductsService implements OnModuleInit {
     if (query.featured !== undefined) where.featured = query.featured;
     if (query.bestseller !== undefined) where.bestseller = query.bestseller;
     if (query.newArrival !== undefined) where.newArrival = query.newArrival;
+    if (query.loyaltyEligible !== undefined)
+      where.loyaltyEligible = query.loyaltyEligible;
 
     let orderBy: Prisma.ProductOrderByWithRelationInput = { createdAt: 'desc' };
     if (query.sort === 'price_asc') orderBy = { price: 'asc' };
@@ -191,15 +193,25 @@ export class ProductsService implements OnModuleInit {
       throw new NotFoundException('Product not found');
     }
     try {
-      // Clean up dependent non-order records
+      // Clean up dependent records and nullify foreign keys in order items & loyalty rewards
       await this.prisma.$transaction([
         this.prisma.cartItem.deleteMany({ where: { productId: id } }),
         this.prisma.wishlist.deleteMany({ where: { productId: id } }),
         this.prisma.review.deleteMany({ where: { productId: id } }),
+        this.prisma.orderItem.updateMany({
+          where: { productId: id },
+          data: { productId: null },
+        }),
+        this.prisma.loyaltyReward.updateMany({
+          where: { productId: id },
+          data: { productId: null },
+        }),
       ]);
       return await this.prisma.product.delete({ where: { id } });
-    } catch {
-      // Fallback to soft delete if product is linked to existing order history
+    } catch (err) {
+      this.logger.warn(
+        `Fallback to soft delete for product ${id}: ${(err as Error).message}`,
+      );
       return await this.prisma.product.update({
         where: { id },
         data: { isActive: false },
@@ -213,11 +225,22 @@ export class ProductsService implements OnModuleInit {
         this.prisma.cartItem.deleteMany({ where: { productId: { in: ids } } }),
         this.prisma.wishlist.deleteMany({ where: { productId: { in: ids } } }),
         this.prisma.review.deleteMany({ where: { productId: { in: ids } } }),
+        this.prisma.orderItem.updateMany({
+          where: { productId: { in: ids } },
+          data: { productId: null },
+        }),
+        this.prisma.loyaltyReward.updateMany({
+          where: { productId: { in: ids } },
+          data: { productId: null },
+        }),
       ]);
       return await this.prisma.product.deleteMany({
         where: { id: { in: ids } },
       });
-    } catch {
+    } catch (err) {
+      this.logger.warn(
+        `Fallback to soft delete for products [${ids.join(', ')}]: ${(err as Error).message}`,
+      );
       return await this.prisma.product.updateMany({
         where: { id: { in: ids } },
         data: { isActive: false },

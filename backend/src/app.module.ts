@@ -21,7 +21,6 @@ import { PaymentsModule } from './payments/payments.module.js';
 import { ReviewsModule } from './reviews/reviews.module.js';
 import { WishlistModule } from './wishlist/wishlist.module.js';
 import { UploadModule } from './upload/upload.module.js';
-import { NewsletterModule } from './newsletter/newsletter.module.js';
 import { ContactModule } from './contact/contact.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
 import { SettingsModule } from './settings/settings.module.js';
@@ -93,7 +92,6 @@ import { SecurityAuditInterceptor } from './common/interceptors/security-audit.i
     ReviewsModule,
     WishlistModule,
     UploadModule,
-    NewsletterModule,
     ContactModule,
     DashboardModule,
     SettingsModule,

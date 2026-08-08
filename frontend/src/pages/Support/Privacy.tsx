@@ -41,7 +41,7 @@ export default function Privacy() {
               <ul style={{ listStyleType: 'square', paddingLeft: '20px', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
                 <li>To fulfill and manage your orders, payments, and returns.</li>
                 <li>To send administrative information regarding the platform or shipping updates.</li>
-                <li>To deliver targeted advertising or promotional offers (only if you subscribe to our newsletter).</li>
+                <li>To deliver targeted advertising or promotional offers (only if you have opted in to marketing communications).</li>
                 <li>To administer our loyalty accounts and user profiles.</li>
               </ul>
             </section>
