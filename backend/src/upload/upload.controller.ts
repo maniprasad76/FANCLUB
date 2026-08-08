@@ -11,9 +11,8 @@ import {
   Logger,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import { memoryStorage } from 'multer';
 import { extname, basename } from 'path';
-import * as fs from 'fs';
 import { UploadService } from './upload.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AdminGuard } from '../auth/guards/admin.guard';
@@ -25,7 +24,7 @@ export class UploadController {
 
   constructor(private uploadService: UploadService) {}
 
-  private static readonly ALLOWED_BUCKETS = ['products', 'avatars'];
+  private static readonly ALLOWED_BUCKETS = ['products', 'avatars', 'settings'];
 
   @Post('signed-url')
   getSignedUploadUrl(
@@ -52,53 +51,18 @@ export class UploadController {
   }
 
   /**
-   * @deprecated Use POST /upload/signed-url instead.
-   * Disk-based uploads are ephemeral on Cloud Run and will be lost on redeploy.
-   * This endpoint is kept for backward compatibility only.
+   * Product / avatar image upload.
+   *
+   * Files are uploaded to Supabase Storage (durable, survives redeploys) and
+   * the returned `url` is a permanent public URL. This endpoint previously
+   * wrote to `./public/uploads` on the local disk, which is ephemeral on
+   * Render/Cloud Run and lost on every deploy.
    */
   @Post('image')
   @UseInterceptors(
     FileInterceptor('image', {
-      storage: diskStorage({
-        destination: (_req, _file, cb) => {
-          const uploadPath = './public/uploads';
-          if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-          }
-          cb(null, uploadPath);
-        },
-        filename: (_req, file, cb) => {
-          // SECURITY: Sanitize filename to prevent path traversal
-          const safeBase = basename(file.originalname)
-            .replace(/\.\.[\\/]/g, '') // Strip path traversal sequences
-            .replace(/[^a-zA-Z0-9._-]/g, '_'); // Allow only safe characters
-
-          // SECURITY: Reject double extensions (e.g., file.php.jpg)
-          const parts = safeBase.split('.');
-          if (parts.length > 2) {
-            return cb(
-              new BadRequestException(
-                'Invalid filename: double extensions are not allowed',
-              ),
-              '',
-            );
-          }
-
-          const ext = extname(safeBase).toLowerCase();
-          const allowedExts = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
-          if (!allowedExts.includes(ext)) {
-            return cb(
-              new BadRequestException(`Invalid file extension: ${ext}`),
-              '',
-            );
-          }
-
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, 'image-' + uniqueSuffix + ext);
-        },
-      }),
-      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB (reduced from 10MB)
+      storage: memoryStorage(),
+      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
       fileFilter: (_req: any, file: Express.Multer.File, cb: any) => {
         // SECURITY: Validate MIME type
         const allowedMimes = [
@@ -138,14 +102,27 @@ export class UploadController {
       },
     }),
   )
-  uploadImage(@UploadedFile() file: Express.Multer.File) {
+  async uploadImage(@UploadedFile() file: Express.Multer.File) {
     if (!file) throw new BadRequestException('No file uploaded');
 
-    this.logger.warn(
-      `⚠️ Deprecated disk upload used. Migrate to POST /upload/signed-url for Supabase Storage.`,
+    // SECURITY: sanitize original name (unused for storage path, but keep
+    // the legacy double-extension rejection to avoid confusion).
+    const safeBase = basename(file.originalname)
+      .replace(/\.[.\\/]/g, '')
+      .replace(/[^a-zA-Z0-9._-]/g, '_');
+    const parts = safeBase.split('.');
+    if (parts.length > 2) {
+      throw new BadRequestException(
+        'Invalid filename: double extensions are not allowed',
+      );
+    }
+
+    const { publicUrl } = await this.uploadService.uploadFile(
+      file,
+      'products',
     );
 
-    const imageUrl = `/public/uploads/${file.filename}`;
-    return { success: true, url: imageUrl };
+    this.logger.log(`Product image uploaded to Supabase Storage: ${publicUrl}`);
+    return { success: true, url: publicUrl };
   }
 }

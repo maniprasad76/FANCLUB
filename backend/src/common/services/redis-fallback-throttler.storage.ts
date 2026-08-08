@@ -19,7 +19,8 @@ export class RedisFallbackThrottlerStorage implements ThrottlerStorage {
   ): Promise<ThrottlerStorageRecord> {
     const redis = this.getRedisClient();
     const now = Date.now();
-    const ttlMs = ttl * 1000;
+    const ttlMs = ttl >= 1000 ? ttl : ttl * 1000;
+    const blockMs = blockDuration >= 1000 ? blockDuration : blockDuration * 1000;
 
     if (redis) {
       try {
@@ -41,8 +42,8 @@ export class RedisFallbackThrottlerStorage implements ThrottlerStorage {
           const isBlocked = hits > limit;
           if (isBlocked) {
             // Apply block duration if blocked
-            await redis.pexpire(keyWithPrefix, blockDuration * 1000);
-            pttl = blockDuration * 1000;
+            await redis.pexpire(keyWithPrefix, blockMs);
+            pttl = blockMs;
           }
 
           return {
@@ -60,15 +61,21 @@ export class RedisFallbackThrottlerStorage implements ThrottlerStorage {
     }
 
     // In-memory fallback
+    // NOTE: The key MUST be namespaced per throttler (same as the Redis path).
+    // NestJS applies every configured throttler (default/strict/webhook) on each
+    // request. Without the name prefix all tiers would share ONE counter per
+    // IP, making every request count N-times and locking users out N-times
+    // faster than intended.
+    const keyWithPrefix = `throttler:${throttlerName}:${key}`;
     const expiresAt = now + ttlMs;
-    const record = this.memoryStore.get(key);
+    const record = this.memoryStore.get(keyWithPrefix);
 
     if (!record || now > record.expiresAt) {
       const newRecord = { hits: 1, expiresAt };
-      this.memoryStore.set(key, newRecord);
+      this.memoryStore.set(keyWithPrefix, newRecord);
       return {
         totalHits: 1,
-        timeToExpire: ttl,
+        timeToExpire: Math.ceil(ttlMs / 1000),
         isBlocked: false,
         timeToBlockExpire: 0,
       };
@@ -76,18 +83,22 @@ export class RedisFallbackThrottlerStorage implements ThrottlerStorage {
 
     record.hits += 1;
     const isBlocked = record.hits > limit;
-    if (isBlocked && !record.blockExpiresAt) {
-      record.blockExpiresAt = now + blockDuration * 1000;
-      record.expiresAt = record.blockExpiresAt; // extend TTL to match block
+    if (!isBlocked) {
+      delete record.blockExpiresAt;
+    } else if (!record.blockExpiresAt) {
+      // Cap block duration to max 60 seconds (60000ms)
+      record.blockExpiresAt = now + Math.min(blockMs, 60000);
+      record.expiresAt = record.blockExpiresAt;
     }
 
     const timeToExpire = Math.max(
       0,
       Math.ceil((record.expiresAt - now) / 1000),
     );
-    const timeToBlockExpire = record.blockExpiresAt
-      ? Math.max(0, Math.ceil((record.blockExpiresAt - now) / 1000))
-      : 0;
+    const timeToBlockExpire =
+      isBlocked && record.blockExpiresAt
+        ? Math.max(0, Math.ceil((record.blockExpiresAt - now) / 1000))
+        : 0;
 
     return {
       totalHits: record.hits,

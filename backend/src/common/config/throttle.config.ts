@@ -3,7 +3,7 @@
  *
  * Three tiers:
  *   - default:  100 req / 60s — general authenticated API usage
- *   - strict:     5 req / 60s — abuse-prone public endpoints (auth, contact, newsletter)
+ *   - strict:     5 req / 60s — abuse-prone public endpoints (auth, contact)
  *   - webhook:  200 req / 60s — server-to-server callbacks (Razorpay)
  *
  * These constants are used in ThrottlerModule.forRoot() and can be
@@ -19,13 +19,13 @@ const THROTTLE_DEFAULT = {
 const THROTTLE_STRICT = {
   name: 'strict',
   ttl: 60000,
-  limit: 5,
+  limit: 1000, // Default for non-strict routes; routes with @Throttle({ strict: ... }) override this
 };
 
 const THROTTLE_WEBHOOK = {
   name: 'webhook',
   ttl: 60000,
-  limit: 200,
+  limit: 1000,
 };
 
 export const THROTTLE_CONFIG = [

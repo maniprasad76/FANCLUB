@@ -5,6 +5,9 @@ export class RedisFallbackCacheStore implements KeyvStoreAdapter {
   opts: any = {};
   namespace?: string;
   private memoryStore = new Map<string, { value: any; expires: number }>();
+  // Keys this process has written, so clear() can delete exactly what we own
+  // without relying on namespace prefixes or flushing shared Redis data.
+  private trackedKeys = new Set<string>();
 
   constructor(private readonly getRedisClient: () => Redis | null) {}
 
@@ -30,6 +33,7 @@ export class RedisFallbackCacheStore implements KeyvStoreAdapter {
   async set(key: string, value: any, ttl?: number): Promise<any> {
     const redis = this.getRedisClient();
     const expiryMs = ttl !== undefined ? ttl : 300000; // default 5 mins
+    this.trackedKeys.add(key);
     if (redis) {
       try {
         await redis.set(key, JSON.stringify(value), 'PX', expiryMs);
@@ -66,12 +70,36 @@ export class RedisFallbackCacheStore implements KeyvStoreAdapter {
     const redis = this.getRedisClient();
     if (redis) {
       try {
-        await redis.flushdb();
+        // Delete exactly the keys this process has written, PLUS a SCAN of
+        // keys from previous processes (keyv default namespace prefix).
+        // Never use flushdb() — this Redis instance may be shared with
+        // throttler counters and other applications; flushing would destroy
+        // unrelated data.
+        const keysToDelete = new Set<string>(this.trackedKeys);
+        let cursor = '0';
+        do {
+          const [nextCursor, keys] = await redis.scan(
+            cursor,
+            'MATCH',
+            'keyv:*',
+            'COUNT',
+            100,
+          );
+          cursor = nextCursor;
+          keys.forEach((k) => keysToDelete.add(k));
+        } while (cursor !== '0');
+
+        const batch = Array.from(keysToDelete);
+        for (let i = 0; i < batch.length; i += 100) {
+          await redis.del(...batch.slice(i, i + 100));
+        }
+        this.trackedKeys.clear();
         return;
       } catch {
         // Fallback to memory if redis fails
       }
     }
     this.memoryStore.clear();
+    this.trackedKeys.clear();
   }
 }
