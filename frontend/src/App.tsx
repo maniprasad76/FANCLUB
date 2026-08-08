@@ -22,6 +22,7 @@ import BrandIntro from "./components/BrandIntro";
 import FloatingSocials from "./components/FloatingSocials";
 import OfflineIndicator from "./components/OfflineIndicator";
 import ScarcityToaster from "./components/ScarcityToaster";
+import InstallPrompt from "./components/InstallPrompt/InstallPrompt";
 
 /* ─── Lazy-loaded pages (code-split into separate chunks) ─── */
 const Home = lazy(() => import("./pages/Home/Home"));
@@ -50,6 +51,7 @@ const LaunchChecklist = lazy(
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AccessDenied = lazy(() => import("./pages/AccessDenied/AccessDenied"));
 const LoyaltyClub = lazy(() => import("./pages/LoyaltyClub/LoyaltyClub"));
+const OrderTracking = lazy(() => import("./pages/OrderTracking/OrderTracking"));
 
 function AppShell() {
   const location = useLocation();
@@ -144,7 +146,7 @@ function AppShell() {
               path="/profile/orders/:id"
               element={
                 <ProtectedRoute>
-                  <Profile />
+                  <OrderTracking />
                 </ProtectedRoute>
               }
             />
@@ -157,11 +159,12 @@ function AppShell() {
                 </ProtectedRoute>
               }
             />
+            {/* Dedicated visual order tracking page */}
             <Route
               path="/orders/:id"
               element={
                 <ProtectedRoute>
-                  <Navigate to="/profile" replace />
+                  <OrderTracking />
                 </ProtectedRoute>
               }
             />
@@ -195,6 +198,7 @@ function AppShell() {
       <FloatingSocials />
       <OfflineIndicator />
       <ScarcityToaster />
+      <InstallPrompt />
       {/* Global UX Components */}
       <Toaster
         position="top-center"

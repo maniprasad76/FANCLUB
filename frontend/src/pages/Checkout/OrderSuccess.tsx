@@ -179,7 +179,10 @@ const OrderSuccess: React.FC = () => {
                 <span>Continue Shopping</span>
                 <ArrowRight size={20} />
               </Link>
-              <Link to="/profile" className="btn btn-outline btn-lg action-btn">
+              <Link
+                to={`/orders/${order.id}`}
+                className="btn btn-outline btn-lg action-btn"
+              >
                 <Package size={20} />
                 <span>Track Order</span>
               </Link>

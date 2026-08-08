@@ -664,6 +664,17 @@ export class OrdersService implements OnModuleInit, OnModuleDestroy {
       await this.orderNotification.emitOrderConfirmed(updated.id);
     }
 
+    // Notify the customer when their order ships — links to /orders/:id
+    if (
+      dto.status === OrderStatusEnum.SHIPPED &&
+      order.status !== 'SHIPPED'
+    ) {
+      await this.orderNotification.emitOrderShipped(
+        updated.id,
+        updated.trackingId ?? dto.trackingId,
+      );
+    }
+
     // ── Loyalty Integration ──
     // Award stamp when order reaches DELIVERED
     if (dto.status === OrderStatusEnum.DELIVERED) {

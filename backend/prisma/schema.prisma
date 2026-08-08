@@ -255,6 +255,7 @@ model Review {
   productId String
   rating    Int
   comment   String?
+  photos    String[] @default([])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)

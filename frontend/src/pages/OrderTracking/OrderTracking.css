@@ -1,0 +1,429 @@
+/* ── Order Tracking page — Neo-brutalist ── */
+
+.ot-page {
+  padding-top: 48px;
+  padding-bottom: 80px;
+  max-width: 900px;
+}
+
+.ot-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  transition: color 0.15s ease;
+}
+
+.ot-back:hover {
+  color: var(--text-primary);
+}
+
+/* Header */
+.ot-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.ot-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.ot-title {
+  margin-bottom: 6px;
+}
+
+.ot-placed {
+  font-size: 0.9rem;
+}
+
+.ot-header-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.ot-total {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+.ot-badge {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border: 2px solid var(--bauhaus-black);
+  box-shadow: 3px 3px 0 0 var(--bauhaus-black);
+}
+
+.ot-badge-warning { background: #fbbf24; color: #1c1917; }
+.ot-badge-info { background: #93c5fd; color: #1e3a5f; }
+.ot-badge-accent { background: #f97316; color: #fff; }
+.ot-badge-success { background: #4ade80; color: #14532d; }
+.ot-badge-danger { background: #f87171; color: #7f1d1d; }
+
+/* Cards */
+.ot-card {
+  background: var(--bg-card);
+  border: 3px solid var(--bauhaus-black);
+  box-shadow: 6px 6px 0 0 var(--bauhaus-black);
+  padding: 26px;
+  margin-bottom: 24px;
+}
+
+.ot-section-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 20px;
+}
+
+/* Timeline */
+.ot-timeline {
+  display: flex;
+  gap: 0;
+}
+
+.ot-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.ot-step-marker {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.ot-node {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 3px solid var(--bauhaus-black);
+  transition: all 0.3s ease;
+}
+
+.ot-node.pending {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  opacity: 0.55;
+}
+
+.ot-node.done {
+  background: var(--bauhaus-blue);
+  color: #fff;
+}
+
+.ot-node.done.current {
+  background: var(--bauhaus-yellow);
+  color: var(--bauhaus-black);
+  box-shadow: 0 0 0 5px rgba(255, 215, 0, 0.35);
+}
+
+.ot-connector {
+  flex: 1;
+  height: 3px;
+  background: var(--border-color);
+  margin-top: 17px;
+  transition: background 0.4s ease;
+}
+
+.ot-connector.done {
+  background: var(--bauhaus-blue);
+}
+
+.ot-step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ot-step-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.ot-step-label.active {
+  color: var(--text-primary);
+}
+
+.ot-step-date {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* ETA strip */
+.ot-eta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 22px;
+  padding: 16px 18px;
+  border: 2px dashed var(--bauhaus-black);
+  background: rgba(255, 215, 0, 0.06);
+}
+
+.ot-eta-label {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.ot-eta strong {
+  font-size: 0.95rem;
+}
+
+.ot-eta-count {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.78rem;
+  padding: 6px 10px;
+  border: 2px solid var(--bauhaus-black);
+  background: var(--bauhaus-yellow);
+  white-space: nowrap;
+}
+
+/* Cancelled banner */
+.ot-cancelled-banner {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 18px;
+  border: 2px solid #f87171;
+  background: rgba(248, 113, 113, 0.08);
+  color: var(--text-primary);
+}
+
+.ot-cancelled-banner p {
+  margin-top: 4px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+/* Two-column grid */
+.ot-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.ot-grid .ot-card {
+  margin-bottom: 0;
+}
+
+/* Courier tracking */
+.ot-info-label {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.ot-tracking-value {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  word-break: break-all;
+}
+
+.ot-tracking-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.ot-tracking-hint {
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.ot-empty-tracking {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  padding: 12px 0;
+}
+
+/* Address */
+.ot-address {
+  display: flex;
+  gap: 12px;
+}
+
+.ot-address-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ot-address p {
+  margin-top: 4px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Items */
+.ot-items {
+  display: flex;
+  flex-direction: column;
+}
+
+.ot-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.ot-item img {
+  width: 56px;
+  height: 68px;
+  object-fit: cover;
+  border: 2px solid var(--bauhaus-black);
+  flex-shrink: 0;
+}
+
+.ot-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.ot-item-info strong {
+  font-size: 0.92rem;
+}
+
+.ot-item-info span {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.ot-item-price {
+  font-weight: 800;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+.ot-totals {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ot-totals > div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.ot-totals .ot-grand {
+  border-top: 3px solid var(--bauhaus-black);
+  padding-top: 12px;
+  margin-top: 4px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+/* Actions */
+.ot-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+/* Not found */
+.ot-not-found {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .ot-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ot-timeline {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .ot-step {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .ot-step-marker {
+    width: auto;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ot-connector {
+    width: 3px;
+    height: 26px;
+    margin: 0;
+  }
+
+  .ot-step-body {
+    padding: 8px 0;
+  }
+
+  .ot-eta {
+    flex-wrap: wrap;
+  }
+
+  .ot-eta-count {
+    margin-left: 0;
+  }
+}

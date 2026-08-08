@@ -212,7 +212,7 @@ export default function Profile() {
                 <div className="orders-list">
                   {orders.map((order) => (
                     <Link
-                      to={`/profile/orders/${order.id}`}
+                      to={`/orders/${order.id}`}
                       key={order.id}
                       className="order-item"
                       style={{

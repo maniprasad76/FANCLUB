@@ -8,6 +8,7 @@ import {
   UseGuards,
   Body,
   Logger,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
@@ -141,5 +142,56 @@ export class SettingsController {
   async toggleCod(@Body('enabled') enabled: boolean) {
     await this.settingsService.setSetting('cod_enabled', enabled);
     return { success: true, enabled };
+  }
+
+  /**
+   * Courier tracking URL template shown on the order tracking page.
+   * Public — the storefront needs it to build the "Track Package" link.
+   * The value must contain a {trackingId} placeholder that gets replaced
+   * with the order's courier tracking ID, e.g.
+   *   https://www.delhivery.com/track?awb={trackingId}
+   */
+  @SkipThrottle()
+  @Get('tracking-url')
+  async getTrackingUrl() {
+    const all = await this.settingsService.getSettings();
+    // `configured` tells the storefront whether the admin has explicitly set
+    // this setting — an explicit (even empty) value must win over the
+    // build-time env fallback so admins can fully disable the link.
+    const configured = Object.prototype.hasOwnProperty.call(
+      all,
+      'courier_tracking_url',
+    );
+    return { url: all['courier_tracking_url'] || '', configured };
+  }
+
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @UseInterceptors(CacheInvalidationInterceptor)
+  @Audit('UPDATE_COURIER_TRACKING_URL', 'SETTING')
+  @Post('tracking-url')
+  async setTrackingUrl(@Body('url') url: unknown) {
+    const value = typeof url === 'string' ? url.trim() : '';
+
+    if (value.length > 500) {
+      throw new BadRequestException(
+        'Tracking URL template must be 500 characters or fewer',
+      );
+    }
+    // SECURITY: only http(s) templates — blocks javascript:/data: schemes
+    // that would execute in a customer's browser when they click the link.
+    if (value && !/^https?:\/\//i.test(value)) {
+      throw new BadRequestException(
+        'Tracking URL template must start with http:// or https://',
+      );
+    }
+    if (value && !value.includes('{trackingId}')) {
+      throw new BadRequestException(
+        'Tracking URL template must contain the {trackingId} placeholder',
+      );
+    }
+
+    // Empty string clears the setting
+    await this.settingsService.setSetting('courier_tracking_url', value);
+    return { success: true, url: value };
   }
 }

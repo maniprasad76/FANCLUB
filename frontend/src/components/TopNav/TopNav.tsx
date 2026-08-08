@@ -23,6 +23,8 @@ import {
   LogOut,
   LogIn,
   ChevronRight,
+  History,
+  TrendingUp,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
@@ -31,6 +33,40 @@ import api from "../../lib/api";
 import CartDrawer from "../CartDrawer/CartDrawer";
 import "./TopNav.css";
 
+/** Popular searches shown as instant quick-filter chips. */
+const TRENDING_SEARCHES = ["Pushpa", "RRR", "Baahubali", "Arjun Reddy"];
+
+const RECENT_SEARCHES_KEY = "fan_recent_searches";
+
+function loadRecentSearches(): string[] {
+  try {
+    const raw = localStorage.getItem(RECENT_SEARCHES_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr)
+      ? arr.filter((x) => typeof x === "string").slice(0, 8)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveRecentSearch(term: string): string[] {
+  const t = term.trim();
+  if (!t) return loadRecentSearches();
+  const next = [
+    t,
+    ...loadRecentSearches().filter(
+      (x) => x.toLowerCase() !== t.toLowerCase(),
+    ),
+  ].slice(0, 8);
+  try {
+    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
+  } catch {
+    // storage unavailable
+  }
+  return next;
+}
+
 export default function TopNav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -38,6 +74,9 @@ export default function TopNav() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [quickCategories, setQuickCategories] = useState<any[]>([]);
+  const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { scrollY } = useScroll();
@@ -58,9 +97,66 @@ export default function TopNav() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Load recent searches + category quick filters on mount
+  useEffect(() => {
+    setRecentSearches(loadRecentSearches());
+    api
+      .get("/categories")
+      .then((r) => setQuickCategories(r.data || []))
+      .catch(() => {});
+  }, []);
+
+  const closeSearch = () => {
+    setSearchOpen(false);
+    setSearchQuery("");
+    setSearchResults([]);
+    setHighlightedIndex(-1);
+  };
+
+  const openProduct = (product: any) => {
+    if (product?.name) saveRecentSearch(product.name);
+    navigate(`/product/${product.slug}`);
+    closeSearch();
+  };
+
+  // Global shortcut: Cmd/Ctrl+K toggles search, Escape closes, arrows navigate
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen((open) => !open);
+        return;
+      }
+      if (!searchOpen) return;
+      if (e.key === "Escape") {
+        closeSearch();
+        return;
+      }
+      if (searchQuery.trim() && searchResults.length > 0) {
+        if (e.key === "ArrowDown") {
+          e.preventDefault();
+          setHighlightedIndex((i) => Math.min(i + 1, searchResults.length - 1));
+        } else if (e.key === "ArrowUp") {
+          e.preventDefault();
+          setHighlightedIndex((i) => Math.max(i - 1, 0));
+        } else if (e.key === "Enter" && highlightedIndex >= 0) {
+          const target = searchResults[highlightedIndex];
+          if (target) {
+            e.preventDefault();
+            openProduct(target);
+          }
+        }
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchOpen, searchQuery, searchResults, highlightedIndex]);
+
   useEffect(() => {
     if (!searchQuery.trim()) {
       setSearchResults([]);
+      setHighlightedIndex(-1);
       return;
     }
 
@@ -70,9 +166,11 @@ export default function TopNav() {
         .get("/products", { params: { search: searchQuery, limit: 5 } })
         .then((res) => {
           setSearchResults(res.data.products || []);
+          setHighlightedIndex(-1);
         })
         .catch(() => {
           setSearchResults([]);
+          setHighlightedIndex(-1);
         })
         .finally(() => {
           setIsSearching(false);
@@ -85,11 +183,21 @@ export default function TopNav() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
+      setRecentSearches(saveRecentSearch(searchQuery));
       navigate(`/shop?search=${encodeURIComponent(searchQuery)}`);
-      setSearchOpen(false);
-      setSearchQuery("");
-      setSearchResults([]);
+      closeSearch();
     }
+  };
+
+  const jumpToCategory = (slug: string) => {
+    closeSearch();
+    navigate(`/shop?category=${slug}`);
+  };
+
+  const jumpToSearch = (term: string) => {
+    setRecentSearches(saveRecentSearch(term));
+    closeSearch();
+    navigate(`/shop?search=${encodeURIComponent(term)}`);
   };
 
   return (
@@ -174,11 +282,15 @@ export default function TopNav() {
           <div className="topnav-right">
             <Magnetic>
               <button
-                className="btn-icon nav-icon-btn interactive"
+                className="btn-icon nav-icon-btn interactive nav-search-btn"
                 onClick={() => setSearchOpen(!searchOpen)}
                 id="nav-search-btn"
+                aria-label="Search products"
               >
                 <Search size={22} />
+                <span className="nav-search-hint">
+                  Search <kbd>⌘K</kbd>
+                </span>
               </button>
             </Magnetic>
             <div className="desktop-only-icons flex-align-center">
@@ -238,7 +350,7 @@ export default function TopNav() {
           </div>
         </div>
 
-        {/* Search overlay */}
+        {/* Search overlay — command palette (Ctrl/⌘ + K) */}
         <AnimatePresence>
           {searchOpen && (
             <motion.div
@@ -254,25 +366,94 @@ export default function TopNav() {
                   type="text"
                   placeholder="Search for designs, collections..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setHighlightedIndex(-1);
+                  }}
                   autoFocus
                   className="search-input"
                   id="search-input"
+                  aria-label="Search products"
                 />
+                <span className="search-esc-hint">
+                  <kbd>ESC</kbd>
+                </span>
                 <button
                   type="button"
                   className="btn-icon"
-                  onClick={() => {
-                    setSearchOpen(false);
-                    setSearchQuery("");
-                    setSearchResults([]);
-                  }}
+                  onClick={closeSearch}
+                  aria-label="Close search"
                 >
                   <X size={22} />
                 </button>
               </form>
 
-              {searchQuery.trim() && (
+              {!searchQuery.trim() ? (
+                /* Empty state: recent searches + quick filters */
+                <div className="search-quick container">
+                  {recentSearches.length > 0 && (
+                    <div className="search-group">
+                      <div className="search-group-head">
+                        <span className="search-group-label">
+                          <History size={14} /> Recent Searches
+                        </span>
+                        <button
+                          type="button"
+                          className="search-clear-recent"
+                          onClick={() => {
+                            try {
+                              localStorage.removeItem(RECENT_SEARCHES_KEY);
+                            } catch {}
+                            setRecentSearches([]);
+                          }}
+                        >
+                          Clear
+                        </button>
+                      </div>
+                      <div className="search-chip-row">
+                        {recentSearches.map((term) => (
+                          <button
+                            type="button"
+                            key={term}
+                            className="search-chip"
+                            onClick={() => setSearchQuery(term)}
+                          >
+                            {term}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="search-group">
+                    <span className="search-group-label">
+                      <TrendingUp size={14} /> Quick Filters
+                    </span>
+                    <div className="search-chip-row">
+                      {quickCategories.map((cat: any) => (
+                        <button
+                          type="button"
+                          key={cat.id}
+                          className="search-chip"
+                          onClick={() => jumpToCategory(cat.slug)}
+                        >
+                          {cat.name}
+                        </button>
+                      ))}
+                      {TRENDING_SEARCHES.map((term) => (
+                        <button
+                          type="button"
+                          key={term}
+                          className="search-chip search-chip-hot"
+                          onClick={() => jumpToSearch(term)}
+                        >
+                          {term}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
                 <div className="search-results-dropdown container">
                   {isSearching ? (
                     <div className="search-loading">
@@ -281,16 +462,15 @@ export default function TopNav() {
                     </div>
                   ) : searchResults.length > 0 ? (
                     <div className="search-results-list">
-                      {searchResults.map((product) => (
+                      {searchResults.map((product, idx) => (
                         <Link
                           key={product.id}
                           to={`/product/${product.slug}`}
-                          className="search-result-item"
-                          onClick={() => {
-                            setSearchOpen(false);
-                            setSearchQuery("");
-                            setSearchResults([]);
-                          }}
+                          className={`search-result-item ${
+                            highlightedIndex === idx ? "highlighted" : ""
+                          }`}
+                          onMouseEnter={() => setHighlightedIndex(idx)}
+                          onClick={() => openProduct(product)}
                         >
                           <img
                             src={

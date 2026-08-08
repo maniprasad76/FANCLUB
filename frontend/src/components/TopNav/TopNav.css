@@ -572,11 +572,161 @@
   background: var(--bauhaus-red);
 }
 
+/* ─── Command palette extras: recent searches + quick filters ─── */
+.search-quick {
+  margin-top: 16px;
+  background: var(--bg-primary);
+  border: 2px solid var(--bauhaus-black);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.search-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.search-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.search-group-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+}
+
+.search-clear-recent {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-decoration: underline;
+  font-family: var(--font-body);
+}
+
+.search-clear-recent:hover {
+  color: var(--bauhaus-red);
+}
+
+.search-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.search-chip {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 7px 14px;
+  background: var(--bg-card);
+  border: 2px solid var(--bauhaus-black);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.search-chip:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 0 var(--bauhaus-black);
+  background: var(--bauhaus-yellow);
+}
+
+.search-chip-hot {
+  background: rgba(255, 215, 0, 0.14);
+}
+
+/* Keyboard navigation highlight in results */
+.search-result-item.highlighted {
+  background-color: rgba(255, 215, 0, 0.22);
+  box-shadow: inset 4px 0 0 0 var(--bauhaus-black);
+}
+
+/* Kbd hints */
+.search-esc-hint {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.search-esc-hint kbd,
+.nav-search-hint kbd {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 2px 7px;
+  border: 1.5px solid var(--bauhaus-black);
+  background: var(--bg-elevated);
+  box-shadow: 1px 1px 0 0 var(--bauhaus-black);
+  border-radius: 3px;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+
+/* Search pill button with hint (desktop only) */
+.nav-search-btn .nav-search-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.nav-search-btn:hover .nav-search-hint {
+  color: var(--text-primary);
+}
+
+.nav-search-btn {
+  gap: 8px;
+  padding: 7px 14px;
+  border: 2px solid var(--bauhaus-black);
+  border-radius: 999px;
+  background: var(--bg-card);
+  box-shadow: 2px 2px 0 0 var(--bauhaus-black);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.nav-search-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 0 var(--bauhaus-black);
+  color: var(--bauhaus-red);
+}
+
 @media (max-width: 768px) {
   .desktop-only, .desktop-only-icons { display: none; }
   .topnav-menu-btn { display: flex; }
   .topnav {
     background: var(--bg-primary);
     border-bottom: 2px solid var(--bauhaus-black);
+  }
+  .nav-search-btn .nav-search-hint,
+  .search-esc-hint {
+    display: none;
+  }
+  .nav-search-btn {
+    padding: 8px;
+    border: none;
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  .nav-search-btn:hover {
+    transform: none;
+    box-shadow: none;
   }
 }

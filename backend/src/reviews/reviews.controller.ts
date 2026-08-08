@@ -35,6 +35,7 @@ export class ReviewsController {
       dto.productId,
       dto.rating,
       dto.comment,
+      dto.photos,
     );
   }
 

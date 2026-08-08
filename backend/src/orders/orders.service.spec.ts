@@ -60,6 +60,7 @@ describe('OrdersService', () => {
 
     orderNotification = {
       emitOrderConfirmed: jest.fn().mockResolvedValue(undefined),
+      emitOrderShipped: jest.fn().mockResolvedValue(undefined),
     };
 
     const loyaltyService = {
@@ -114,6 +115,29 @@ describe('OrdersService', () => {
       });
 
       expect(result.status).toBe('PROCESSING');
+    });
+
+    it('emits order.shipped notification on SHIPPED transition with tracking ID', async () => {
+      prisma.order.findUnique.mockResolvedValue({
+        id: 'order-1',
+        status: 'PROCESSING',
+      });
+      prisma.order.update.mockResolvedValue({
+        id: 'order-1',
+        status: 'SHIPPED',
+        trackingId: 'TRK-12345',
+        items: [],
+      });
+
+      await service.updateStatus('order-1', {
+        status: 'SHIPPED' as any,
+        trackingId: 'TRK-12345',
+      });
+
+      expect(orderNotification.emitOrderShipped).toHaveBeenCalledWith(
+        'order-1',
+        'TRK-12345',
+      );
     });
 
     it('rejects invalid transition: DELIVERED → PENDING', async () => {

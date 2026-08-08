@@ -10,14 +10,17 @@ export class ReviewsService {
     productId: string,
     rating: number,
     comment?: string,
+    photos?: string[],
   ) {
     const user = await this.prisma.user.findUnique({ where: { authId } });
     if (!user) throw new NotFoundException('User not found');
 
+    const safePhotos = Array.isArray(photos) ? photos.slice(0, 3) : [];
+
     const review = await this.prisma.review.upsert({
       where: { userId_productId: { userId: user.id, productId } },
-      update: { rating, comment },
-      create: { userId: user.id, productId, rating, comment },
+      update: { rating, comment, photos: safePhotos },
+      create: { userId: user.id, productId, rating, comment, photos: safePhotos },
     });
 
     // Recalculate product rating
@@ -34,12 +37,49 @@ export class ReviewsService {
     return review;
   }
 
+  /**
+   * Reviews for a product, each annotated with a `verified` flag.
+   *
+   * A review is considered verified when the reviewer has a DELIVERED order
+   * containing this product — computed entirely from existing order data
+   * (no extra schema needed). Any user can leave a review, but only
+   * confirmed purchasers get the verified badge.
+   */
   async findByProduct(productId: string) {
-    return this.prisma.review.findMany({
+    const reviews = await this.prisma.review.findMany({
       where: { productId },
       include: { user: { select: { id: true, name: true, avatar: true } } },
       orderBy: { createdAt: 'desc' },
     });
+
+    const verifiedUserIds = await this.findVerifiedBuyers(productId, reviews);
+
+    return reviews.map((r) => ({
+      ...r,
+      verified: verifiedUserIds.has(r.userId),
+    }));
+  }
+
+  /** User IDs with a DELIVERED order containing `productId`. */
+  private async findVerifiedBuyers(
+    productId: string,
+    reviews: { userId: string }[],
+  ): Promise<Set<string>> {
+    const userIds = [...new Set(reviews.map((r) => r.userId))];
+    if (userIds.length === 0) return new Set();
+
+    const hits = await this.prisma.orderItem.findMany({
+      where: {
+        productId,
+        order: {
+          status: 'DELIVERED',
+          userId: { in: userIds },
+        },
+      },
+      select: { order: { select: { userId: true } } },
+    });
+
+    return new Set(hits.map((h) => h.order.userId));
   }
 
   async adminFindAll(page = 1, limit = 20) {

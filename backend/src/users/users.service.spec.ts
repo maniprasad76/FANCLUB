@@ -9,6 +9,7 @@ describe('UsersService', () => {
     prisma = {
       user: {
         findUnique: jest.fn(),
+        findFirst: jest.fn(),
       },
       address: {
         updateMany: jest.fn(),
@@ -21,7 +22,7 @@ describe('UsersService', () => {
   });
 
   it('updates only addresses owned by the current user', async () => {
-    prisma.user.findUnique.mockResolvedValue({ id: 'user-1' });
+    prisma.user.findFirst.mockResolvedValue({ id: 'user-1' });
     prisma.address.updateMany.mockResolvedValue({ count: 1 });
     prisma.address.findUnique.mockResolvedValue({
       id: 'addr-1',
@@ -37,7 +38,7 @@ describe('UsersService', () => {
   });
 
   it('does not update another user address', async () => {
-    prisma.user.findUnique.mockResolvedValue({ id: 'user-1' });
+    prisma.user.findFirst.mockResolvedValue({ id: 'user-1' });
     prisma.address.updateMany.mockResolvedValue({ count: 0 });
 
     await expect(
@@ -46,7 +47,7 @@ describe('UsersService', () => {
   });
 
   it('deletes only addresses owned by the current user', async () => {
-    prisma.user.findUnique.mockResolvedValue({ id: 'user-1' });
+    prisma.user.findFirst.mockResolvedValue({ id: 'user-1' });
     prisma.address.deleteMany.mockResolvedValue({ count: 1 });
 
     await expect(service.deleteAddress('auth-1', 'addr-1')).resolves.toEqual({

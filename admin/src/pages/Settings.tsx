@@ -5,6 +5,8 @@ import {
   Image as ImageIcon,
   Settings as SettingsIcon,
   Trash2,
+  Truck,
+  Save,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { toast } from "react-hot-toast";
@@ -12,6 +14,14 @@ import api from "../lib/api";
 import { StoreInfoCard } from "./StoreInfoCard";
 import { CheckoutSettings } from "./CheckoutSettings";
 import { compressImage } from "../lib/compress";
+
+/** Quick-fill templates for popular Indian couriers ({trackingId} placeholder). */
+const COURIER_EXAMPLES = [
+  { label: "Delhivery", url: "https://www.delhivery.com/track?awb={trackingId}" },
+  { label: "DTDC", url: "https://www.dtdc.in/track/consignment?strCnno={trackingId}" },
+  { label: "Blue Dart", url: "https://www.bluedart.com/tracking?action=track&awb={trackingId}" },
+  { label: "India Post", url: "https://www.indiapost.gov.in/_layouts/15/DOP.Portal.Tracking/TrackConsignment.aspx?TokenNo={trackingId}" },
+];
 
 export default function AdminSettings() {
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -27,10 +37,15 @@ export default function AdminSettings() {
   const [codEnabled, setCodEnabled] = useState(true);
   const [updatingCod, setUpdatingCod] = useState(false);
 
+  const [trackingUrl, setTrackingUrl] = useState("");
+  const [savingTrackingUrl, setSavingTrackingUrl] = useState(false);
+  const [trackingUrlSaved, setTrackingUrlSaved] = useState(false);
+
   useEffect(() => {
     fetchCurrentImage();
     fetchCodStatus();
     fetchHeroImages();
+    fetchTrackingUrl();
   }, []);
 
   const fetchCurrentImage = async () => {
@@ -61,6 +76,44 @@ export default function AdminSettings() {
       console.error("Failed to fetch COD status");
     }
   };
+
+  const fetchTrackingUrl = async () => {
+    try {
+      const res = await api.get("/settings/tracking-url");
+      if (res.data && typeof res.data.url === "string") {
+        setTrackingUrl(res.data.url);
+      }
+    } catch (err: any) {
+      console.error("Failed to fetch tracking URL template");
+    }
+  };
+
+  const handleSaveTrackingUrl = async () => {
+    setSavingTrackingUrl(true);
+    setTrackingUrlSaved(false);
+    try {
+      const res = await api.post("/settings/tracking-url", {
+        url: trackingUrl,
+      });
+      if (res.data?.success) {
+        setTrackingUrl(res.data.url);
+        setTrackingUrlSaved(true);
+        setTimeout(() => setTrackingUrlSaved(false), 3000);
+        toast.success("Courier tracking URL updated");
+      }
+    } catch (err: any) {
+      toast.error(
+        err.response?.data?.message || "Failed to save tracking URL",
+      );
+    } finally {
+      setSavingTrackingUrl(false);
+    }
+  };
+
+  const trackingPreview =
+    trackingUrl.includes("{trackingId}")
+      ? trackingUrl.replace("{trackingId}", "SD123456789IN")
+      : null;
 
   const handleToggleCod = async () => {
     setUpdatingCod(true);
@@ -223,6 +276,163 @@ export default function AdminSettings() {
           updatingCod={updatingCod}
           handleToggleCod={handleToggleCod}
         />
+
+        {/* Courier Tracking URL Card */}
+        <div className="glass" style={{ padding: 32 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              marginBottom: 8,
+            }}
+          >
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                background: "var(--bauhaus-blue)",
+                border: "2px solid var(--bauhaus-black)",
+                boxShadow: "2px 2px 0px 0px var(--bauhaus-black)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Truck size={20} color="white" />
+            </div>
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 900,
+                fontSize: "1.1rem",
+                textTransform: "uppercase",
+                letterSpacing: "1px",
+              }}
+            >
+              Courier Tracking URL
+            </h2>
+          </div>
+          <p
+            style={{
+              color: "var(--text-muted)",
+              marginBottom: 20,
+              fontSize: "0.85rem",
+            }}
+          >
+            Template used for the "Track Package" link on order tracking pages.
+            Include the <code style={{ fontFamily: "var(--font-mono)" }}>{"{trackingId}"}</code>{" "}
+            placeholder — it is replaced with each order's tracking ID.
+          </p>
+
+          <label
+            htmlFor="courier-tracking-url"
+            style={{
+              display: "block",
+              fontSize: "0.75rem",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "1px",
+              marginBottom: 8,
+            }}
+          >
+            Tracking URL Template
+          </label>
+          <div style={{ display: "flex", gap: 10, alignItems: "stretch" }}>
+            <input
+              id="courier-tracking-url"
+              type="text"
+              inputMode="url"
+              spellCheck={false}
+              autoComplete="off"
+              className="input"
+              placeholder="https://www.delhivery.com/track?awb={trackingId}"
+              value={trackingUrl}
+              onChange={(e) => setTrackingUrl(e.target.value)}
+              style={{ flex: 1 }}
+            />
+            <button
+              className="btn btn-primary"
+              onClick={handleSaveTrackingUrl}
+              disabled={savingTrackingUrl}
+              style={{ whiteSpace: "nowrap" }}
+            >
+              {savingTrackingUrl ? (
+                <Loader2 size={14} className="spin" />
+              ) : trackingUrlSaved ? (
+                <CheckCircle2 size={14} />
+              ) : (
+                <Save size={14} />
+              )}
+              {savingTrackingUrl ? "Saving..." : trackingUrlSaved ? "Saved" : "Save"}
+            </button>
+          </div>
+
+          {trackingPreview && (
+            <p
+              style={{
+                marginTop: 12,
+                fontSize: "0.8rem",
+                color: "var(--text-muted)",
+                wordBreak: "break-all",
+              }}
+            >
+              Preview:{" "}
+              <a
+                href={trackingPreview}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "var(--bauhaus-blue)" }}
+              >
+                {trackingPreview}
+              </a>
+            </p>
+          )}
+
+          <div style={{ marginTop: 18 }}>
+            <p
+              style={{
+                fontSize: "0.72rem",
+                color: "var(--text-muted)",
+                textTransform: "uppercase",
+                letterSpacing: "1px",
+                marginBottom: 8,
+                fontWeight: 700,
+              }}
+            >
+              Quick-fill templates
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {COURIER_EXAMPLES.map((ex) => (
+                <button
+                  key={ex.label}
+                  onClick={() => setTrackingUrl(ex.url)}
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                    padding: "6px 10px",
+                    background: "var(--bg-primary)",
+                    border: "2px solid var(--bauhaus-black)",
+                    cursor: "pointer",
+                    boxShadow: "1px 1px 0px 0px var(--bauhaus-black)",
+                    transition: "transform 0.15s ease, box-shadow 0.15s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translate(-1px, -1px)";
+                    e.currentTarget.style.boxShadow = "3px 3px 0px 0px var(--bauhaus-black)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translate(0, 0)";
+                    e.currentTarget.style.boxShadow = "1px 1px 0px 0px var(--bauhaus-black)";
+                  }}
+                >
+                  {ex.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* Image Upload Card */}
         <div className="glass" style={{ padding: 32 }}>

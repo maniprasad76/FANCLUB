@@ -14,7 +14,12 @@ export class UploadService implements OnModuleInit {
 
   // All buckets must be public so that storefront <img> tags can load the
   // uploaded files without signed URLs.
-  private static readonly PUBLIC_BUCKETS = ['products', 'avatars', 'settings'];
+  private static readonly PUBLIC_BUCKETS = [
+    'products',
+    'avatars',
+    'settings',
+    'reviews',
+  ];
 
   constructor(private configService: ConfigService) {
     this.supabase = createClient(
