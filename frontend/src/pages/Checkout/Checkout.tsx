@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { MapPin, CreditCard, Truck, ChevronDown, Building2, Smartphone, CheckCircle2, Shield, Loader2, Globe } from 'lucide-react';
@@ -79,6 +79,11 @@ export default function Checkout() {
   const [showNewAddr, setShowNewAddr] = useState(false);
   const [customerCountry, setCustomerCountry] = useState('India');
 
+  // Once an order is placed, the cart is emptied server-side. The empty-cart
+  // guard below must NOT fire afterwards — otherwise the customer is yanked
+  // off the success page back to the (now empty) cart.
+  const orderCompletedRef = useRef(false);
+
   // Coupon states
   const [couponInput, setCouponInput] = useState('');
   const [discount, setDiscount] = useState(0);
@@ -123,7 +128,12 @@ export default function Checkout() {
     // BUGFIX: Only redirect to /cart after the cart has finished loading.
     // Without this guard, the check fires while fetchCart() is still in flight
     // and bounces authenticated users who have items.
-    if (!cartLoading && items.length === 0) { navigate('/cart'); return; }
+    // A completed order legitimately empties the cart — skip the redirect so
+    // the customer reaches the order-success page.
+    if (!orderCompletedRef.current && !cartLoading && items.length === 0) {
+      navigate('/cart');
+      return;
+    }
 
     api.get('/users/me/profile').then(r => {
       const addrs = r.data.addresses || [];
@@ -264,6 +274,9 @@ export default function Checkout() {
         couponCode: appliedCoupon || undefined,
       };
       const { data } = await api.post('/orders', orderData);
+      // Order is created — from here on the cart will be emptied, so the
+      // empty-cart guard must not redirect away from the result pages.
+      orderCompletedRef.current = true;
 
       if (paymentMethod === 'ONLINE') {
         const paymentGateway = data.gateway || 'RAZORPAY';

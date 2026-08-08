@@ -248,7 +248,7 @@ test.describe('FANCLUB storefront journey', () => {
 
     // ── Order Success ──
     await page.waitForURL(/\/order-success/, { timeout: 40_000 });
-    await expect(page.locator('h1')).toContainText('Thank', { timeout: 10_000 });
+    await expect(page.locator('.success-title')).toContainText('Thank', { timeout: 10_000 });
 
     // ── Order Tracking: visual timeline ──
     const trackLink = page.locator('a[href^="/orders/"]').first();
