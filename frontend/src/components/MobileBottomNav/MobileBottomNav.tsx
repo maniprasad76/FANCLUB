@@ -1,13 +1,13 @@
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, Store, ShoppingBag, Flame, User } from 'lucide-react';
+import { Home, Store, Heart, ShoppingBag, User } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import './MobileBottomNav.css';
 
 const navItems = [
   { path: '/', icon: Home, label: 'Home' },
   { path: '/shop', icon: Store, label: 'Shop' },
-  { path: '/loyalty', icon: Flame, label: 'Club' },
+  { path: '/wishlist', icon: Heart, label: 'Wishlist' },
   { path: '/cart', icon: ShoppingBag, label: 'Cart' },
   { path: '/profile', icon: User, label: 'Account' },
 ];
