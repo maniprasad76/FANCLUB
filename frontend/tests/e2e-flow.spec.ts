@@ -10,10 +10,14 @@ import { test, expect, Page, APIRequestContext } from '@playwright/test';
  * PREREQUISITES:
  *  - Backend API reachable at E2E_API_URL (default http://localhost:3001/api)
  *    with at least one in-stock product and COD_ENABLED=true.
+ *  - E2E_SUPABASE_URL + E2E_SUPABASE_SERVICE_ROLE_KEY: same Supabase project
+ *    the backend uses — needed to auto-confirm freshly-registered emails
+ *    (the backend issues no session at signup until the email is verified).
  *  - Local runs: frontend dev server on :5173 (handled by playwright.config).
  *  - Staging/prod runs:
  *      PLAYWRIGHT_BASE_URL=https://your-frontend \
  *      E2E_API_URL=https://your-backend/api \
+ *      E2E_SUPABASE_URL=... E2E_SUPABASE_SERVICE_ROLE_KEY=... \
  *      npx playwright test tests/e2e-flow.spec.ts
  *
  * NOTE: running against a shared environment creates test users, orders,
@@ -22,7 +26,37 @@ import { test, expect, Page, APIRequestContext } from '@playwright/test';
 
 const API_BASE = (process.env.E2E_API_URL || 'http://localhost:3001/api').trim();
 
-/** Fresh unique user per test — signup via API, then seed the browser session. */
+/**
+ * Confirm a freshly-registered user's email via the Supabase Admin API.
+ * The backend issues NO session at signup (email confirmation required),
+ * so tests confirm the address and then sign in for a real session.
+ *
+ * Requires E2E_SUPABASE_URL + E2E_SUPABASE_SERVICE_ROLE_KEY (the same
+ * project the backend is wired to). Returns the confirmed user's id.
+ */
+async function confirmUserEmail(request: APIRequestContext, email: string): Promise<string> {
+  const sbUrl = process.env.E2E_SUPABASE_URL?.trim();
+  const sbKey = process.env.E2E_SUPABASE_SERVICE_ROLE_KEY?.trim();
+  expect(sbUrl && sbKey, 'set E2E_SUPABASE_URL + E2E_SUPABASE_SERVICE_ROLE_KEY to confirm test users').toBeTruthy();
+  const base = sbUrl!.replace(/\/$/, '');
+
+  const list = await request.get(`${base}/auth/v1/admin/users?email=${encodeURIComponent(email)}`, {
+    headers: { Authorization: `Bearer ${sbKey}` },
+  });
+  expect(list.ok(), `supabase user lookup failed: ${list.status()} ${await list.text()}`).toBeTruthy();
+  const { users } = await list.json();
+  const target = (users || []).find((u: any) => u.email === email.toLowerCase());
+  expect(target, `supabase user not found for ${email}`).toBeTruthy();
+
+  const confirm = await request.put(`${base}/auth/v1/admin/users/${target.id}`, {
+    headers: { Authorization: `Bearer ${sbKey}` },
+    data: { email_confirm: true },
+  });
+  expect(confirm.ok(), `email confirm failed: ${confirm.status()} ${await confirm.text()}`).toBeTruthy();
+  return target.id;
+}
+
+/** Fresh unique user per test — signup → confirm email → sign in → seed the browser session. */
 async function createSignedInUser(request: APIRequestContext, page: Page) {
   const email = `e2e-${Date.now()}-${Math.floor(Math.random() * 10000)}@fanclub.test`;
   const password = 'E2E-Pass-1234';
@@ -32,11 +66,27 @@ async function createSignedInUser(request: APIRequestContext, page: Page) {
     data: { email, password, name },
   });
   expect(res.ok(), `signup failed: ${res.status()} ${await res.text()}`).toBeTruthy();
-  const body = await res.json();
 
-  const user = body.user;
-  const access = body.session?.access_token;
-  const refresh = body.session?.refresh_token;
+  // Backend returns { message } — no session until the email is confirmed.
+  // In dev (confirmation disabled) signup may already return a session; in
+  // that case skip the admin confirmation + signin round trip.
+  let body: any = await res.json();
+  let user = body.user;
+  let access = body.session?.access_token;
+  let refresh = body.session?.refresh_token;
+
+  if (!access) {
+    await confirmUserEmail(request, email);
+    const signin = await request.post(`${API_BASE}/auth/signin`, {
+      data: { email, password },
+    });
+    expect(signin.ok(), `signin failed: ${signin.status()} ${await signin.text()}`).toBeTruthy();
+    body = await signin.json();
+    user = body.user;
+    access = body.session?.access_token;
+    refresh = body.session?.refresh_token;
+  }
+
   expect(user, 'signup response missing user').toBeTruthy();
   expect(access, 'signup response missing access_token').toBeTruthy();
 

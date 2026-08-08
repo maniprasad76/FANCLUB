@@ -69,7 +69,10 @@ export const SignUpSchema = z.object({
     z.string().min(2, 'Name too short').max(100, 'Name too long'),
   ),
   username: z.preprocess(
-    (val) => sanitizeUsername(val),
+    (val) =>
+      typeof val === 'string' && val.trim()
+        ? sanitizeUsername(val)
+        : undefined,
     z
       .string()
       .min(3, 'Username too short')
@@ -77,7 +80,10 @@ export const SignUpSchema = z.object({
       .optional(),
   ),
   displayName: z.preprocess(
-    (val) => sanitizeDisplayName(val),
+    (val) =>
+      typeof val === 'string' && val.trim()
+        ? sanitizeDisplayName(val)
+        : undefined,
     z
       .string()
       .min(2, 'Display name too short')
