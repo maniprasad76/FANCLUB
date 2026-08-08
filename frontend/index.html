@@ -14,7 +14,7 @@
     <meta name="theme-color" content="#121212" />
 
     <!-- Content Security Policy — defense-in-depth XSS mitigation -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://checkout.razorpay.com https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://*.supabase.co https://*.onrender.com https://*.razorpay.com https://api.razorpay.com https://lux.razorpay.com https://va.vercel-scripts.com wss://*.supabase.co; frame-src https://api.razorpay.com https://checkout.razorpay.com;" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://checkout.razorpay.com https://va.vercel-scripts.com https://vercel.live https://*.vercel.live; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://vercel.live https://*.vercel.live; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://*.supabase.co https://*.onrender.com https://*.razorpay.com https://api.razorpay.com https://lux.razorpay.com https://va.vercel-scripts.com https://vercel.live https://*.vercel.live wss://*.supabase.co wss://*.vercel.live; frame-src https://api.razorpay.com https://checkout.razorpay.com https://vercel.live https://*.vercel.live;" />
 
     <!-- Hero image preload moved to Home component to avoid warnings on non-home pages -->
 
