@@ -18,6 +18,7 @@ describe('OrdersService', () => {
   let configService: any;
   let couponsService: any;
   let orderNotification: any;
+  let settingsService: any;
 
   beforeEach(() => {
     prisma = {
@@ -68,6 +69,10 @@ describe('OrdersService', () => {
       decrementProgress: jest.fn(),
     };
 
+    settingsService = {
+      getSetting: jest.fn().mockResolvedValue(true),
+    };
+
     service = new OrdersService(
       prisma,
       paymentsService,
@@ -75,6 +80,7 @@ describe('OrdersService', () => {
       couponsService,
       orderNotification,
       loyaltyService as any,
+      settingsService,
     );
   });
 
@@ -179,6 +185,51 @@ describe('OrdersService', () => {
       await expect(
         service.updateStatus('nonexistent', { status: 'CONFIRMED' as any }),
       ).rejects.toThrow(NotFoundException);
+    });
+
+    // ─── COD gate ────────────────────────────────────────────────
+
+    it('rejects COD orders when the cod_enabled setting is false', async () => {
+      settingsService.getSetting.mockResolvedValue(false);
+      prisma.user.findUnique.mockResolvedValue({ id: 'user-1' });
+
+      await expect(
+        service.create('auth-1', {
+          items: [{ productId: 'prod-1', quantity: 1 }],
+          addressId: 'addr-1',
+          paymentMethod: 'COD' as any,
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('accepts COD orders when the cod_enabled setting is true', async () => {
+      settingsService.getSetting.mockResolvedValue(true);
+      prisma.user.findUnique.mockResolvedValue({ id: 'user-1' });
+      prisma.product.findMany.mockResolvedValue([
+        { id: 'prod-1', name: 'Tee', price: 500, stock: 10 },
+      ]);
+      prisma.address.findFirst.mockResolvedValue({
+        id: 'addr-1',
+        country: 'India',
+      });
+      prisma.$transaction.mockImplementation((fn: any) => fn(prisma));
+      prisma.product.updateMany.mockResolvedValue({ count: 1 });
+      prisma.order.create.mockResolvedValue({
+        id: 'order-1',
+        status: 'CONFIRMED',
+        items: [],
+      });
+      prisma.cartItem.deleteMany.mockResolvedValue({ count: 0 });
+      orderNotification.emitOrderConfirmed.mockResolvedValue(undefined);
+
+      const result = await service.create('auth-1', {
+        items: [{ productId: 'prod-1', quantity: 1 }],
+        addressId: 'addr-1',
+        paymentMethod: 'COD' as any,
+      });
+
+      expect(result.status).toBe('CONFIRMED');
+      expect(settingsService.getSetting).toHaveBeenCalledWith('cod_enabled');
     });
 
     it('restores stock when cancelling an order', async () => {

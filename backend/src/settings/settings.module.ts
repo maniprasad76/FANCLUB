@@ -7,5 +7,6 @@ import { UploadModule } from '../upload/upload.module';
   imports: [UploadModule],
   controllers: [SettingsController],
   providers: [SettingsService],
+  exports: [SettingsService],
 })
 export class SettingsModule {}

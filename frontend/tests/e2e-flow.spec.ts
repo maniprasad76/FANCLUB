@@ -1,4 +1,10 @@
-import { test, expect, Page, APIRequestContext } from '@playwright/test';
+import {
+  test,
+  expect,
+  Page,
+  APIRequestContext,
+  request as playwrightRequest,
+} from '@playwright/test';
 
 /**
  * Full storefront journey tests: Browse → Wishlist → Cart → Checkout →
@@ -40,20 +46,44 @@ async function confirmUserEmail(request: APIRequestContext, email: string): Prom
   expect(sbUrl && sbKey, 'set E2E_SUPABASE_URL + E2E_SUPABASE_SERVICE_ROLE_KEY to confirm test users').toBeTruthy();
   const base = sbUrl!.replace(/\/$/, '');
 
-  const list = await request.get(`${base}/auth/v1/admin/users?email=${encodeURIComponent(email)}`, {
-    headers: { Authorization: `Bearer ${sbKey}` },
+  // Use a standalone Node context, NOT the page-scoped `request` fixture:
+  // Supabase refuses secret (service_role) keys from browser-like requests,
+  // and the page fixture inherits the browser user agent. The service-role
+  // key doubles as both the `apikey` header and the admin Bearer token.
+  const adminCtx = await playwrightRequest.newContext({
+    baseURL: base,
+    extraHTTPHeaders: {
+      apikey: sbKey,
+      Authorization: `Bearer ${sbKey}`,
+    },
+    userAgent: 'fanclub-e2e-admin',
   });
-  expect(list.ok(), `supabase user lookup failed: ${list.status()} ${await list.text()}`).toBeTruthy();
-  const { users } = await list.json();
-  const target = (users || []).find((u: any) => u.email === email.toLowerCase());
-  expect(target, `supabase user not found for ${email}`).toBeTruthy();
+  try {
+    const list = await adminCtx.get(
+      `/auth/v1/admin/users?email=${encodeURIComponent(email)}`,
+    );
+    expect(
+      list.ok(),
+      `supabase user lookup failed: ${list.status()} ${await list.text()}`,
+    ).toBeTruthy();
+    const { users } = await list.json();
+    const target = (users || []).find(
+      (u: any) => u.email === email.toLowerCase(),
+    );
+    expect(target, `supabase user not found for ${email}`).toBeTruthy();
 
-  const confirm = await request.put(`${base}/auth/v1/admin/users/${target.id}`, {
-    headers: { Authorization: `Bearer ${sbKey}` },
-    data: { email_confirm: true },
-  });
-  expect(confirm.ok(), `email confirm failed: ${confirm.status()} ${await confirm.text()}`).toBeTruthy();
-  return target.id;
+    const confirm = await adminCtx.put(
+      `/auth/v1/admin/users/${target.id}`,
+      { data: { email_confirm: true } },
+    );
+    expect(
+      confirm.ok(),
+      `email confirm failed: ${confirm.status()} ${await confirm.text()}`,
+    ).toBeTruthy();
+    return target.id;
+  } finally {
+    await adminCtx.dispose();
+  }
 }
 
 /** Fresh unique user per test — signup → confirm email → sign in → seed the browser session. */
@@ -145,6 +175,10 @@ test.describe('FANCLUB storefront journey', () => {
     const { name } = await getHealthyProduct(request);
     await page.goto('/');
 
+    // Wait for the app to hydrate before sending the shortcut (the global
+    // keydown listener only exists after React mounts).
+    await expect(page.locator('#nav-search-btn')).toBeVisible({ timeout: 15_000 });
+
     // Cmd/Ctrl+K opens the palette
     await page.keyboard.press(isMac ? 'Meta+K' : 'Control+K');
     await expect(page.locator('#search-input')).toBeVisible({ timeout: 10_000 });
@@ -178,13 +212,12 @@ test.describe('FANCLUB storefront journey', () => {
 
     // ── Browse: shop grid renders, then open a healthy product ──
     await page.goto('/shop');
-    await expect(page.locator('.product-grid a[href^="/product/"]').first()).toBeVisible({
+    await expect(page.locator('.product-grid .shop-product-item').first()).toBeVisible({
       timeout: 20_000,
     });
     await page.goto(`/product/${slug}`);
     await expect(page).toHaveURL(/\/product\//, { timeout: 10_000 });
     await expect(page.locator('.pdp-title').first()).toBeVisible();
-    const title = await page.locator('.pdp-title').first().innerText();
 
     // ── Wishlist: click heart, wait for the API call, then check the list ──
     await Promise.all([
@@ -195,7 +228,7 @@ test.describe('FANCLUB storefront journey', () => {
       page.locator('.btn-wishlist-neo').first().click(),
     ]);
     await page.goto('/wishlist');
-    await expect(page.locator('body')).toContainText(title, { timeout: 15_000 });
+    await expect(page.locator('body')).toContainText(name, { timeout: 15_000 });
 
     // ── Cart: add from the product page, verify in /cart ──
     await page.goto(`/product/${slug}`);
@@ -205,7 +238,7 @@ test.describe('FANCLUB storefront journey', () => {
       timeout: 20_000,
     });
     await page.goto('/cart');
-    await expect(page.locator('body')).toContainText(title, { timeout: 15_000 });
+    await expect(page.locator('body')).toContainText(name, { timeout: 15_000 });
 
     // ── Checkout (COD is the default payment method) ──
     await page.goto('/checkout');

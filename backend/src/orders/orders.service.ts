@@ -20,6 +20,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import { OrderNotificationHelper } from '../common/services/order-notification.helper';
+import { SettingsService } from '../settings/settings.service';
 
 /** Shipping threshold & cost — single source of truth */
 const FREE_SHIPPING_THRESHOLD = 0;
@@ -61,6 +62,7 @@ export class OrdersService implements OnModuleInit, OnModuleDestroy {
     private couponsService: CouponsService,
     private orderNotification: OrderNotificationHelper,
     private loyaltyService: LoyaltyService,
+    private settingsService: SettingsService,
   ) {}
 
   onModuleInit() {
@@ -215,7 +217,8 @@ export class OrdersService implements OnModuleInit, OnModuleDestroy {
    *
    * Security hardening:
    * 1. paymentMethod is a strict enum (COD | ONLINE) — validated by DTO
-   * 2. COD is gated by server-side COD_ENABLED env var
+   * 2. COD is gated by the DB `cod_enabled` setting (admin-controlled),
+   *    with the COD_ENABLED env var as a deployment-level fallback
    * 3. Duplicate productId lines are merged before stock checks
    * 4. Stock decremented with conditional WHERE stock >= qty (atomic)
    * 5. Gateway session created BEFORE clearing cart/stock to prevent orphaned state
@@ -260,13 +263,10 @@ export class OrdersService implements OnModuleInit, OnModuleDestroy {
 
     // ── COD availability gate ──
     const paymentMethod = dto.paymentMethod ?? PaymentMethodEnum.COD;
-    if (paymentMethod === PaymentMethodEnum.COD) {
-      const codEnabled = this.config.get<string>('COD_ENABLED');
-      if (!codEnabled || codEnabled.toLowerCase() !== 'true') {
-        throw new BadRequestException(
-          'Cash on Delivery is not available for this store.',
-        );
-      }
+    if (paymentMethod === PaymentMethodEnum.COD && !(await this.isCodEnabled())) {
+      throw new BadRequestException(
+        'Cash on Delivery is not available for this store.',
+      );
     }
 
     // ── Merge duplicate productId lines (same product+size+color) ──
@@ -516,6 +516,32 @@ export class OrdersService implements OnModuleInit, OnModuleDestroy {
     await this.orderNotification.emitOrderConfirmed(order.id);
 
     return order;
+  }
+
+  /**
+   * COD availability is admin-controlled via the DB `cod_enabled` setting —
+   * the same source of truth the admin panel and storefront read, so a
+   * toggle in Settings is honored by the order gate immediately (fixes the
+   * drift where /settings/cod said enabled but orders were rejected).
+   * Falls back to the COD_ENABLED env var (deployment default), then to
+   * enabled — matching GET /settings/cod's default of `true`.
+   */
+  private async isCodEnabled(): Promise<boolean> {
+    try {
+      const status = await this.settingsService.getSetting('cod_enabled');
+      if (status !== null && status !== undefined) {
+        return status !== false;
+      }
+    } catch (err: any) {
+      this.logger.warn(
+        `Failed to read cod_enabled setting, falling back to env: ${err?.message || err}`,
+      );
+    }
+    const env = this.config.get<string>('COD_ENABLED');
+    if (env !== undefined && env !== null && env.trim() !== '') {
+      return env.toLowerCase() === 'true';
+    }
+    return true;
   }
 
   /**

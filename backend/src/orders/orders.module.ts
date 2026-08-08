@@ -6,9 +6,10 @@ import { PaymentsModule } from '../payments/payments.module';
 import { CouponsModule } from '../coupons/coupons.module.js';
 import { LoyaltyModule } from '../loyalty/loyalty.module.js';
 import { OrderNotificationHelper } from '../common/services/order-notification.helper';
+import { SettingsModule } from '../settings/settings.module';
 
 @Module({
-  imports: [ConfigModule, PaymentsModule, CouponsModule, LoyaltyModule],
+  imports: [ConfigModule, PaymentsModule, CouponsModule, LoyaltyModule, SettingsModule],
   controllers: [OrdersController],
   providers: [OrdersService, OrderNotificationHelper],
   exports: [OrdersService],
